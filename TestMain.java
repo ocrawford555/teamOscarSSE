@@ -16,8 +16,15 @@ public class TestMain {
 		allStocks = StockManager.getInstance(stocks);
 		allStocks.printStocks();
 		
+		ArrayList<Player> players = new ArrayList<Player>();
 		Player Oliver = new Player("Oliver", "o.crawford@hotmail.co.uk");
+		players.add(Oliver);
 		Player Alice = new Player("Alice", "art35@cam.ac.uk");
+		players.add(Alice);
+		Player Bob = new Player("Bob", "brt35@cam.ac.uk");
+		players.add(Bob);
+		LeaderBoard lb = new LeaderBoard(players);
+		lb.get();
 		
 		//want to change this style slightly.
 		//BuyOrder doesn't need stock reference.
@@ -45,7 +52,5 @@ public class TestMain {
 		ob_BP.addOrder(new SellOrder(stock1, Oliver, 1230, 56.59));
 		//ob_BP.printPendingOrders(SELL);
 		
-		//does nothing exciting at the moment
-		System.out.println(Oliver.balance());
 	}
 }

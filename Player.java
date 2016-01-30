@@ -1,5 +1,6 @@
 package teamOscarSSE;
 
+import java.util.Random;
 import java.util.UUID;
 
 public class Player {
@@ -19,7 +20,7 @@ public class Player {
 	//link to portfolio of stocks owned
 	private Portfolio pf;
 	
-	private Algo algo;
+	//private Algo algo;
 
 	public String getName() {
 		return name;
@@ -45,13 +46,14 @@ public class Player {
 	}
 
 	public Player(String name, String email){
+		Random rand = new Random();
 		this.name = name;
 		this.emailAddress = email;
 		//generate random 32 hex characters (128 bit) token
 		this.token = UUID.randomUUID().toString().replaceAll("-", "");
-		this.cashLeft = 10000;
+		this.cashLeft = 10000 + rand.nextInt((1000 - 0) + 1) + 5;
 		this.pf = new Portfolio();
-		this.algo = new Algo();
-		this.algo.run("Pennying");
+		//this.algo = new Algo();
+		//this.algo.run("Pennying");
 	}
 }
