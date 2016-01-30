@@ -33,8 +33,8 @@ public class Algo {
 		//this algorithm is VERY AGGRESIVE
 		while(true){
 			try {
-				//execute something every 0.25 seconds
-				Thread.sleep(250);
+				//execute something every 0.20 seconds
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
