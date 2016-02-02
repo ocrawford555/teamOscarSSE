@@ -6,6 +6,7 @@ import java.util.TreeMap;
 public class Portfolio {
 	//portfolio class for now will presume you can only hold one stock
 	private Map<Stock, Integer> stockOwned = new TreeMap<Stock, Integer>();
+	private Map<Stock, Integer> stockBorrowed= new TreeMap<Stock, Integer>();
 
 	public Portfolio() {
 	}
@@ -20,6 +21,18 @@ public class Portfolio {
 	public void remove(Stock s, int numStocks) {
 		if (stockOwned.containsKey(s))
 			stockOwned.put(s, stockOwned.get(s) - numStocks);
+	}
+	
+	public void borrowShort(Stock s, int borrowAmount){
+		if (stockBorrowed.containsKey(s))
+			stockBorrowed.put(s, stockBorrowed.get(s) + borrowAmount);
+		else
+			stockBorrowed.put(s, borrowAmount);
+	}
+	
+	public void sellShort(Stock s, int sellAmount) {
+		if (stockBorrowed.containsKey(s))
+			stockBorrowed.put(s, stockBorrowed.get(s) - sellAmount);
 	}
 
 	public boolean check(Stock s, int amountToTrade) {

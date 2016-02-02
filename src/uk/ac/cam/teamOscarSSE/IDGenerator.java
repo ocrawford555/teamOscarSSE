@@ -3,10 +3,9 @@ package uk.ac.cam.teamOscarSSE;
 public class IDGenerator {
 	static private long currentID = 1;
 
-	private IDGenerator() {
-	}
+	private IDGenerator() {}
 
-	public static long getID() {
+	public static synchronized long getID() {
 		return currentID++;
 	}
 }
