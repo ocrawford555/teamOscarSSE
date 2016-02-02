@@ -1,4 +1,4 @@
-package teamOscarSSE;
+package uk.ac.cam.teamOscarSSE;
 
 public abstract class Order{
 	public static final int BUY = 1;

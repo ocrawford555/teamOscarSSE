@@ -1,4 +1,4 @@
-package teamOscarSSE;
+package uk.ac.cam.teamOscarSSE;
 
 import java.util.Random;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package teamOscarSSE;
+package uk.ac.cam.teamOscarSSE;
 
 public class IDGenerator {
 	static private int currentID = 1;

@@ -1,4 +1,4 @@
-package teamOscarSSE;
+package uk.ac.cam.teamOscarSSE;
 
 public class Stock {
 	private String symbol;

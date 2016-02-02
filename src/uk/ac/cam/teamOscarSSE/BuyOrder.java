@@ -1,4 +1,4 @@
-package teamOscarSSE;
+package uk.ac.cam.teamOscarSSE;
 
 public class BuyOrder extends Order implements Comparable<BuyOrder> {
 	public BuyOrder(Stock s, Player p, int numShares, double price){
