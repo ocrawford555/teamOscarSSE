@@ -13,13 +13,13 @@ public class Player {
 
 	//email address of the user
 	private String emailAddress;
-	
+
 	//amount of cash owned by the player at any given time
 	private double cashLeft;
-	
+
 	//link to portfolio of stocks owned
 	private Portfolio pf;
-	
+
 	//private Algo algo;
 
 	public String getName() {
@@ -33,25 +33,30 @@ public class Player {
 	public String getEmailAddress() {
 		return emailAddress;
 	}
-	
-	public double balance(){
-		 return cashLeft + pf.currentValue();
-		 
-	}
-	
-	//this method can both increase cash or decrease cash
-	//depending on sign
-	public void updateCash(double cash){
-		cashLeft+=cash;
+
+	public double balance() {
+		return cashLeft + pf.currentValue();
+
 	}
 
-	public Player(String name, String email){
+	// TODO: argument won't actually be an OrderUpdateMessage.
+	public void updatePortfolio(OrderUpdateMessage orderUpdate) {
+		System.out.println("Unimplemented: updating user portfolio.");
+	}
+
+	//this method can both increase cash or decrease cash
+	//depending on sign
+	public void updateCash(double cash) {
+		cashLeft += cash;
+	}
+
+	public Player(String name, String email) {
 		Random rand = new Random();
 		this.name = name;
 		this.emailAddress = email;
 		//generate random 32 hex characters (128 bit) token
 		this.token = UUID.randomUUID().toString().replaceAll("-", "");
-		this.cashLeft = 10000 + rand.nextInt((1000 - 0) + 1) + 5;
+		this.cashLeft = 10000;
 		this.pf = new Portfolio();
 		//this.algo = new Algo();
 		//this.algo.run("Pennying");

@@ -1,29 +1,36 @@
 package uk.ac.cam.teamOscarSSE;
 
-public abstract class Order{
-	public static final int BUY = 1;
-	public static final int SELL = 2;
-
+public abstract class Order {
 	//stock whose order book this object will belong to
-	private Stock stock;
-	
+	private final Stock stock;
+
 	//indicates whether order is for buying or selling
-	private int typeOfOrder;
-	
+	private final OrderType orderType;
+
 	//identifying party who placed order
-	private String id;
-	
+	private final String id;
+
 	//number of shares
 	private int shares;
-	
+
 	//price that buyer/seller asking for
 	private double price;
-	
+
 	//unique order number
-	private int orderNum;
-	
+	private final long orderNum;
+
 	//time of order
-	private long time;
+	private final long time;
+
+	Order(OrderType type, String playerToken, Stock stock, int size, double price) {
+		this.orderType = type;
+		this.id = playerToken;
+		this.stock = stock;
+		this.shares = size;
+		this.price = price;
+		this.time = System.currentTimeMillis();
+		this.orderNum = IDGenerator.getID();
+	}
 
 	public String getId() {
 		return id;
@@ -41,7 +48,7 @@ public abstract class Order{
 		return price;
 	}
 
-	public int getOrderNum() {
+	public long getOrderNum() {
 		return orderNum;
 	}
 
@@ -53,31 +60,17 @@ public abstract class Order{
 		return stock;
 	}
 
-	public int getTypeOfOrder() {
-		return typeOfOrder;
-	}
-
-	public void setStock(Stock stock) {
-		this.stock = stock;
-	}
-
-	public void setTypeOfOrder(int typeOfOrder) {
-		this.typeOfOrder = typeOfOrder;
-	}
-
-	public void setId(String id) {
-		this.id = id;
+	public OrderType getOrderType() {
+		return orderType;
 	}
 
 	public void setPrice(double price) {
 		this.price = price;
 	}
 
-	public void setOrderNum(int orderNum) {
-		this.orderNum = orderNum;
+	public String toString() {
+		return String.format("{'id':%d,'stock':'%s','type':'%s','size':%d,'price':%f}",
+				orderNum, stock.getSymbol(), orderType, shares, price);
 	}
 
-	public void setTime(long time) {
-		this.time = time;
-	}
 }
