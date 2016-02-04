@@ -3,9 +3,9 @@ package uk.ac.cam.teamOscarSSE;
 // TODO (stella): rename class
 public class OrderUpdateMessage extends OrderChangeMessage {
 	int size;
-	double price;
+	long price;
 
-	OrderUpdateMessage(Order order, int size, double price) {
+	OrderUpdateMessage(Order order, int size, long price) {
 		super(ChangeType.UPDATE, order);
 		this.size = size;
 		this.price = price;
@@ -15,13 +15,13 @@ public class OrderUpdateMessage extends OrderChangeMessage {
 		return size;
 	}
 
-	public double getPrice() {
+	public long getPrice() {
 		return price;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("{'id':%d,'type':'%s','size':%d, 'price':%f} %s",
+		return String.format("{'id':%d,'type':'%s','size':%d, 'price':%d} %s",
 				order.getOrderNum(), type, size, price, order);
 	}
 }

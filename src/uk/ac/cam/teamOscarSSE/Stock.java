@@ -3,13 +3,13 @@ package uk.ac.cam.teamOscarSSE;
 public class Stock {
 	private String symbol;
 	private String name;
-	private double lastTransactionPrice;
+	private long lastTransactionPrice;
 	private int stockQty;
-	private double bestBid;
-	private double bestOffer;
-	private double valueEstimate;
+	private long bestBid;
+	private long bestOffer;
+	private long valueEstimate;
 
-	public double getValueEstimate() {
+	public long getValueEstimate() {
 		return valueEstimate;
 	}
 
@@ -17,19 +17,19 @@ public class Stock {
 		this.valueEstimate = (bestBid + bestOffer) / 2;
 	}
 
-	public double getBestBid() {
+	public long getBestBid() {
 		return bestBid;
 	}
 
-	public void setBestBid(double bestBid) {
+	public void setBestBid(long bestBid) {
 		this.bestBid = bestBid;
 	}
 
-	public double getBestOffer() {
+	public long getBestOffer() {
 		return bestOffer;
 	}
 
-	public void setBestOffer(double bestOffer) {
+	public void setBestOffer(long bestOffer) {
 		this.bestOffer = bestOffer;
 	}
 
@@ -41,11 +41,11 @@ public class Stock {
 		return name;
 	}
 
-	public double getLastTransactionPrice() {
+	public long getLastTransactionPrice() {
 		return lastTransactionPrice;
 	}
 
-	public void setLastTransactionPrice(double lastTransactionPrice) {
+	public void setLastTransactionPrice(long lastTransactionPrice) {
 		this.lastTransactionPrice = lastTransactionPrice;
 	}
 

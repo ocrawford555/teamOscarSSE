@@ -61,7 +61,7 @@ public class Exchange {
 		while (ob.buys.size() > 0 && ob.sells.size() > 0 && bo.getPrice() >= so.getPrice()) {
 			// Match order
 			int sizeFilled = Math.min(bo.getShares(), so.getShares());
-			double price = bo.getTime() < so.getTime() ? bo.getPrice() : so.getPrice();
+			long price = bo.getTime() < so.getTime() ? bo.getPrice() : so.getPrice();
 
 			System.out.println("Matched orders: " + bo + " " + so);
 

@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 public class LeaderBoard {
 	//keep track of score for all the players
 	ArrayList<Player> playersInRound = new ArrayList<Player>();
-	Map<String, Double> lB = new HashMap<String, Double>();
+	Map<String, Long> lB = new HashMap<String, Long>();
 
 	public LeaderBoard(ArrayList<Player> players) {
 		for (Player p : players) {
@@ -33,9 +33,9 @@ public class LeaderBoard {
 	//descending order using the entriesSortedByValues
 	//function.
 	public void get() {
-		List<Entry<String, Double>> sorted = entriesSortedByValues(lB);
+		List<Entry<String, Long>> sorted = entriesSortedByValues(lB);
 
-		for (Entry<String, Double> e : sorted) {
+		for (Entry<String, Long> e : sorted) {
 			System.out.println("Player: " + e.getKey() + " --- " + "Balance: " + e.getValue());
 		}
 	}

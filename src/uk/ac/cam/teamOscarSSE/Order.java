@@ -14,7 +14,7 @@ public abstract class Order {
 	private int shares;
 
 	//price that buyer/seller asking for
-	private double price;
+	private long price;
 
 	//unique order number
 	private final long orderNum;
@@ -22,7 +22,7 @@ public abstract class Order {
 	//time of order
 	private final long time;
 
-	Order(OrderType type, String playerToken, Stock stock, int size, double price) {
+	Order(OrderType type, String playerToken, Stock stock, int size, long price) {
 		this.orderType = type;
 		this.id = playerToken;
 		this.stock = stock;
@@ -44,7 +44,7 @@ public abstract class Order {
 		this.shares = shares;
 	}
 
-	public double getPrice() {
+	public long getPrice() {
 		return price;
 	}
 
@@ -64,12 +64,12 @@ public abstract class Order {
 		return orderType;
 	}
 
-	public void setPrice(double price) {
+	public void setPrice(long price) {
 		this.price = price;
 	}
 
 	public String toString() {
-		return String.format("{'id':%d,'stock':'%s','type':'%s','size':%d,'price':%f}",
+		return String.format("{'id':%d,'stock':'%s','type':'%s','size':%d,'price':%d}",
 				orderNum, stock.getSymbol(), orderType, shares, price);
 	}
 

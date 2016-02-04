@@ -15,7 +15,7 @@ public class Player {
 	private String emailAddress;
 
 	//amount of cash owned by the player at any given time
-	private double cashLeft;
+	private long cashLeft;
 
 	//link to portfolio of stocks owned
 	private Portfolio pf;
@@ -34,7 +34,7 @@ public class Player {
 		return emailAddress;
 	}
 
-	public double balance() {
+	public long balance() {
 		return cashLeft + pf.currentValue();
 
 	}
@@ -46,7 +46,7 @@ public class Player {
 
 	//this method can both increase cash or decrease cash
 	//depending on sign
-	public void updateCash(double cash) {
+	public void updateCash(long cash) {
 		cashLeft += cash;
 	}
 

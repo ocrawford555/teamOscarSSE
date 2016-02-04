@@ -48,10 +48,10 @@ public class Portfolio {
 		}
 	}
 
-	public double currentValue() {
-		double value = 0.0;
+	public long currentValue() {
+		long value = 0;
 		for (Map.Entry<Stock, Integer> entry : stockOwned.entrySet()) {
-			double stockValue = entry.getKey().getLastTransactionPrice();
+			long stockValue = entry.getKey().getLastTransactionPrice();
 			value += (stockValue) * entry.getValue();
 		}
 		return value;

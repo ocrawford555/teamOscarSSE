@@ -31,21 +31,21 @@ public class Main {
 			exchange.addPlayer(player);
 		}
 
-		exchange.addOrder(new BuyOrder(stock1, Oliver, 100, 54.34));
-		exchange.addOrder(new BuyOrder(stock1, Alice, 150, 57.01));
-		exchange.addOrder(new BuyOrder(stock1, Alice, 100, 54.34));
-		exchange.addOrder(new BuyOrder(stock1, Oliver, 270, 57.01));
-		exchange.addOrder(new BuyOrder(stock2, Alice, 100, 54.34));
-		exchange.addOrder(new BuyOrder(stock2, Alice, 150, 57.01));
-		exchange.addOrder(new BuyOrder(stock2, Oliver, 100, 54.34));
-		exchange.addOrder(new BuyOrder(stock2, Oliver, 270, 57.01));
+		exchange.addOrder(new BuyOrder(stock1, Oliver, 100, 5434));
+		exchange.addOrder(new BuyOrder(stock1, Alice, 150, 5701));
+		exchange.addOrder(new BuyOrder(stock1, Alice, 100, 5434));
+		exchange.addOrder(new BuyOrder(stock1, Oliver, 270, 5701));
+		exchange.addOrder(new BuyOrder(stock2, Alice, 100, 5434));
+		exchange.addOrder(new BuyOrder(stock2, Alice, 150, 5701));
+		exchange.addOrder(new BuyOrder(stock2, Oliver, 100, 5434));
+		exchange.addOrder(new BuyOrder(stock2, Oliver, 270, 5701));
 
 		exchange.printOrderBooks();
 
-		exchange.addOrder(new SellOrder(stock1, Oliver, 230, 59.56));
-		exchange.addOrder(new SellOrder(stock1, Oliver, 122, 56.56));
-		exchange.addOrder(new SellOrder(stock1, Oliver, 230, 58.32));
-		exchange.addOrder(new SellOrder(stock1, Oliver, 1230, 56.59));
+		exchange.addOrder(new SellOrder(stock1, Oliver, 230, 5956));
+		exchange.addOrder(new SellOrder(stock1, Oliver, 122, 5656));
+		exchange.addOrder(new SellOrder(stock1, Oliver, 230, 5832));
+		exchange.addOrder(new SellOrder(stock1, Oliver, 1230, 5659));
 
 		exchange.printOrderBooks();
 	}

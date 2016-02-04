@@ -34,22 +34,22 @@ public class TestMain {
 		//BOOK.
 		OrderBook ob_BP = new OrderBook(stock1);
 		OrderBook ob_BAM = new OrderBook(stock2);
-		ob_BP.addOrder(new BuyOrder(stock1, Oliver, 100, 54.34));
-		ob_BP.addOrder(new BuyOrder(stock1, Alice, 150, 57.01));
-		ob_BP.addOrder(new BuyOrder(stock1, Alice, 100, 54.34));
-		ob_BP.addOrder(new BuyOrder(stock1, Oliver, 270, 57.01));
-		ob_BAM.addOrder(new BuyOrder(stock2, Alice, 100, 54.34));
-		ob_BAM.addOrder(new BuyOrder(stock2, Alice, 150, 57.01));
-		ob_BAM.addOrder(new BuyOrder(stock2, Oliver, 100, 54.34));
-		ob_BAM.addOrder(new BuyOrder(stock2, Oliver, 270, 57.01));
+		ob_BP.addOrder(new BuyOrder(stock1, Oliver, 100, 5434));
+		ob_BP.addOrder(new BuyOrder(stock1, Alice, 150, 5701));
+		ob_BP.addOrder(new BuyOrder(stock1, Alice, 100, 5434));
+		ob_BP.addOrder(new BuyOrder(stock1, Oliver, 270, 5701));
+		ob_BAM.addOrder(new BuyOrder(stock2, Alice, 100, 5434));
+		ob_BAM.addOrder(new BuyOrder(stock2, Alice, 150, 5701));
+		ob_BAM.addOrder(new BuyOrder(stock2, Oliver, 100, 5434));
+		ob_BAM.addOrder(new BuyOrder(stock2, Oliver, 270, 5701));
 		//ob_BP.printPendingOrders(BUY);
 
 		//System.out.println("");
 
-		ob_BP.addOrder(new SellOrder(stock1, Oliver, 230, 59.56));
-		ob_BP.addOrder(new SellOrder(stock1, Oliver, 122, 56.56));
-		ob_BP.addOrder(new SellOrder(stock1, Oliver, 230, 58.32));
-		ob_BP.addOrder(new SellOrder(stock1, Oliver, 1230, 56.59));
+		ob_BP.addOrder(new SellOrder(stock1, Oliver, 230, 5956));
+		ob_BP.addOrder(new SellOrder(stock1, Oliver, 122, 5656));
+		ob_BP.addOrder(new SellOrder(stock1, Oliver, 230, 5832));
+		ob_BP.addOrder(new SellOrder(stock1, Oliver, 1230, 5659));
 		//ob_BP.printPendingOrders(SELL);
 
 	}
