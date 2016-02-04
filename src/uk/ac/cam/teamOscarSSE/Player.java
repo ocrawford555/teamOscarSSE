@@ -1,6 +1,5 @@
 package uk.ac.cam.teamOscarSSE;
 
-import java.util.Random;
 import java.util.UUID;
 
 public class Player {
@@ -34,14 +33,26 @@ public class Player {
 		return emailAddress;
 	}
 
-	public long balance() {
+	public long getBalance() {
 		return cashLeft + pf.currentValue();
-
 	}
 
 	// TODO: argument won't actually be an OrderUpdateMessage.
 	public void updatePortfolio(OrderUpdateMessage orderUpdate) {
-		System.out.println("Unimplemented: updating user portfolio.");
+		Stock tradedStock = orderUpdate.order.getStock();
+
+		if(orderUpdate.order.getOrderType() == OrderType.BUY){
+			pf.add(tradedStock, orderUpdate.size);
+			//as player is buying stocks, they are spending money
+			updateCash(-1 * (orderUpdate.size * orderUpdate.price));
+			//System.out.println("Cash lost: " + (-1 * (orderUpdate.size * orderUpdate.price)));
+		}
+		else if (orderUpdate.order.getOrderType() == OrderType.SELL){
+			pf.remove(tradedStock, orderUpdate.size);
+			//as player is selling stocks, they gain cash
+			updateCash(orderUpdate.size * orderUpdate.price);
+			//System.out.println("Cash gained: " + (orderUpdate.size * orderUpdate.price));
+		}
 	}
 
 	//this method can both increase cash or decrease cash
@@ -51,12 +62,12 @@ public class Player {
 	}
 
 	public Player(String name, String email) {
-		Random rand = new Random();
 		this.name = name;
 		this.emailAddress = email;
 		//generate random 32 hex characters (128 bit) token
 		this.token = UUID.randomUUID().toString().replaceAll("-", "");
-		this.cashLeft = 10000;
+		//start with 10,000,000 cents (or pennies, depending on currency)
+		this.cashLeft = 10000000;
 		this.pf = new Portfolio();
 		//this.algo = new Algo();
 		//this.algo.run("Pennying");

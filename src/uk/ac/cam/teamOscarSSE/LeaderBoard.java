@@ -14,16 +14,18 @@ public class LeaderBoard {
 	Map<String, Long> lB = new HashMap<String, Long>();
 
 	public LeaderBoard(ArrayList<Player> players) {
+		long startingCash = 10000000;
 		for (Player p : players) {
 			playersInRound.add(p);
-			lB.put(p.getName(), p.balance());
+			lB.put(p.getName(), startingCash-p.getBalance());
 		}
 	}
 
 	//method called by server to update leader board
 	public void update() {
+		long startingCash = 10000000;
 		for (Player p : playersInRound) {
-			lB.put(p.getName(), p.balance());
+			lB.put(p.getName(), startingCash - p.getBalance());
 		}
 	}
 
@@ -36,7 +38,7 @@ public class LeaderBoard {
 		List<Entry<String, Long>> sorted = entriesSortedByValues(lB);
 
 		for (Entry<String, Long> e : sorted) {
-			System.out.println("Player: " + e.getKey() + " --- " + "Balance: " + e.getValue());
+			System.out.println("Player: " + e.getKey() + " --- " + "Profit / Loss: " + e.getValue());
 		}
 	}
 
@@ -52,18 +54,13 @@ public class LeaderBoard {
 		return sortedEntries;
 	}
 
-	public Player highestScorer() {
-		return null;
-	}
-
-	public void sendEmail() {
-		//send email to winner of the round, with score
-		//not major priority currently
-	}
+	
+	//send email to winner of the round, with score
+	//not major priority currently
+	public void sendEmail() {}	
 
 	//arguably not required, future versions may
 	//choose to save results from round on to a
 	//permanent store
-	public void saveResults() {
-	}
+	public void saveResults() {}
 }

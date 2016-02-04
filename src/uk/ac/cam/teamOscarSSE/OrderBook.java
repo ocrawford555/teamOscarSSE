@@ -20,40 +20,67 @@ public class OrderBook {
 
 	public void addOrder(BuyOrder o) {
 		//BUY ORDER
-		buys.add(o);
-		Collections.sort(buys);
+		synchronized(buys){
+			buys.add(o);
+			Collections.sort(buys);
+			s.setBestBid(buys.get(0).getPrice());
+		}
 	}
 
 	public void addOrder(SellOrder o) {
-		//BUY ORDER
-		sells.add(o);
-		Collections.sort(sells);
+		//SELL ORDER
+		synchronized(sells){
+			sells.add(o);
+			Collections.sort(sells);
+			s.setBestOffer(sells.get(0).getPrice());
+		}
 	}
 
-	public void removeOrder(BuyOrder o) {
-		buys.remove(o);
-		//arguably, only order removed is from head, so call below
-		//not required
-		Collections.sort(buys);
+	public synchronized void removeOrder(BuyOrder o) {
+		synchronized(buys){
+			buys.remove(o);
+			//arguably, only order removed is from head, so call below
+			//not required
+			Collections.sort(buys);
+			s.setBestBid(buys.get(0).getPrice());
+		}
 	}
 
-	public void removeOrder(SellOrder o) {
-		sells.remove(o);
-		//arguably, only order removed is from head, so call below
-		//not required
-		Collections.sort(sells);
+	public synchronized void removeOrder(SellOrder o) {
+		synchronized(sells){
+			sells.remove(o);
+			//arguably, only order removed is from head, so call below
+			//not required
+			Collections.sort(sells);
+			s.setBestOffer(sells.get(0).getPrice());
+		}
 	}
 
 	public void printPendingOrders(OrderType type) {
 		//BUY
+		//for showing only top three results
+		int countBuys = 3;
+		int countSells = 3;
 		if (type == OrderType.BUY)
-			for (Order o : buys) {
-				System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
+			synchronized(buys){
+				for (Order o : buys) {
+					if(countBuys != 0) {
+						System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
+						countBuys--;
+					}
+					else break;
+				}
 			}
-			//SELL
+		//SELL
 		else
-			for (Order o : sells) {
-				System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
+			synchronized(sells){
+				for (Order o : sells) {
+					if(countSells != 0) {
+						System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
+						countSells--;
+					}
+					else break;
+				}
 			}
 	}
 
