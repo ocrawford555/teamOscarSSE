@@ -10,9 +10,6 @@ public class MainAlgoTest {
 	static Exchange2 exchange;
 	static LeaderBoard lb;
 
-	//TODO: message to pass to web client?
-	public static void onOrderChange(OrderChangeMessage msg) {}
-
 	public static void testExchange() {
 		//start some algos and pass them parameters
 		//running as threads so concurrent access needs to 

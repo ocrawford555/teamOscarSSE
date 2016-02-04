@@ -1,12 +1,12 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class Portfolio {
 	//portfolio class for now will presume you can only hold one stock
-	private Map<Stock, Integer> stockOwned = new TreeMap<Stock, Integer>();
-	private Map<Stock, Integer> stockBorrowed= new TreeMap<Stock, Integer>();
+	private Map<Stock, Integer> stockOwned = new HashMap<Stock, Integer>();
+	private Map<Stock, Integer> stockBorrowed= new HashMap<Stock, Integer>();
 
 	public Portfolio() {
 	}
