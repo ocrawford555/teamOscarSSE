@@ -66,7 +66,7 @@ public class ConnectionHandler {
 	}
 	
 	
-	public ConnectionHandler(Socket s) {
+	public ConnectionHandler(final Socket s) {
 		Thread handle = new Thread() {
 			public void run() {
 				try {
