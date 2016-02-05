@@ -1,8 +1,6 @@
 package uk.ac.cam.teamOscarSSE;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -73,8 +71,12 @@ public class Exchange2 {
 			// Match order
 			int sizeFilled = Math.min(bo.getShares(), so.getShares());
 			long price = bo.getTime() < so.getTime() ? bo.getPrice() : so.getPrice();
+			
+			//add volume traded
+			bo.getStock().addVolume(sizeFilled);
+			bo.getStock().setLastTransactionPrice(price);
 
-			System.out.println("Matched orders: " + bo + " " + so);
+			//System.out.println("Matched orders: " + bo + " " + so);
 
 			bo.setShares(bo.getShares() - sizeFilled);
 			so.setShares(so.getShares() - sizeFilled);
@@ -121,15 +123,20 @@ public class Exchange2 {
 			return false;
 		}
 		players.put(player.getToken(), player);
-		System.out.format("Welcome %s!\n", player.getName());
+		System.out.format("Welcome %s\t\t\t%s!\n", player.getName(),player.getToken());
 		return true;
 	}
 
 	public void printOrderBooks() {
 		for (OrderBook ob : orderBooks.values()) {
+			System.out.println("BUYS TOP FIVE");
 			ob.printPendingOrders(OrderType.BUY);
+			System.out.println("");
+			System.out.println("");
+			System.out.println("SELLS TOP FIVE");
 			ob.printPendingOrders(OrderType.SELL);
 			System.out.println("=================");
+			System.out.println("");
 		}
 	}
 }

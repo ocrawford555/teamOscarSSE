@@ -5,14 +5,16 @@ import java.util.Random;
 public abstract class Bot {
 	
 	protected Stock stock;
-	protected Exchange ex;
+	protected Exchange2 ex;
 	protected int TMAX;
+	protected Player player;
 	protected Random r = new Random();
 	
-	public Bot(Exchange e, Stock s) {
+	public Bot(Exchange2 e, Stock s, Player p) {
 		ex = e;
 		stock = s;
 		TMAX = s.getTMAX();
+		player = p;
 	}
 	
 	public boolean sumbitOrder(Order order) {
@@ -20,6 +22,4 @@ public abstract class Bot {
 	}
 	
 	public abstract void sendOrders();
-	
-
 }

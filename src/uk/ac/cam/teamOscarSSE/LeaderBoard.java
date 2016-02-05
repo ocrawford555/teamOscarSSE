@@ -17,7 +17,7 @@ public class LeaderBoard {
 		long startingCash = 10000000;
 		for (Player p : players) {
 			playersInRound.add(p);
-			lB.put(p.getName(), startingCash-p.getBalance());
+			lB.put(p.getName(), p.getBalance()-startingCash);
 		}
 	}
 
@@ -25,7 +25,7 @@ public class LeaderBoard {
 	public void update() {
 		long startingCash = 10000000;
 		for (Player p : playersInRound) {
-			lB.put(p.getName(), startingCash - p.getBalance());
+			lB.put(p.getName(), p.getBalance()-startingCash);
 		}
 	}
 

@@ -58,14 +58,14 @@ public class OrderBook {
 
 	public void printPendingOrders(OrderType type) {
 		//BUY
-		//for showing only top three results
-		int countBuys = 3;
-		int countSells = 3;
+		//for showing only top five results
+		int countBuys = 5;
+		int countSells = 5;
 		if (type == OrderType.BUY)
 			synchronized(buys){
 				for (Order o : buys) {
 					if(countBuys != 0) {
-						System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
+						System.out.println(o.getOrderNum() + " -- " + o.getId() + " -- " + o);
 						countBuys--;
 					}
 					else break;
@@ -76,7 +76,7 @@ public class OrderBook {
 			synchronized(sells){
 				for (Order o : sells) {
 					if(countSells != 0) {
-						System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
+						System.out.println(o.getOrderNum() + " -- " + o.getId() + " -- " + o);
 						countSells--;
 					}
 					else break;

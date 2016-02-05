@@ -19,8 +19,6 @@ public class Player {
 	//link to portfolio of stocks owned
 	private Portfolio pf;
 
-	//private Algo algo;
-
 	public String getName() {
 		return name;
 	}
@@ -36,6 +34,10 @@ public class Player {
 	public long getBalance() {
 		return cashLeft + pf.currentValue();
 	}
+	
+	public Portfolio getPortfoio(){
+		return pf;
+	}
 
 	// TODO: argument won't actually be an OrderUpdateMessage.
 	public void updatePortfolio(OrderUpdateMessage orderUpdate) {
@@ -45,13 +47,11 @@ public class Player {
 			pf.add(tradedStock, orderUpdate.size);
 			//as player is buying stocks, they are spending money
 			updateCash(-1 * (orderUpdate.size * orderUpdate.price));
-			//System.out.println("Cash lost: " + (-1 * (orderUpdate.size * orderUpdate.price)));
 		}
 		else if (orderUpdate.order.getOrderType() == OrderType.SELL){
 			pf.remove(tradedStock, orderUpdate.size);
 			//as player is selling stocks, they gain cash
 			updateCash(orderUpdate.size * orderUpdate.price);
-			//System.out.println("Cash gained: " + (orderUpdate.size * orderUpdate.price));
 		}
 	}
 
@@ -69,7 +69,5 @@ public class Player {
 		//start with 10,000,000 cents (or pennies, depending on currency)
 		this.cashLeft = 10000000;
 		this.pf = new Portfolio();
-		//this.algo = new Algo();
-		//this.algo.run("Pennying");
 	}
 }

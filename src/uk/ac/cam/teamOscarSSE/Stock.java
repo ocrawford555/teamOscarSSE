@@ -4,10 +4,10 @@ public class Stock {
 	private String symbol;
 	private String name;
 	private long lastTransactionPrice;
+	private long volumeTraded;
 	private int stockQty;
 	private long bestBid;
 	private long bestOffer;
-	private long valueEstimate;
 	
 	private long stockPrice;
 	private int TMAX;
@@ -15,14 +15,6 @@ public class Stock {
 	
 	public int getTMAX() {
 		return TMAX;
-	}
-
-	public long getValueEstimate() {
-		return valueEstimate;
-	}
-
-	public void setValueEstimate() {
-		this.valueEstimate = (bestBid + bestOffer) / 2;
 	}
 
 	public long getBestBid() {
@@ -73,25 +65,56 @@ public class Stock {
 		this.stockQty -= amountToRemove;
 	}
 
-	public Stock(String sym, String nameCompany, int quantity, int uncertainty) {
+	public Stock(String sym, String nameCompany, int quantity, float uncertainty, long price) {
 		this.symbol = sym;
 		this.name = nameCompany;
 		this.setStockQty(quantity);
-		this.unc = uncertainty;
+		this.setUnc(uncertainty);
+		this.stockPrice = price;
+		this.volumeTraded = 0;
+		this.lastTransactionPrice = price;
+		this.TMAX = 50;
 	}
 	
 	//Calculates new Stock price given volume of stock traded and trading price
-	public static void newPrice(long tPrice, float volume) {
-		float tradePrice = ((float) tPrice)/100;
-		float price = ((float) stockPrice)/100;
-		float sigmaS = unc;
-		float temp = TMAX/volume -1;
+	public void newPrice() {
+		long tradePrice = getLastTransactionPrice();
+		long price = getStockPrice();
+		float sigmaS = getUnc();
+		float temp = 1;
+//		if(getVolumeTraded()!=0)
+//			temp = TMAX/getVolumeTraded() - 1;
+//		else
+//			temp = 1;
 		float sigmaE = sigmaS*temp;
 		float k = (sigmaS*sigmaS)/((sigmaS*sigmaS)+(sigmaE*sigmaE));
-		price = price + (k*(tradePrice - price));
-		stockPrice = (long) price*100;
+		price = (long) (price + (k*(tradePrice - price)));
+		setStockPrice((long) price);
 		float temp2 = 1 - (k*sigmaS);
-		unc = (float) Math.sqrt(temp2); //New uncertainty
-		
+		setUnc((float) Math.sqrt(temp2)); //New uncertainty
+	}
+
+	public long getStockPrice() {
+		return stockPrice;
+	}
+
+	public void setStockPrice(long stockPrice) {
+		this.stockPrice = stockPrice;
+	}
+
+	public float getUnc() {
+		return unc;
+	}
+
+	public void setUnc(float unc) {
+		this.unc = unc;
+	}
+
+	public long getVolumeTraded() {
+		return volumeTraded;
+	}
+
+	public void addVolume(long volumeTraded) {
+		this.volumeTraded += volumeTraded;
 	}
 }

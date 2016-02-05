@@ -5,14 +5,14 @@ import java.util.ArrayList;
 public class Main {
 	// If we decide to use sockets, we can send users a change message here.
 	public static void onOrderChange(OrderChangeMessage msg) {
-		System.out.println("onOrderChange: " + msg);
+		//System.out.println("onOrderChange: " + msg);
 	}
 
 	public static void testExchange() {
 		ArrayList<Stock> stocks = new ArrayList<Stock>();
-		Stock stock1 = new Stock("BP", "British Petroleum", 5000);
+		Stock stock1 = new Stock("BP", "British Petroleum", 5000,0,34000);
 		stocks.add(stock1);
-		Stock stock2 = new Stock("BAM", "Bank of America", 12000);
+		Stock stock2 = new Stock("BAM", "Bank of America", 12000,0,1256);
 		stocks.add(stock2);
 
 		ArrayList<Player> players = new ArrayList<Player>();

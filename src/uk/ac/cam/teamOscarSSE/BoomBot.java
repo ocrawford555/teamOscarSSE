@@ -1,49 +1,52 @@
 package uk.ac.cam.teamOscarSSE;
 
+public class BoomBot extends Bot implements Runnable {
 
-import uk.ac.cam.teamOscarSSE.BuyOrder;
-import uk.ac.cam.teamOscarSSE.Order;
-import uk.ac.cam.teamOscarSSE.OrderType;
-import uk.ac.cam.teamOscarSSE.SellOrder;
-import uk.ac.cam.teamOscarSSE.Stock;
-
-public class BoomBot extends Bot {
-
-	public BoomBot(Exchange e, Stock s) {
-		super(e, s);
+	public BoomBot(Exchange2 e, Stock s, Player p) {
+		super(e, s, p);
 	}
-	
+
 	//Call sendOrders() to automatically submit the required orders to Exchange
 	@Override
-	public void sendOrders() {
-		int volume1 = r.nextInt(TMAX);
-		int volume2 = r.nextInt(TMAX);
-		int volume3 = r.nextInt(TMAX);
-		long stockP = stock.getStockPrice();
-		
-		long buyPrice1 = stockP+300;		
-		long buyPrice2 = stockP+700;
-		long buyPrice3 = stockP+100;
-		
-		Order buyOrder1 = new BuyOrder(OrderType.BUY, "BomBot", stock, volume1, buyPrice1);
-		Order buyOrder2 = new BuyOrder(OrderType.BUY, "BomBot", stock, volume2, buyPrice2);
-		Order buyOrder3 = new BuyOrder(OrderType.BUY, "BomBot", stock, volume3, buyPrice3);
+	public void sendOrders() {}
 
-		long sellPrice1 = stockP+500;
-		long sellPrice2 = stockP+100;
-		long sellPrice3 = stockP;
-		
-		Order sellOrder1 = new SellOrder(OrderType.SELL, "BomBot", stock, volume1, sellPrice1);
-		Order sellOrder2 = new SellOrder(OrderType.SELL, "BomBot", stock, volume2, sellPrice2);
-		Order sellOrder3 = new SellOrder(OrderType.SELL, "BomBot", stock, volume3, sellPrice3);
+	@Override
+	public void run() {
+		while (true && !ex.isClosed()) {
+			try {
+				//execute something every 0.40 seconds
+				Thread.sleep(200);
 
-		super.sumbitOrder(buyOrder1);
-		super.sumbitOrder(buyOrder2);
-		super.sumbitOrder(buyOrder3);
-		super.sumbitOrder(sellOrder1);
-		super.sumbitOrder(sellOrder2);
-		super.sumbitOrder(sellOrder3);
-		
+				int volume1 = r.nextInt(TMAX);
+				int volume2 = r.nextInt(TMAX);
+				int volume3 = r.nextInt(TMAX);
+				long stockP = stock.getStockPrice();
+
+				long buyPrice1 = stockP+3;		
+				long buyPrice2 = stockP+7;
+				long buyPrice3 = stockP+1;
+
+				Order buyOrder1 = new BuyOrder(stock, player, volume1, buyPrice1);
+				Order buyOrder2 = new BuyOrder(stock, player, volume2, buyPrice2);
+				Order buyOrder3 = new BuyOrder(stock, player, volume3, buyPrice3);
+
+				long sellPrice1 = stockP+5;
+				long sellPrice2 = stockP+1;
+				long sellPrice3 = stockP;
+
+				Order sellOrder1 = new SellOrder(stock, player, volume1, sellPrice1);
+				Order sellOrder2 = new SellOrder(stock, player, volume2, sellPrice2);
+				Order sellOrder3 = new SellOrder(stock, player, volume3, sellPrice3);
+
+				super.sumbitOrder(buyOrder1);
+				super.sumbitOrder(buyOrder2);
+				super.sumbitOrder(buyOrder3);
+				super.sumbitOrder(sellOrder1);
+				super.sumbitOrder(sellOrder2);
+				super.sumbitOrder(sellOrder3);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}		
 	}
-	
 }
