@@ -69,7 +69,7 @@ public class Exchange2 {
 
 		BuyOrder bo = ob.buys.get(0);
 		SellOrder so = ob.sells.get(0);
-		while (ob.buys.size() > 0 && ob.sells.size() > 0 && bo.getPrice() >= so.getPrice()) {
+		while (ob.buys.size() > 0 && ob.sells.size() > 0 && bo.getPrice() >= so.getPrice() && bo.getPrice() > 0 && so.getPrice() > 0) {
 			// Match order
 			int sizeFilled = Math.min(bo.getShares(), so.getShares());
 			long price = bo.getTime() < so.getTime() ? bo.getPrice() : so.getPrice();
