@@ -3,6 +3,8 @@ package uk.ac.cam.teamOscarSSE;
 
 public class RecessionBot extends Bot {
 
+	private Player playerID = new Player("RecBot", "abc@abc.com"); 
+	
 	public RecessionBot(Exchange e, Stock s) {
 		super(e, s);
 	}
@@ -17,13 +19,13 @@ public class RecessionBot extends Bot {
 		
 		long buyPrice1 = stockP+300;		
 		
-		Order buyOrder1 = new BuyOrder(OrderType.BUY, "RecBot", stock, volume1, buyPrice1);
+		Order buyOrder1 = new BuyOrder(stock, playerID, volume1, buyPrice1);
 
 		long sellPrice1 = stockP-100;
 		long sellPrice2 = stockP-400;
 		
-		Order sellOrder1 = new SellOrder(OrderType.SELL, "RecBot", stock, volume1, sellPrice1);
-		Order sellOrder2 = new SellOrder(OrderType.SELL, "RecBot", stock, volume2, sellPrice2);
+		Order sellOrder1 = new SellOrder(stock, playerID, volume1, sellPrice1);
+		Order sellOrder2 = new SellOrder(stock, playerID, volume2, sellPrice2);
 
 		super.sumbitOrder(buyOrder1);
 		super.sumbitOrder(sellOrder1);

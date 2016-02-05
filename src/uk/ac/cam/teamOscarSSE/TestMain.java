@@ -8,9 +8,9 @@ public class TestMain {
 
 	public static void main(String args[]) {
 		ArrayList<Stock> stocks = new ArrayList<Stock>();
-		Stock stock1 = new Stock("BP", "British Petroleum", 5000);
+		Stock stock1 = new Stock("BP", "British Petroleum", 5000, 0.2F);
 		stocks.add(stock1);
-		Stock stock2 = new Stock("BAM", "Bank of America", 12000);
+		Stock stock2 = new Stock("BAM", "Bank of America", 12000, 0.2F);
 		stocks.add(stock2);
 		StockManager allStocks = null;
 		allStocks = StockManager.getInstance(stocks);

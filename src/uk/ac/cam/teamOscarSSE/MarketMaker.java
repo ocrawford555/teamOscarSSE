@@ -9,6 +9,7 @@ public class MarketMaker {
 	private long buySpread;		//Spread at which MM will issue Buy Orders at relative to current Stock Price
 	private long sellSpread;	//Spread at which MM will issue Sell Orders at relative to current Stock Price
 	private int volume;			//Volume of shares traded at each bid
+	private Player playerID = new Player("MarketMaker", "abc@abc.com");
 	
 	//MarketMaker(Exchange object, Stock object, buyingSpread, sellingSpread, VolumeOfSocksPerOrder
 	public MarketMaker(Exchange e, Stock s, long buySp, long sellSp, int v) {
@@ -31,24 +32,24 @@ public class MarketMaker {
 	//Submitting an order submits both Buy and Sell order at specified/default spread and volume
 	public void sumbitOrder() {
 		
-		Order buyOrder = new BuyOrder(OrderType.BUY, "MarketMaker", stock, volume, stock.getStockPrice()+buySpread);
-		Order sellOrder = new SellOrder(OrderType.SELL, "MarketMaker", stock, volume, stock.getStockPrice()+sellSpread);
+		Order buyOrder = new BuyOrder(stock, playerID, volume, stock.getStockPrice()+buySpread);
+		Order sellOrder = new SellOrder(stock, playerID, volume, stock.getStockPrice()+sellSpread);
 		
 		ex.addOrder(buyOrder);
 		ex.addOrder(sellOrder);
 	}
 	
 	public void submitOrder(int volume) {
-		Order buyOrder = new BuyOrder(OrderType.BUY, "MarketMaker", stock, volume, stock.getStockPrice()+buySpread);
-		Order sellOrder = new SellOrder(OrderType.SELL, "MarketMaker", stock, volume, stock.getStockPrice()+sellSpread);
+		Order buyOrder = new BuyOrder(stock, playerID, volume, stock.getStockPrice()+buySpread);
+		Order sellOrder = new SellOrder(stock, playerID, volume, stock.getStockPrice()+sellSpread);
 		
 		ex.addOrder(buyOrder);
 		ex.addOrder(sellOrder);
 	}
 	
 	public void sumbitOrder(long buySp, long sellSp, int volume) {
-		Order buyOrder = new BuyOrder(OrderType.BUY, "MarketMaker", stock, volume, stock.getStockPrice()+buySp);
-		Order sellOrder = new SellOrder(OrderType.SELL, "MarketMaker", stock, volume, stock.getStockPrice()+sellSp);
+		Order buyOrder = new BuyOrder(stock, playerID, volume, stock.getStockPrice()+buySp);
+		Order sellOrder = new SellOrder(stock, playerID, volume, stock.getStockPrice()+sellSp);
 		
 		ex.addOrder(buyOrder);
 		ex.addOrder(sellOrder);

@@ -16,6 +16,11 @@ public class Stock {
 	public int getTMAX() {
 		return TMAX;
 	}
+	
+	public long getStockPrice() {
+		return stockPrice;
+	}
+	
 
 	public long getValueEstimate() {
 		return valueEstimate;
@@ -73,7 +78,7 @@ public class Stock {
 		this.stockQty -= amountToRemove;
 	}
 
-	public Stock(String sym, String nameCompany, int quantity, int uncertainty) {
+	public Stock(String sym, String nameCompany, int quantity, float uncertainty) {
 		this.symbol = sym;
 		this.name = nameCompany;
 		this.setStockQty(quantity);
@@ -81,7 +86,7 @@ public class Stock {
 	}
 	
 	//Calculates new Stock price given volume of stock traded and trading price
-	public static void newPrice(long tPrice, float volume) {
+	public void newPrice(long tPrice, float volume) {
 		float tradePrice = ((float) tPrice)/100;
 		float price = ((float) stockPrice)/100;
 		float sigmaS = unc;
