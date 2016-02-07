@@ -18,12 +18,15 @@ public class Exchange {
 	private HashMap<Long, Order> orders;
 
 	private boolean open;	// default state is closed.
+	private long startTime;
+	private long lastRoundUptime;
 
 	public Exchange(List<Stock> stocks) {
 		orderBooks = new HashMap<>();
 		players = new HashMap<>();
 		orders = new HashMap<>();
 		open = false;
+		lastRoundUptime = 0;
 
 		String debugString = "";
 
@@ -35,6 +38,11 @@ public class Exchange {
 	}
 
 	public synchronized void setOpen(boolean open) {
+		if (open) {
+			startTime = System.currentTimeMillis();
+		} else if (this.open && !open) {
+			lastRoundUptime = System.currentTimeMillis() - startTime;
+		}
 		this.open = open;
 	}
 
@@ -191,8 +199,15 @@ public class Exchange {
 		return false;
 	}
 
+	/**
+	 * This method does best effort matching on the order book.
+	 * It assumes all orders can go through as cash and stock were already blocked when the user submitted the order.
+	 * This allows users to trade with themselves, so a buy above their own sell will go through.
+	 * @param ob
+	 */
 	private synchronized void matchOrders(OrderBook ob) {
 		if (ob.buys.size() == 0 || ob.sells.size() == 0) {
+			// Not possible to match.
 			return;
 		}
 
@@ -203,7 +218,7 @@ public class Exchange {
 			int sizeFilled = Math.min(bo.getShares(), so.getShares());
 			long price = bo.getTime() < so.getTime() ? bo.getPrice() : so.getPrice();
 
-			//System.out.println("Matched orders: " + bo + " " + so);
+			System.out.println("Matched orders: " + bo + " " + so);
 
 			bo.getStock().addVolume(sizeFilled);
 			bo.getStock().setLastTransactionPrice(price);
@@ -276,10 +291,14 @@ public class Exchange {
 	
 	/**
 	 * Gets the number of milliseconds for which the exchange has been running
+	 * If the exchange is closed, returns the last uptime.
 	 */
-	public synchronized int getUptime() {
-		//TODO
-		return 0;
+	public synchronized long getUptime() {
+		if (open) {
+			return System.currentTimeMillis() - startTime;
+		} else {
+			return lastRoundUptime;
+		}
 	}
 
 	public synchronized void printOrderBooks() {
