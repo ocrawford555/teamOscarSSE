@@ -10,14 +10,15 @@ import java.util.Set;
  */
 public class Exchange {
 
-	private static long GLOBAL_ORDER_ID = 0;
-
 	private HashMap<String, OrderBook> orderBooks;
 	private HashMap<String, Player> players;
 
+	private boolean open;	// default state is closed.
+
 	public Exchange(List<Stock> stocks) {
-		orderBooks = new HashMap<String, OrderBook>();
-		players = new HashMap<String, Player>();
+		orderBooks = new HashMap<>();
+		players = new HashMap<>();
+		open = false;
 
 		String debugString = "";
 
@@ -27,6 +28,60 @@ public class Exchange {
 		}
 		System.out.println("Exchanged started. Available stocks: " + debugString);
 	}
+
+	public void setOpen(boolean open) {
+		this.open = open;
+	}
+
+	public boolean isOpen() {
+		return open;
+	}
+
+	/*
+	//Variables that will be used to provide users with metrics
+	private static long pointAvg5;
+	private static long pointAvg20;
+	private static long pointAvg50;
+	private static long overallAverage;
+	private static long transactionChange;
+	private static float rateOfChange5;
+	private static float rateOfChange20;
+	private static float rateOfChange50;
+
+	//Getter methods for user metrics
+	public static long getPointAvg6() {
+		return pointAvg5;
+	}
+
+	public static long getPointAvg20() {
+		return pointAvg20;
+	}
+
+	public static long getPointAvg50() {
+		return pointAvg50;
+	}
+
+	public static long overallAverage() {
+		return overallAverage;
+	}
+
+	public static long transactionChange() {
+		return transactionChange;
+	}
+
+	public static float rateOfChange5() {
+		return rateOfChange5;
+	}
+
+	public static float rateOfChange20() {
+		return rateOfChange20;
+	}
+
+	public static float rateOfChange50() {
+		return rateOfChange50;
+	}
+	//End of getter methods
+	*/
 
 	public boolean addOrder(Order order) {
 		OrderBook ob = orderBooks.get(order.getStock().getSymbol());

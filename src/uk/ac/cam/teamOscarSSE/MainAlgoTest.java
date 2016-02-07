@@ -7,7 +7,7 @@ public class MainAlgoTest {
 	//have these as static -- only need one copy
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
-	static Exchange2 exchange;
+	static Exchange exchange;
 	static LeaderBoard lb;
 
 	public static void testExchange() {
@@ -26,7 +26,7 @@ public class MainAlgoTest {
 		
 		try {
 			Thread.sleep(30000);
-			exchange.setClosed(true);
+			exchange.setOpen(false);
 			System.out.println("");
 			System.out.println("");
 			System.out.println("--- ROUND OVER ---");
@@ -60,7 +60,7 @@ public class MainAlgoTest {
 		lb.get();
 
 		//create the exchange
-		exchange = new Exchange2(stocks);
+		exchange = new Exchange(stocks);
 
 		//add the players to the exchange
 		//TODO: add bots to the exchange as players, or just let them run
@@ -68,6 +68,9 @@ public class MainAlgoTest {
 		for (Player player : players) {
 			exchange.addPlayer(player);
 		}
+
+		// Open the exchange
+		exchange.setOpen(true);
 
 		//add some orders to the order book to initiate trading
 		exchange.addOrder(new BuyOrder(stock1, Alice, 100, 34635));
@@ -94,10 +97,10 @@ public class MainAlgoTest {
 class Pennying implements Runnable{
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
-	static Exchange2 exchange;
+	static Exchange exchange;
 	static LeaderBoard lb;
 
-	public Pennying(Exchange2 e, ArrayList<Stock> s, ArrayList<Player> p, LeaderBoard l){
+	public Pennying(Exchange e, ArrayList<Stock> s, ArrayList<Player> p, LeaderBoard l){
 		stocks = s;
 		players = p;
 		exchange = e;
@@ -108,7 +111,7 @@ class Pennying implements Runnable{
 	public void run() {
 		Random rand = new Random();
 		
-		while (true && !exchange.isClosed()) {
+		while (exchange.isOpen()) {
 			try {
 				//execute something every 0.40 seconds
 				Thread.sleep(400);
@@ -140,9 +143,9 @@ class Pennying implements Runnable{
 class Randy implements Runnable{
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
-	static Exchange2 exchange;
+	static Exchange exchange;
 
-	public Randy(Exchange2 e, ArrayList<Stock> s, ArrayList<Player> p){
+	public Randy(Exchange e, ArrayList<Stock> s, ArrayList<Player> p){
 		stocks = s;
 		players = p;
 		exchange = e;
@@ -152,7 +155,7 @@ class Randy implements Runnable{
 	public void run() {
 		Random rand = new Random();
 		
-		while (true && !exchange.isClosed()) {
+		while (exchange.isOpen()) {
 			try {
 				//execute something every 0.30 seconds
 				Thread.sleep(300);
