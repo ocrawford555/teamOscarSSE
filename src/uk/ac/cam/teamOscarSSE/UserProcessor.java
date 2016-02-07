@@ -1,9 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONObject;
 import org.json.HTTP;
@@ -23,10 +21,18 @@ public class UserProcessor {
 	 * (and accompanying reason)
 	 */
 	private static HTTPReturnMessage buy(Exchange exchange, Player user,
-											String Symbol, int qty,
+											String symbol, int qty,
 											long price) {
-		//TODO
-		return null;
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			Order order = new BuyOrder(stock, user, qty, price);
+			exchange.addOrder(order);
+			resultBody.put("orderID", order.getOrderNum());
+		}
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
@@ -41,10 +47,70 @@ public class UserProcessor {
 	 * (and accompanying reason)
 	 */
 	private static HTTPReturnMessage sell(Exchange exchange, Player user,
-											String Symbol, int qty,
+											String symbol, int qty,
 											long price) {
-		//TODO
-		return null;
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			Order order = new SellOrder(stock, user, qty, price);
+			exchange.addOrder(order);
+			resultBody.put("orderID", order.getOrderNum());
+		}
+		return new HTTPReturnMessage(resultBody);
+	}
+	
+	/**
+	 * Place a new buy-to-cover order on the exchange for the specified user
+	 * @param exchange
+	 * @param user
+	 * @param Symbol
+	 * @param qty
+	 * @param price
+	 * @return
+	 * A HTTPReturnMessage with success (and the relevant order-id) or failure
+	 * (and accompanying reason)
+	 */
+	private static HTTPReturnMessage cover(Exchange exchange, Player user,
+											String symbol, int qty,
+											long price) {
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			Order order = new BuyToCoverOrder(stock, user, qty, price);
+			exchange.addOrder(order);
+			resultBody.put("orderID", order.getOrderNum());
+		}
+		return new HTTPReturnMessage(resultBody);
+	}
+	
+	/**
+	 * Place a new short order on the exchange for the specified user
+	 * @param exchange
+	 * @param user
+	 * @param Symbol
+	 * @param qty
+	 * @param price
+	 * @return
+	 * A HTTPReturnMessage with success (and the relevant order-id) or failure
+	 * (and accompanying reason)
+	 */
+	private static HTTPReturnMessage sellShort(Exchange exchange, Player user,
+											String symbol, int qty,
+											long price) {
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			Order order = new ShortOrder(stock, user, qty, price);
+			exchange.addOrder(order);
+			resultBody.put("orderID", order.getOrderNum());
+		}
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
@@ -261,7 +327,23 @@ public class UserProcessor {
 				String symbol = splituri[2];
 				int qty = Integer.getInteger(splituri[3]);
 				long price = Long.getLong(splituri[4]);
-				result = buy(exchange, user, symbol, qty, price);
+				result = sell(exchange, user, symbol, qty, price);
+			} break;
+			case "cover":
+			{
+				Player user = determinePlayer(exchange, request);
+				String symbol = splituri[2];
+				int qty = Integer.getInteger(splituri[3]);
+				long price = Long.getLong(splituri[4]);
+				result = cover(exchange, user, symbol, qty, price);
+			} break;
+			case "short":
+			{
+				Player user = determinePlayer(exchange, request);
+				String symbol = splituri[2];
+				int qty = Integer.getInteger(splituri[3]);
+				long price = Long.getLong(splituri[4]);
+				result = sellShort(exchange, user, symbol, qty, price);
 			} break;
 			case "orders":
 			{
