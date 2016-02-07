@@ -1,9 +1,13 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The exchange takes and processes orders.
@@ -12,6 +16,12 @@ public class Exchange {
 	//TODO constant limits.
 	private final long MAX_STOCK_PRICE = 1000000;
 	private final long MAX_STOCK_SHARES = 10000;
+	
+	private long time;
+
+	public long getStartTime() {
+		return time;
+	}
 
 	private HashMap<String, OrderBook> orderBooks;
 	private HashMap<String, Player> players;
@@ -23,13 +33,18 @@ public class Exchange {
 		players = new HashMap<>();
 		open = false;
 
+		time = System.currentTimeMillis();
+		Date date = new Date(time);
+		DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
+		String dateFormatted = formatter.format(date);
+		
 		String debugString = "";
 
 		for (Stock stock : stocks) {
 			orderBooks.put(stock.getSymbol(), new OrderBook(stock));
 			debugString += stock.getSymbol() + " ";
 		}
-		System.out.println("Exchanged started. Available stocks: " + debugString);
+		System.out.println("Exchanged started at " + dateFormatted + "." + " --  Available stocks: " + debugString);
 	}
 
 	public synchronized void setOpen(boolean open) {
@@ -230,9 +245,48 @@ public class Exchange {
 	 * Gets the number of milliseconds for which the exchange has been running
 	 */
 	public synchronized int getUptime() {
-		//TODO
-		return 0;
+		int diff = (int) (System.currentTimeMillis() - getStartTime());
+		return diff;
 	}
+	
+	public synchronized String getUptimeFormatted() {
+		long diff = (System.currentTimeMillis() - getStartTime());
+		return getDurationBreakdown(diff);
+	}
+	
+	/**
+     * Convert a millisecond duration to a string format
+     * 
+     * @param millis A duration to convert to a string form
+     * @return A string of the form "X Days Y Hours Z Minutes A Seconds".
+     */
+    public static String getDurationBreakdown(long millis)
+    {
+        if(millis < 0)
+        {
+            throw new IllegalArgumentException("Duration must be greater than zero!");
+        }
+
+        long days = TimeUnit.MILLISECONDS.toDays(millis);
+        millis -= TimeUnit.DAYS.toMillis(days);
+        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        millis -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+        millis -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+
+        StringBuilder sb = new StringBuilder(64);
+        sb.append(days);
+        sb.append(" Days ");
+        sb.append(hours);
+        sb.append(" Hours ");
+        sb.append(minutes);
+        sb.append(" Minutes ");
+        sb.append(seconds);
+        sb.append(" Seconds");
+
+        return(sb.toString());
+    }
 
 	public synchronized void printOrderBooks() {
 		for (OrderBook ob : orderBooks.values()) {
