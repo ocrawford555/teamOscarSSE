@@ -17,7 +17,7 @@ public class MainAlgoTest {
 		Thread b = new Thread(d);
 		Thread c = new Thread(d);
 		
-		MarketMaker mm = new MarketMaker(exchange, stocks.get(0), 8,8,18);
+		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),15,15,40);
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
 		BoomBot bb = new BoomBot(exchange, stocks.get(0));
 		RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
@@ -37,7 +37,7 @@ public class MainAlgoTest {
 		j.start();
 				
 		try {
-			Thread.sleep(30000);
+			Thread.sleep(10000);
 			exchange.setOpen(false);
 
 			lb.update();
@@ -66,10 +66,10 @@ public class MainAlgoTest {
 
 	public static void open() {
 		//create and add stocks
-		Stock stock1 = new Stock("BP", "British Petroleum", 5000,0,12347,100);
+		Stock stock1 = new Stock("BP", "British Petroleum", 5000,0.2f,12347,100);
 		stocks.add(stock1);
-		Stock stock2 = new Stock("BAM", "Bank of America", 12000,0,26487,125);
-		stocks.add(stock2);
+//		Stock stock2 = new Stock("BAM", "Bank of America", 12000,0.2f,26487,125);
+//		stocks.add(stock2);
 
 		//create and add players to the game
 		Player Oliver = new Player("Oliver", "o.crawford@hotmail.co.uk");
@@ -83,7 +83,6 @@ public class MainAlgoTest {
 
 		//create the leader board
 		lb = new LeaderBoard(players);
-		lb.get();
 
 		//create the exchange
 		exchange = new Exchange(stocks);
@@ -97,19 +96,17 @@ public class MainAlgoTest {
 		exchange.setOpen(true);
 
 		//add some orders to the order book to initiate trading
-		exchange.addOrder(new BuyOrder(stock1, Alice, 100, 12345));
-		exchange.addOrder(new BuyOrder(stock1, Oliver, 150, 12346));
-		exchange.addOrder(new BuyOrder(stock1, Alice, 100, 12342));
-		exchange.addOrder(new BuyOrder(stock2, Oliver, 270, 26484));
-		exchange.addOrder(new BuyOrder(stock2, Alice, 100, 26486));
+		exchange.addOrder(new BuyOrder(stock1, Alice, 50, 12344));
+		exchange.addOrder(new BuyOrder(stock1, Oliver, 75, 12345));
+		exchange.addOrder(new BuyOrder(stock1, Bob, 50, 12342));
+//		exchange.addOrder(new BuyOrder(stock2, Bob, 80, 26484));
+//		exchange.addOrder(new BuyOrder(stock2, Alice, 40, 26486));
 
-		exchange.addOrder(new SellOrder(stock1, Oliver, 200, 12348));
-		exchange.addOrder(new SellOrder(stock1, Alice, 560, 12349));
-		exchange.addOrder(new SellOrder(stock1, Oliver, 70, 12354));
-		exchange.addOrder(new SellOrder(stock2, Alice, 270, 26492));
-		exchange.addOrder(new SellOrder(stock2, Oliver, 100, 26491));
-		
-		//exchange.printOrderBooks();
+		exchange.addOrder(new SellOrder(stock1, Oliver, 20, 12348));
+		exchange.addOrder(new SellOrder(stock1, Kate, 56, 12349));
+		exchange.addOrder(new SellOrder(stock1, Oliver, 35, 12354));
+//		exchange.addOrder(new SellOrder(stock2, Alice, 60, 26492));
+//		exchange.addOrder(new SellOrder(stock2, Kate, 50, 26491));
 	}
 
 	public static void main(String args[]) {
@@ -137,8 +134,8 @@ class Pennying implements Runnable{
 		
 		while (exchange.isOpen()) {
 			try {
-				//execute something every 0.25 seconds
-				Thread.sleep(100);
+				//execute something every 0.20 seconds
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -146,7 +143,7 @@ class Pennying implements Runnable{
 			for (Stock s : stocks) {
 				long pennyBuy = s.getBestBid();
 				long pennySell = s.getBestOffer();
-				int amount = rand.nextInt(30) + 5;
+				int amount = rand.nextInt(45) + 5;
 				
 				//chooses player to make exchange more random
 				int playingFor = rand.nextInt(4);
@@ -177,15 +174,15 @@ class Randy implements Runnable{
 		
 		while (exchange.isOpen()) {
 			try {
-				//execute something every second
-				Thread.sleep(110);
+				//execute something every 0.21 seconds
+				Thread.sleep(210);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			
 			for (Stock s : stocks) {
-				long delta = rand.nextInt(5);
-				int amount = rand.nextInt(30) + 5;
+				long delta = rand.nextInt(8);
+				int amount = rand.nextInt(45) + 5;
 				int direction = Math.round((float)Math.random() + 1f);
 				if(direction==1) delta*=-1;
 				long pennyBuy = s.getBestBid();
@@ -201,7 +198,7 @@ class Randy implements Runnable{
 			
 			exchange.printOrderBooks();
 			System.out.println("Value of BP from algorithm: " + stocks.get(0).getStockPrice());
-			System.out.println("Value of BAML from algorithm: " + stocks.get(1).getStockPrice());
+			//System.out.println("Value of BAML from algorithm: " + stocks.get(1).getStockPrice());
 		}
 	}
 }

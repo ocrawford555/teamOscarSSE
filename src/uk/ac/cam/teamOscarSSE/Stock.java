@@ -70,7 +70,7 @@ public class Stock {
 		this.symbol = sym;
 		this.name = nameCompany;
 		this.setStockQty(quantity);
-		this.unc = uncertainty;
+		this.setUnc(uncertainty);
 		this.stockPrice = price;
 		this.volumeTraded = 0;
 		this.lastTransactionPrice = price;
@@ -78,7 +78,7 @@ public class Stock {
 	}
 	
 	//Calculates new Stock price given volume of stock traded and trading price
-	public void newPrice(long tPrice, float volume) {
+	public void newPrice() {
 		long tradePrice = getLastTransactionPrice();
 		long price = getStockPrice();
 		float sigmaS = getUnc();
@@ -119,4 +119,3 @@ public class Stock {
 		this.volumeTraded += volumeTraded;
 	}
 }
-

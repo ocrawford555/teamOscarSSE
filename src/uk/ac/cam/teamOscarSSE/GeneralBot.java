@@ -17,17 +17,17 @@ public class GeneralBot extends Bot implements Runnable {
 		int volume3 = r.nextInt(TMAX);
 		long stockP = stock.getStockPrice();
 		
-		long buyPrice1 = stockP-300;		//Buy High, loses money
-		long buyPrice2 = stockP+600;
-		long buyPrice3 = stockP-200;
+		long buyPrice1 = stockP-9;		//Buy High, loses money
+		long buyPrice2 = stockP+18;
+		long buyPrice3 = stockP-6;
 		
 		Order buyOrder1 = new BuyOrder(stock, playerID, volume1, buyPrice1);
 		Order buyOrder2 = new BuyOrder(stock, playerID, volume2, buyPrice2);
 		Order buyOrder3 = new BuyOrder(stock, playerID, volume3, buyPrice3);
 
-		long sellPrice1 = stockP+300;
-		long sellPrice2 = stockP-600;
-		long sellPrice3 = stockP+200;
+		long sellPrice1 = stockP+9;
+		long sellPrice2 = stockP-18;
+		long sellPrice3 = stockP+6;
 		
 		Order sellOrder1 = new SellOrder(stock, playerID, volume1, sellPrice1);
 		Order sellOrder2 = new SellOrder(stock, playerID, volume2, sellPrice2);

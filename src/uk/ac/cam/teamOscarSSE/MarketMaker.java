@@ -62,6 +62,7 @@ public class MarketMaker implements Runnable {
 		while(ex.isOpen()){
 			try{
 				Thread.sleep(150);
+				stock.newPrice();
 				this.submitOrder();
 			}
 			catch (InterruptedException e) {

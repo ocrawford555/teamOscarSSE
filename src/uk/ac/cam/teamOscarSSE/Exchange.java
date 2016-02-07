@@ -118,7 +118,7 @@ public class Exchange {
 			int sizeFilled = Math.min(bo.getShares(), so.getShares());
 			long price = bo.getTime() < so.getTime() ? bo.getPrice() : so.getPrice();
 
-			System.out.println("Matched orders: " + bo + " " + so);
+			//System.out.println("Matched orders: " + bo + " " + so);
 
 			bo.getStock().addVolume(sizeFilled);
 			bo.getStock().setLastTransactionPrice(price);
