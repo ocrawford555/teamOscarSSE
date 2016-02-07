@@ -9,6 +9,9 @@ import java.util.Set;
  * The exchange takes and processes orders.
  */
 public class Exchange {
+	//TODO constant limits.
+	private final long MAX_STOCK_PRICE = 1000000;
+	private final long MAX_STOCK_SHARES = 10000;
 
 	private HashMap<String, OrderBook> orderBooks;
 	private HashMap<String, Player> players;
@@ -83,15 +86,47 @@ public class Exchange {
 	//End of getter methods
 	*/
 
-	public synchronized boolean addOrder(Order order) {
-		OrderBook ob = orderBooks.get(order.getStock().getSymbol());
-		if (ob == null) {
-			System.err.format(
-					"Can not add order with symbol %s. Symbol does not exist.\n",
-					order.getStock().getSymbol());
-			//Main.onOrderChange(new OrderChangeMessage(OrderChangeMessage.ChangeType.FAIL, order));
+	/**
+	 * An order is invalid if
+	 * - the price is negative
+	 * - the price is above the maximum price
+	 * - the number of shares is negative
+	 * - the number of shares is above the maximum
+	 * - the stock does not exist
+	 *
+	 * This method assumes other properties of Order are valid
+	 * @param order
+	 * @return
+	 */
+	private synchronized boolean validateOrder(Order order) {
+		if (order.getPrice() < 0) {
+			return false;
+		} else if (order.getPrice() > MAX_STOCK_PRICE) {
+			return false;
+		} else if (order.getShares() < 0) {
+			return false;
+		} else if (order.getShares() > MAX_STOCK_SHARES) {
+			return false;
+		} else if (!orderBooks.containsKey(order.getStock().getSymbol())) {
 			return false;
 		}
+		return true;
+	}
+
+	/**
+	 * Adds an order to the exchange, trying to match immediately if possible.
+	 * The caller should check if successful or not.
+	 * Failure may be due to invalid orders (e.g. negative price), as well as players with insufficient funds/stocks.
+	 * @param order
+	 * @return true if successful, false otherwise.
+	 */
+	public synchronized boolean addOrder(Order order) {
+		// TODO: should return exception, discuss.
+		if (!validateOrder(order)) {
+			System.err.println("Invalid order " + order);
+			return false;
+		}
+		OrderBook ob = orderBooks.get(order.getStock().getSymbol());
 
 		if (order instanceof BuyOrder) {
 			BuyOrder bo = (BuyOrder) order;
@@ -99,8 +134,10 @@ public class Exchange {
 		} else if (order instanceof SellOrder) {
 			SellOrder so = (SellOrder) order;
 			ob.addOrder(so);
+		} else {
+			System.err.println("Unimplemented order type: " + order.getClass());
+			return false;
 		}
-		//Main.onOrderChange(new OrderChangeMessage(OrderChangeMessage.ChangeType.ACK, order));
 
 		matchOrders(ob);
 		return true;
