@@ -45,7 +45,7 @@ public class UserProcessor {
 	}
 	
 	/**
-	 * Get a list of currently open order-ids for the specified user
+	 * Get a list of currently open orders for the specified user
 	 * @param exchange
 	 * @param user
 	 * @return
@@ -159,6 +159,7 @@ public class UserProcessor {
 		//Create a new player and add to the exchange's database
 		Player user = new Player(name, email);
 		boolean success = exchange.addPlayer(user);
+		
 		if (success) {
 			Map<String, String> resultHeaderMap =
 					new HashMap<String, String>();
@@ -170,10 +171,32 @@ public class UserProcessor {
 			
 			Map<String, String> resultBodyMap = 
 					new HashMap<String, String>();
-			resultBodyMap.put("Response", "User already exists");
+			resultBodyMap.put("Response", "User Created");
+			resultBodyMap.put("User-token", user.getToken());
+			String resultBody = (new JSONObject(resultBodyMap)).toString();
+			result = new HTTPReturnMessage(resultHeader, resultBody);
+		} else { //Created user's token already exists.
+				 //At the moment the token is random, so should really just
+				 // try again to get a new token, but ideally the token
+				 // should be based on the user's name and/or email
+			     // Returns the token of the existing user, although maybe
+			 	 // it shouldn't? TODO
+			Map<String, String> resultHeaderMap =
+					new HashMap<String, String>();
+			resultHeaderMap.put("Status-Code", "409");
+			resultHeaderMap.put("HTTP_Version", "HTTP/1.1");
+			resultHeaderMap.put("Reason-Phrase", "Conflict");
+			String resultHeader =
+					HTTP.toString(new JSONObject(resultHeaderMap));
+			
+			Map<String, String> resultBodyMap = 
+					new HashMap<String, String>();
+			resultBodyMap.put("Response", "User Not Created (Already Exists)");
+			resultBodyMap.put("User-token", user.getToken());
 			String resultBody = (new JSONObject(resultBodyMap)).toString();
 			result = new HTTPReturnMessage(resultHeader, resultBody);
 		}
+		
 		return result;
 	}
 	
@@ -201,7 +224,7 @@ public class UserProcessor {
 		String[] splituri = uri.split("/");
 		
 		HTTPReturnMessage result = null;
-		switch(splituri[1]) {
+		switch(splituri[1]) { //Determine which function to call
 			case "buy":
 			{
 				Player user = determinePlayer(exchange, request);
