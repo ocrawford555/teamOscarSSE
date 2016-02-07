@@ -2,9 +2,11 @@ package uk.ac.cam.teamOscarSSE;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONObject;
 import org.json.HTTP;
+import org.json.JSONArray;
 
 public class UserProcessor {
 	
@@ -92,8 +94,10 @@ public class UserProcessor {
 	 * A HTTPReturnMessage with a list of available stock symbols in the data
 	 */
 	private static HTTPReturnMessage stocks(Exchange exchange) {
-		//TODO
-		return null;
+		Map<String, JSONArray> resultBodyMap = 
+				new HashMap<String, JSONArray>();
+		resultBodyMap.put("stocks", new JSONArray(exchange.getStockSymbols()));
+		return new HTTPReturnMessage(resultBodyMap);
 	}
 	
 	/**

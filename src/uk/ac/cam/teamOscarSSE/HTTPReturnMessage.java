@@ -1,5 +1,11 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.HTTP;
+import org.json.JSONObject;
+
 public class HTTPReturnMessage {
 	private String header;
 	private String data;
@@ -20,6 +26,16 @@ public class HTTPReturnMessage {
 	public HTTPReturnMessage(String header, String data) {
 		this.data = data;
 		this.header = header;
+	}
+	
+	public HTTPReturnMessage(Map<?, ?> data) {
+		this(null, new JSONObject(data).toString());
+		Map<String, String> resultHeaderMap =
+				new HashMap<String, String>();
+		resultHeaderMap.put("Status-Code", "200");
+		resultHeaderMap.put("HTTP_Version", "HTTP/1.1");
+		resultHeaderMap.put("Reason-Phrase", "OK");
+		this.header = HTTP.toString(new JSONObject(resultHeaderMap));
 	}
 	
 	public String getHeader() {

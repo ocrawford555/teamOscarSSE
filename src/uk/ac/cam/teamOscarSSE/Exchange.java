@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The exchange takes and processes orders.
@@ -112,6 +113,10 @@ public class Exchange {
 		players.put(player.getToken(), player);
 		System.out.format("Welcome %s!\n", player.getName());
 		return true;
+	}
+	
+	public Set<String> getStockSymbols() {
+		return orderBooks.keySet();
 	}
 
 	public void printOrderBooks() {
