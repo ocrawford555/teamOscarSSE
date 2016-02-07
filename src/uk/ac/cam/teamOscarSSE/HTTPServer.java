@@ -2,6 +2,9 @@
  * Listens for incoming connections. Spawns a new ConnectionHandler for each
  * one. The ConnectionHandler should spawn a new thread so the HTTPServer can
  * listen for a new connection as quickly as possible.
+ * 
+ * Valid HTTP URIs:
+ * 	/buy/{symbol}/qty
  */
 
 package uk.ac.cam.teamOscarSSE;
@@ -13,12 +16,13 @@ import java.net.Socket;
 public class HTTPServer {
 
 	ServerSocket ss = null;
+	Exchange exchange = null;
 
 	/**
 	 * Set up the ServerSocket, bound to the specified port.
 	 * Does not start accepting connections.
 	 */
-	public HTTPServer(int port) {
+	public HTTPServer(int port, Exchange exchange) {
 		//Create server socket
 		try {
 			System.out.println("Opening Connection on " + port);
@@ -28,6 +32,9 @@ public class HTTPServer {
 					port + ":");
 			e.printStackTrace();
 		}
+		
+		//Link the exchange
+		this.exchange = exchange;
 	}
 
 
@@ -41,10 +48,14 @@ public class HTTPServer {
 				// Wait for a client to connect.
 				socket = ss.accept();
 				
-				//Start a new thread to deal with the request
-				//TODO
+				//Run the connectionHandler, which starts a new thread.
+				@SuppressWarnings("unused")
+				ConnectionHandler connectionHandler =
+						new ConnectionHandler(exchange, socket);
+				
 			} catch (IOException e) {
-				System.err.println("Error Accepting Connection:");
+				System.err.println("Error Accepting Connection: " +
+									e.getMessage());
 				e.printStackTrace();
 			}
 		}

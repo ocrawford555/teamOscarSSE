@@ -66,14 +66,18 @@ public class ConnectionHandler {
 	}
 	
 	
-	public ConnectionHandler(final Socket s) {
+	public ConnectionHandler(Exchange exchange, final Socket s) {
 		Thread handle = new Thread() {
 			public void run() {
 				try {
 					//Get request details
 					HTTPDetails requestDetails = readInput(s);
 					
-					//TODO: Determine what to do
+					//Send requestDetails to UserProcessor
+					UserProcessor.Process(exchange, requestDetails);
+					
+					//TODO: Send return message
+					
 				} catch (HTTPHeaderException e1) {
 					//TODO: Send failure message
 					e1.printStackTrace();

@@ -15,7 +15,7 @@ public class HTTPDetails {
 	private final String uri;
 	private final String protocol;
 	private final HashMap<String, String> requestHeaders;
-	private final StringBuilder body;
+	private final String body;
 	
 	/**
 	 * Each line of the headers (i.e. a new parameter on each line), will be
@@ -58,7 +58,7 @@ public class HTTPDetails {
 		}
 		
 		//Set Body
-		this.body = body;
+		this.body = body.toString();
 	}
 
 	
@@ -128,5 +128,11 @@ public class HTTPDetails {
 		return (HashMap<String, String>) requestHeaders.clone();
 	}
 	
-	
+	/**
+	 * @return
+	 * 		The body of the HTTP Request
+	 */
+	public String getBody() {
+		return body;
+	}
 }
