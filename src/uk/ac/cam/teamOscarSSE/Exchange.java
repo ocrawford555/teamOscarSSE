@@ -90,24 +90,26 @@ public class Exchange {
 	 * An order is invalid if
 	 * - the price is negative
 	 * - the price is above the maximum price
-	 * - the number of shares is negative
+	 * - the number of shares is <= 0
 	 * - the number of shares is above the maximum
 	 * - the stock does not exist
 	 *
-	 * This method assumes other properties of Order are valid
+	 * This method assumes other properties of Order are valid, but may do other checks as well.
 	 * @param order
 	 * @return
 	 */
 	private synchronized boolean validateOrder(Order order) {
-		if (order.getPrice() < 0) {
+		if (order.getPrice() <= 0) {
 			return false;
 		} else if (order.getPrice() > MAX_STOCK_PRICE) {
 			return false;
-		} else if (order.getShares() < 0) {
+		} else if (order.getShares() <= 0) {
 			return false;
 		} else if (order.getShares() > MAX_STOCK_SHARES) {
 			return false;
 		} else if (!orderBooks.containsKey(order.getStock().getSymbol())) {
+			return false;
+		} else if (!players.containsKey(order.getId())) {
 			return false;
 		}
 		return true;
@@ -121,18 +123,27 @@ public class Exchange {
 	 * @return true if successful, false otherwise.
 	 */
 	public synchronized boolean addOrder(Order order) {
-		// TODO: should return exception, discuss.
+		// TODO: should return exception with a message, discuss.
 		if (!validateOrder(order)) {
 			System.err.println("Invalid order " + order);
 			return false;
 		}
 		OrderBook ob = orderBooks.get(order.getStock().getSymbol());
+		Player player = players.get(order.getId());
 
 		if (order instanceof BuyOrder) {
 			BuyOrder bo = (BuyOrder) order;
+			if (bo.getShares() > player.maxCanBuy(order.getStock(), order.getPrice())) {
+				System.err.println("Player does not have enough cash to buy " + order);
+				// return false;
+			}
 			ob.addOrder(bo);
 		} else if (order instanceof SellOrder) {
 			SellOrder so = (SellOrder) order;
+			if (so.getShares() > player.maxCanSell(order.getStock())) {
+				System.err.println("Player does not have enough shares to sell " + order);
+				// return false;
+			}
 			ob.addOrder(so);
 		} else {
 			System.err.println("Unimplemented order type: " + order.getClass());

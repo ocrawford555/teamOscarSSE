@@ -36,6 +36,30 @@ public class Player {
 	public long getBalance() {
 		return cashLeft + pf.currentValue();
 	}
+
+	/**
+	 * Returns the maximum amount of a stock a player can buy at a given price.
+	 * @param stock
+	 * @param price
+	 * @param size
+	 * @return
+	 */
+	public long maxCanBuy(Stock stock, long price) {
+		if (price == 0) {
+			return 0;
+		}
+		return cashLeft/price;
+	}
+
+	/**
+	 * Returns the maximum number of this stock a player can sell.
+	 * Currently this is equal to the amount of stock owned.
+	 * @param stock
+	 * @return
+	 */
+	public long maxCanSell(Stock stock) {
+		return pf.getAmountOwned(stock);
+	}
 	
 	public Portfolio getPortfoio(){
 		return pf;

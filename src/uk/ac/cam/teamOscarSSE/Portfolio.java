@@ -24,6 +24,15 @@ public class Portfolio {
 		if (stockOwned.containsKey(s))
 			stockOwned.put(s, stockOwned.get(s) - numStocks);
 	}
+
+	public int getAmountOwned(Stock stock) {
+		Integer amount = stockOwned.get(stock);
+		if (amount == null) {
+			return 0;
+		} else {
+			return amount;
+		}
+	}
 	
 	public void borrowShort(Stock s, int borrowAmount){
 		if (stockBorrowed.containsKey(s))
