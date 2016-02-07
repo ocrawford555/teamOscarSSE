@@ -11,8 +11,8 @@ public class OrderBook {
 		return s;
 	}
 
-	List<BuyOrder> buys = new ArrayList<BuyOrder>();
-	List<SellOrder> sells = new ArrayList<SellOrder>();
+	final List<BuyOrder> buys = new ArrayList<BuyOrder>();
+	final List<SellOrder> sells = new ArrayList<SellOrder>();
 
 	public OrderBook(Stock s) {
 		this.s = s;
@@ -36,23 +36,25 @@ public class OrderBook {
 		}
 	}
 
-	public synchronized void removeOrder(BuyOrder o) {
+	public synchronized boolean removeOrder(BuyOrder o) {
 		synchronized(buys){
-			buys.remove(o);
+			boolean removed = buys.remove(o);
 			//arguably, only order removed is from head, so call below
 			//not required
 			Collections.sort(buys);
 			s.setBestBid(buys.get(0).getPrice());
+			return removed;
 		}
 	}
 
-	public synchronized void removeOrder(SellOrder o) {
+	public synchronized boolean removeOrder(SellOrder o) {
 		synchronized(sells){
-			sells.remove(o);
+			boolean removed = sells.remove(o);
 			//arguably, only order removed is from head, so call below
 			//not required
 			Collections.sort(sells);
 			s.setBestOffer(sells.get(0).getPrice());
+			return removed;
 		}
 	}
 

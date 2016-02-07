@@ -15,12 +15,14 @@ public class Exchange {
 
 	private HashMap<String, OrderBook> orderBooks;
 	private HashMap<String, Player> players;
+	private HashMap<Long, Order> orders;
 
 	private boolean open;	// default state is closed.
 
 	public Exchange(List<Stock> stocks) {
 		orderBooks = new HashMap<>();
 		players = new HashMap<>();
+		orders = new HashMap<>();
 		open = false;
 
 		String debugString = "";
@@ -135,15 +137,21 @@ public class Exchange {
 			BuyOrder bo = (BuyOrder) order;
 			if (bo.getShares() > player.maxCanBuy(order.getStock(), order.getPrice())) {
 				System.err.println("Player does not have enough cash to buy " + order);
+				// TODO
 				// return false;
 			}
+			orders.put(order.getOrderNum(), order);
+			player.addPendingOrder(bo);
 			ob.addOrder(bo);
 		} else if (order instanceof SellOrder) {
 			SellOrder so = (SellOrder) order;
 			if (so.getShares() > player.maxCanSell(order.getStock())) {
 				System.err.println("Player does not have enough shares to sell " + order);
+				// TODO
 				// return false;
 			}
+			orders.put(order.getOrderNum(), order);
+			player.addPendingOrder(so);
 			ob.addOrder(so);
 		} else {
 			System.err.println("Unimplemented order type: " + order.getClass());
@@ -152,6 +160,35 @@ public class Exchange {
 
 		matchOrders(ob);
 		return true;
+	}
+
+	/**
+	 * Remove an order from the orderbook and player's portfolio.
+	 * @param orderNum
+	 * @return
+	 */
+	public synchronized boolean removeOrder(Long orderNum) {
+		// Check if both orderbook and player contains ordernum.
+		Order order = orders.get(orderNum);
+		if (order == null) {
+			System.err.println("Order does not exist.");
+			return false;
+		}
+		Player player = players.get(order.getId());
+
+		// TODO: should check if orderbookpending_orders.remove(orderNum); has order as well
+		if (player != null && player.hasOrderPending(orderNum)) {
+			player.removeOrder(orderNum);
+			if (order instanceof BuyOrder) {
+				return orderBooks.get(order.getStock().getSymbol()).removeOrder((BuyOrder) order);
+			} else if (order instanceof SellOrder) {
+				return orderBooks.get(order.getStock().getSymbol()).removeOrder((SellOrder) order);
+			} else {
+				System.err.println("Unimplemented type " + order.getClass());
+				return false;
+			}
+		}
+		return false;
 	}
 
 	private synchronized void matchOrders(OrderBook ob) {
