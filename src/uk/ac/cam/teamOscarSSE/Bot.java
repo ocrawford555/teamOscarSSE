@@ -15,7 +15,7 @@ public abstract class Bot {
 		TMAX = s.getTMAX();
 	}
 	
-	public boolean sumbitOrder(Order order) {
+	public boolean submitOrder(Order order) {
 		return ex.addOrder(order);
 	}
 	

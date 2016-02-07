@@ -27,9 +27,9 @@ public class RecessionBot extends Bot {
 		Order sellOrder1 = new SellOrder(stock, playerID, volume1, sellPrice1);
 		Order sellOrder2 = new SellOrder(stock, playerID, volume2, sellPrice2);
 
-		super.sumbitOrder(buyOrder1);
-		super.sumbitOrder(sellOrder1);
-		super.sumbitOrder(sellOrder2);
+		super.submitOrder(buyOrder1);
+		super.submitOrder(sellOrder1);
+		super.submitOrder(sellOrder2);
 	}
 	
 }

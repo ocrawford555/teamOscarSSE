@@ -1,11 +1,6 @@
 package uk.ac.cam.teamOscarSSE;
 
 
-import uk.ac.cam.teamOscarSSE.BuyOrder;
-import uk.ac.cam.teamOscarSSE.Order;
-import uk.ac.cam.teamOscarSSE.SellOrder;
-import uk.ac.cam.teamOscarSSE.Stock;
-
 public class BoomBot extends Bot {
 	
 	private Player playerID = new Player("BomBot", "abc@abc.com");
@@ -38,12 +33,12 @@ public class BoomBot extends Bot {
 		Order sellOrder2 = new SellOrder(stock, playerID, volume2, sellPrice2);
 		Order sellOrder3 = new SellOrder(stock, playerID, volume3, sellPrice3);
 
-		super.sumbitOrder(buyOrder1);
-		super.sumbitOrder(buyOrder2);
-		super.sumbitOrder(buyOrder3);
-		super.sumbitOrder(sellOrder1);
-		super.sumbitOrder(sellOrder2);
-		super.sumbitOrder(sellOrder3);
+		super.submitOrder(buyOrder1);
+		super.submitOrder(buyOrder2);
+		super.submitOrder(buyOrder3);
+		super.submitOrder(sellOrder1);
+		super.submitOrder(sellOrder2);
+		super.submitOrder(sellOrder3);
 		
 	}
 	
