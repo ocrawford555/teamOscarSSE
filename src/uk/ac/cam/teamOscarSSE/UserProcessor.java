@@ -1,5 +1,6 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -94,10 +95,10 @@ public class UserProcessor {
 	 * A HTTPReturnMessage with a list of available stock symbols in the data
 	 */
 	private static HTTPReturnMessage stocks(Exchange exchange) {
-		Map<String, JSONArray> resultBodyMap = 
+		Map<String, JSONArray> resultBody = 
 				new HashMap<String, JSONArray>();
-		resultBodyMap.put("stocks", new JSONArray(exchange.getStockSymbols()));
-		return new HTTPReturnMessage(resultBodyMap);
+		resultBody.put("stocks", new JSONArray(exchange.getStockSymbols()));
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
@@ -122,13 +123,13 @@ public class UserProcessor {
 	 */
 	private static HTTPReturnMessage stock(Exchange exchange, String symbol) {
 		Stock stock = exchange.getStockForSymbol(symbol);
-		Map<String, Object> resultBodyMap = 
+		Map<String, Object> resultBody = 
 				new HashMap<String, Object>();
-		resultBodyMap.put("success", stock != null);
+		resultBody.put("success", stock != null);
 		if (stock != null) {
-			resultBodyMap.put("symbol", stock.getSymbol());
+			resultBody.put("symbol", stock.getSymbol());
 		}
-		return new HTTPReturnMessage(resultBodyMap);
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
@@ -150,8 +151,19 @@ public class UserProcessor {
 	 * A HTTPReturnMessage with the leaderboard data in the data
 	 */
 	private static HTTPReturnMessage leaderboard(Exchange exchange) {
-		//TODO
-		return null;
+		JSONArray players = new JSONArray();
+		for (Player player : exchange.getPlayers()) {
+			Map<String, Object> playerDetails = new HashMap<>();
+			playerDetails.put("ID", player.getToken());
+			playerDetails.put("name", player.getName());
+			playerDetails.put("score", player.getBalance());
+			players.put(playerDetails);
+		}
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("elapsed time", exchange.getUptime());
+		resultBody.put("players", players);
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**

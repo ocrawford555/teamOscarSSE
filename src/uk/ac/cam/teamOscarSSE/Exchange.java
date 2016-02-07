@@ -1,5 +1,6 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -124,6 +125,18 @@ public class Exchange {
 		} else {
 			return null;
 		}
+	}
+	
+	public Collection<Player> getPlayers() {
+		return players.values();
+	}
+	
+	/**
+	 * Gets the number of milliseconds for which the exchange has been running
+	 */
+	public int getUptime() {
+		//TODO
+		return 0;
 	}
 
 	public void printOrderBooks() {
