@@ -121,8 +121,14 @@ public class UserProcessor {
 	 * A HTTPReturnMessage with the stock details in the data
 	 */
 	private static HTTPReturnMessage stock(Exchange exchange, String symbol) {
-		//TODO
-		return null;
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBodyMap = 
+				new HashMap<String, Object>();
+		resultBodyMap.put("success", stock != null);
+		if (stock != null) {
+			resultBodyMap.put("symbol", stock.getSymbol());
+		}
+		return new HTTPReturnMessage(resultBodyMap);
 	}
 	
 	/**

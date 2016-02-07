@@ -7,7 +7,7 @@ import java.util.List;
 public class OrderBook {
 	private Stock s;
 
-	public Stock getS() {
+	public Stock getStock() {
 		return s;
 	}
 

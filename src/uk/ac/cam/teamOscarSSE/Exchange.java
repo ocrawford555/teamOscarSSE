@@ -1,8 +1,6 @@
 package uk.ac.cam.teamOscarSSE;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -117,6 +115,15 @@ public class Exchange {
 	
 	public Set<String> getStockSymbols() {
 		return orderBooks.keySet();
+	}
+	
+	public Stock getStockForSymbol(String symbol) {
+		OrderBook orderBook = orderBooks.get(symbol);
+		if (orderBook != null) {
+			return orderBook.getStock();
+		} else {
+			return null;
+		}
 	}
 
 	public void printOrderBooks() {
