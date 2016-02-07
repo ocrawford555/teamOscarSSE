@@ -3,10 +3,9 @@ package uk.ac.cam.teamOscarSSE;
 import java.util.HashMap;
 import java.util.Map;
 
-//sorry, import statements need changing before pushing.
-import teamOscarSSE.src.org.json.JSONObject;
-import teamOscarSSE.src.org.json.HTTP;
-import teamOscarSSE.src.org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.HTTP;
+import org.json.JSONArray;
 
 public class UserProcessor {
 	

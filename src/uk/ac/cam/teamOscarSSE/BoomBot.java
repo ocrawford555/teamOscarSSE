@@ -1,7 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
 public class BoomBot extends Bot implements Runnable {
-	
+
 	private Player playerID = new Player("BomBot", "abc@abc.com");
 
 	public BoomBot(Exchange e, Stock s) {

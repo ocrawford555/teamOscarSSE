@@ -39,7 +39,9 @@ public class MainAlgoTest {
 		try {
 			Thread.sleep(30000);
 			exchange.setOpen(false);
+
 			lb.update();
+
 			System.out.println("");
 			System.out.println("");
 			System.out.println("--- ROUND OVER ---");
