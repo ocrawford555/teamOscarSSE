@@ -36,6 +36,10 @@ public class Player {
 	public long getBalance() {
 		return cashLeft + pf.currentValue();
 	}
+	
+	public Portfolio getPortfoio(){
+		return pf;
+	}
 
 	// TODO: argument won't actually be an OrderUpdateMessage.
 	public void updatePortfolio(OrderUpdateMessage orderUpdate) {
@@ -69,7 +73,5 @@ public class Player {
 		//start with 10,000,000 cents (or pennies, depending on currency)
 		this.cashLeft = 10000000;
 		this.pf = new Portfolio();
-		//this.algo = new Algo();
-		//this.algo.run("Pennying");
 	}
 }

@@ -1,7 +1,9 @@
 package uk.ac.cam.teamOscarSSE;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Portfolio {
 	//portfolio class for now will presume you can only hold one stock
@@ -55,5 +57,13 @@ public class Portfolio {
 			value += (stockValue) * entry.getValue();
 		}
 		return value;
+	}
+	
+	public void contents(){
+		Iterator it = stockOwned.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry<Stock,Integer> pair = (Entry<Stock, Integer>) it.next();
+	        System.out.println("  ---->   " + pair.getValue());
+	    }
 	}
 }

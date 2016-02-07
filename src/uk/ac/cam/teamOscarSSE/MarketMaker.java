@@ -1,7 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
 //ASSUMPTION: Market Maker has infinite Stock
-public class MarketMaker {
+public class MarketMaker implements Runnable {
 
 	//The spread values negative if you want to buy/sell at a lower than Stock trading price
 	private Exchange ex;
@@ -18,6 +18,7 @@ public class MarketMaker {
 		buySpread = buySp;
 		sellSpread = sellSp;
 		volume = v;
+		ex.addPlayer(playerID);
 	}
 	
 	public void changeVolume(int newVolume) {
@@ -30,7 +31,7 @@ public class MarketMaker {
 	}
 	
 	//Submitting an order submits both Buy and Sell order at specified/default spread and volume
-	public void sumbitOrder() {
+	public void submitOrder() {
 		
 		Order buyOrder = new BuyOrder(stock, playerID, volume, stock.getStockPrice()+buySpread);
 		Order sellOrder = new SellOrder(stock, playerID, volume, stock.getStockPrice()+sellSpread);
@@ -47,7 +48,7 @@ public class MarketMaker {
 		ex.addOrder(sellOrder);
 	}
 	
-	public void sumbitOrder(long buySp, long sellSp, int volume) {
+	public void submitOrder(long buySp, long sellSp, int volume) {
 		Order buyOrder = new BuyOrder(stock, playerID, volume, stock.getStockPrice()+buySp);
 		Order sellOrder = new SellOrder(stock, playerID, volume, stock.getStockPrice()+sellSp);
 		
@@ -55,7 +56,17 @@ public class MarketMaker {
 		ex.addOrder(sellOrder);
 		
 	}
-	
-	
-	
+
+	@Override
+	public void run() {
+		while(ex.isOpen()){
+			try{
+				Thread.sleep(150);
+				this.submitOrder();
+			}
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

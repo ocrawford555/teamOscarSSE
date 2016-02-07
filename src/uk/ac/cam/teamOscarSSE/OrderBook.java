@@ -7,7 +7,7 @@ import java.util.List;
 public class OrderBook {
 	private Stock s;
 
-	public Stock getS() {
+	public Stock getStock() {
 		return s;
 	}
 
@@ -58,9 +58,9 @@ public class OrderBook {
 
 	public void printPendingOrders(OrderType type) {
 		//BUY
-		//for showing only top three results
-		int countBuys = 3;
-		int countSells = 3;
+		//for showing only top five results
+		int countBuys = 5;
+		int countSells = 5;
 		if (type == OrderType.BUY)
 			synchronized(buys){
 				for (Order o : buys) {

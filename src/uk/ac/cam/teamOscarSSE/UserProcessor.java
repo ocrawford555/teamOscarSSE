@@ -3,8 +3,10 @@ package uk.ac.cam.teamOscarSSE;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONObject;
-import org.json.HTTP;
+//sorry, import statements need changing before pushing.
+import teamOscarSSE.src.org.json.JSONObject;
+import teamOscarSSE.src.org.json.HTTP;
+import teamOscarSSE.src.org.json.JSONArray;
 
 public class UserProcessor {
 	
@@ -20,10 +22,18 @@ public class UserProcessor {
 	 * (and accompanying reason)
 	 */
 	private static HTTPReturnMessage buy(Exchange exchange, Player user,
-											String Symbol, int qty,
+											String symbol, int qty,
 											long price) {
-		//TODO
-		return null;
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			Order order = new BuyOrder(stock, user, qty, price);
+			exchange.addOrder(order);
+			resultBody.put("orderID", order.getOrderNum());
+		}
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
@@ -38,14 +48,74 @@ public class UserProcessor {
 	 * (and accompanying reason)
 	 */
 	private static HTTPReturnMessage sell(Exchange exchange, Player user,
-											String Symbol, int qty,
+											String symbol, int qty,
 											long price) {
-		//TODO
-		return null;
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			Order order = new SellOrder(stock, user, qty, price);
+			exchange.addOrder(order);
+			resultBody.put("orderID", order.getOrderNum());
+		}
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
-	 * Get a list of currently open order-ids for the specified user
+	 * Place a new buy-to-cover order on the exchange for the specified user
+	 * @param exchange
+	 * @param user
+	 * @param Symbol
+	 * @param qty
+	 * @param price
+	 * @return
+	 * A HTTPReturnMessage with success (and the relevant order-id) or failure
+	 * (and accompanying reason)
+	 */
+	private static HTTPReturnMessage cover(Exchange exchange, Player user,
+											String symbol, int qty,
+											long price) {
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			Order order = new BuyToCoverOrder(stock, user, qty, price);
+			exchange.addOrder(order);
+			resultBody.put("orderID", order.getOrderNum());
+		}
+		return new HTTPReturnMessage(resultBody);
+	}
+	
+	/**
+	 * Place a new short order on the exchange for the specified user
+	 * @param exchange
+	 * @param user
+	 * @param Symbol
+	 * @param qty
+	 * @param price
+	 * @return
+	 * A HTTPReturnMessage with success (and the relevant order-id) or failure
+	 * (and accompanying reason)
+	 */
+	private static HTTPReturnMessage sellShort(Exchange exchange, Player user,
+											String symbol, int qty,
+											long price) {
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			Order order = new ShortOrder(stock, user, qty, price);
+			exchange.addOrder(order);
+			resultBody.put("orderID", order.getOrderNum());
+		}
+		return new HTTPReturnMessage(resultBody);
+	}
+	
+	/**
+	 * Get a list of currently open orders for the specified user
 	 * @param exchange
 	 * @param user
 	 * @return
@@ -92,8 +162,10 @@ public class UserProcessor {
 	 * A HTTPReturnMessage with a list of available stock symbols in the data
 	 */
 	private static HTTPReturnMessage stocks(Exchange exchange) {
-		//TODO
-		return null;
+		Map<String, JSONArray> resultBody = 
+				new HashMap<String, JSONArray>();
+		resultBody.put("stocks", new JSONArray(exchange.getStockSymbols()));
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
@@ -117,8 +189,14 @@ public class UserProcessor {
 	 * A HTTPReturnMessage with the stock details in the data
 	 */
 	private static HTTPReturnMessage stock(Exchange exchange, String symbol) {
-		//TODO
-		return null;
+		Stock stock = exchange.getStockForSymbol(symbol);
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("success", stock != null);
+		if (stock != null) {
+			resultBody.put("symbol", stock.getSymbol());
+		}
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
@@ -140,8 +218,19 @@ public class UserProcessor {
 	 * A HTTPReturnMessage with the leaderboard data in the data
 	 */
 	private static HTTPReturnMessage leaderboard(Exchange exchange) {
-		//TODO
-		return null;
+		JSONArray players = new JSONArray();
+		for (Player player : exchange.getPlayers()) {
+			Map<String, Object> playerDetails = new HashMap<>();
+			playerDetails.put("ID", player.getToken());
+			playerDetails.put("name", player.getName());
+			playerDetails.put("score", player.getBalance());
+			players.put(playerDetails);
+		}
+		Map<String, Object> resultBody = 
+				new HashMap<String, Object>();
+		resultBody.put("elapsed time", exchange.getUptime());
+		resultBody.put("players", players);
+		return new HTTPReturnMessage(resultBody);
 	}
 	
 	/**
@@ -159,6 +248,7 @@ public class UserProcessor {
 		//Create a new player and add to the exchange's database
 		Player user = new Player(name, email);
 		boolean success = exchange.addPlayer(user);
+		
 		if (success) {
 			Map<String, String> resultHeaderMap =
 					new HashMap<String, String>();
@@ -170,10 +260,32 @@ public class UserProcessor {
 			
 			Map<String, String> resultBodyMap = 
 					new HashMap<String, String>();
-			resultBodyMap.put("Response", "User already exists");
+			resultBodyMap.put("Response", "User Created");
+			resultBodyMap.put("User-token", user.getToken());
+			String resultBody = (new JSONObject(resultBodyMap)).toString();
+			result = new HTTPReturnMessage(resultHeader, resultBody);
+		} else { //Created user's token already exists.
+				 //At the moment the token is random, so should really just
+				 // try again to get a new token, but ideally the token
+				 // should be based on the user's name and/or email
+			     // Returns the token of the existing user, although maybe
+			 	 // it shouldn't? TODO
+			Map<String, String> resultHeaderMap =
+					new HashMap<String, String>();
+			resultHeaderMap.put("Status-Code", "409");
+			resultHeaderMap.put("HTTP_Version", "HTTP/1.1");
+			resultHeaderMap.put("Reason-Phrase", "Conflict");
+			String resultHeader =
+					HTTP.toString(new JSONObject(resultHeaderMap));
+			
+			Map<String, String> resultBodyMap = 
+					new HashMap<String, String>();
+			resultBodyMap.put("Response", "User Not Created (Already Exists)");
+			resultBodyMap.put("User-token", user.getToken());
 			String resultBody = (new JSONObject(resultBodyMap)).toString();
 			result = new HTTPReturnMessage(resultHeader, resultBody);
 		}
+		
 		return result;
 	}
 	
@@ -201,7 +313,7 @@ public class UserProcessor {
 		String[] splituri = uri.split("/");
 		
 		HTTPReturnMessage result = null;
-		switch(splituri[1]) {
+		switch(splituri[1]) { //Determine which function to call
 			case "buy":
 			{
 				Player user = determinePlayer(exchange, request);
@@ -216,7 +328,23 @@ public class UserProcessor {
 				String symbol = splituri[2];
 				int qty = Integer.getInteger(splituri[3]);
 				long price = Long.getLong(splituri[4]);
-				result = buy(exchange, user, symbol, qty, price);
+				result = sell(exchange, user, symbol, qty, price);
+			} break;
+			case "cover":
+			{
+				Player user = determinePlayer(exchange, request);
+				String symbol = splituri[2];
+				int qty = Integer.getInteger(splituri[3]);
+				long price = Long.getLong(splituri[4]);
+				result = cover(exchange, user, symbol, qty, price);
+			} break;
+			case "short":
+			{
+				Player user = determinePlayer(exchange, request);
+				String symbol = splituri[2];
+				int qty = Integer.getInteger(splituri[3]);
+				long price = Long.getLong(splituri[4]);
+				result = sellShort(exchange, user, symbol, qty, price);
 			} break;
 			case "orders":
 			{
