@@ -8,6 +8,7 @@ public class Main {
 		System.out.println("onOrderChange: " + msg);
 	}
 
+	/*
 	public static void testExchange() {
 		ArrayList<Stock> stocks = new ArrayList<Stock>();
 		Stock stock1 = new Stock("BP", "British Petroleum", 5000, 0.2F);
@@ -50,9 +51,11 @@ public class Main {
 		exchange.printOrderBooks();
 	}
 
+
 	public static void main(String args[]) {
 		//test();
 		testExchange();
 
 	}
+	*/
 }

@@ -29,11 +29,11 @@ public class Exchange {
 		System.out.println("Exchanged started. Available stocks: " + debugString);
 	}
 
-	public void setOpen(boolean open) {
+	public synchronized void setOpen(boolean open) {
 		this.open = open;
 	}
 
-	public boolean isOpen() {
+	public synchronized boolean isOpen() {
 		return open;
 	}
 
@@ -83,7 +83,7 @@ public class Exchange {
 	//End of getter methods
 	*/
 
-	public boolean addOrder(Order order) {
+	public synchronized boolean addOrder(Order order) {
 		OrderBook ob = orderBooks.get(order.getStock().getSymbol());
 		if (ob == null) {
 			System.err.format(
@@ -106,7 +106,7 @@ public class Exchange {
 		return true;
 	}
 
-	private void matchOrders(OrderBook ob) {
+	private synchronized void matchOrders(OrderBook ob) {
 		if (ob.buys.size() == 0 || ob.sells.size() == 0) {
 			return;
 		}
@@ -158,7 +158,7 @@ public class Exchange {
 	 * @param player
 	 * @return True if successful, false if player already exists in the exchange.
 	 */
-	public boolean addPlayer(Player player) {
+	public synchronized boolean addPlayer(Player player) {
 		if (player == null) {
 			System.err.println("player should not be null.");
 			return false;
@@ -172,11 +172,11 @@ public class Exchange {
 		return true;
 	}
 	
-	public Set<String> getStockSymbols() {
+	public synchronized Set<String> getStockSymbols() {
 		return orderBooks.keySet();
 	}
 	
-	public Stock getStockForSymbol(String symbol) {
+	public synchronized Stock getStockForSymbol(String symbol) {
 		OrderBook orderBook = orderBooks.get(symbol);
 		if (orderBook != null) {
 			return orderBook.getStock();
@@ -185,19 +185,19 @@ public class Exchange {
 		}
 	}
 	
-	public Collection<Player> getPlayers() {
+	public synchronized Collection<Player> getPlayers() {
 		return players.values();
 	}
 	
 	/**
 	 * Gets the number of milliseconds for which the exchange has been running
 	 */
-	public int getUptime() {
+	public synchronized int getUptime() {
 		//TODO
 		return 0;
 	}
 
-	public void printOrderBooks() {
+	public synchronized void printOrderBooks() {
 		for (OrderBook ob : orderBooks.values()) {
 			System.out.println("BUYS TOP FIVE");
 			ob.printPendingOrders(OrderType.BUY);
