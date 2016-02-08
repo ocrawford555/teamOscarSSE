@@ -157,7 +157,7 @@ public class Exchange {
 		matchOrders(ob);
 		return true;
 	}
-
+	
 	private synchronized void matchOrders(OrderBook ob) {
 		if (ob.buys.size() == 0 || ob.sells.size() == 0) {
 			return;
@@ -222,6 +222,10 @@ public class Exchange {
 		players.put(player.getToken(), player);
 		System.out.format("Welcome %s!\n", player.getName());
 		return true;
+	}
+	
+	public synchronized Player getPlayer(String userToken) {
+		return players.get(userToken);
 	}
 	
 	public synchronized Set<String> getStockSymbols() {
@@ -299,5 +303,9 @@ public class Exchange {
 			System.out.println("=================");
 			System.out.println("");
 		}
+	}
+	
+	public synchronized OrderBook getOrderBook(String symbol) {
+		return orderBooks.get(symbol);
 	}
 }
