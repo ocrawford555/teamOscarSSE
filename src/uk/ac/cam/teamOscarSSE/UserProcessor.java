@@ -16,7 +16,7 @@ public class UserProcessor {
 	 * Place a new buy order on the exchange for the specified user
 	 * @param exchange
 	 * @param user
-	 * @param Symbol
+	 * @param symbol
 	 * @param qty
 	 * @param price
 	 * @return
@@ -42,7 +42,7 @@ public class UserProcessor {
 	 * Place a new sell order on the exchange for the specified user
 	 * @param exchange
 	 * @param user
-	 * @param Symbol
+	 * @param symbol
 	 * @param qty
 	 * @param price
 	 * @return
@@ -68,7 +68,7 @@ public class UserProcessor {
 	 * Place a new buy-to-cover order on the exchange for the specified user
 	 * @param exchange
 	 * @param user
-	 * @param Symbol
+	 * @param symbol
 	 * @param qty
 	 * @param price
 	 * @return
@@ -94,7 +94,7 @@ public class UserProcessor {
 	 * Place a new short order on the exchange for the specified user
 	 * @param exchange
 	 * @param user
-	 * @param Symbol
+	 * @param symbol
 	 * @param qty
 	 * @param price
 	 * @return
@@ -224,7 +224,6 @@ public class UserProcessor {
 	
 	/**
 	 * Get the portfolio details of the specified user
-	 * @param exchange
 	 * @param user
 	 * @return
 	 * A HTTPReturnMessage with the portfolio details in the data

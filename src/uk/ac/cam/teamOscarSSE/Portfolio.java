@@ -8,11 +8,11 @@ import java.util.Map.Entry;
 public class Portfolio {
 	//portfolio class for now will presume you can only hold one stock
 	private Map<Stock, Integer> stockOwned = new HashMap<Stock, Integer>();
-	private Map<Stock, Integer> stockBorrowed= new HashMap<Stock, Integer>();
+	private Map<Stock, Integer> stockBorrowed = new HashMap<Stock, Integer>();
 
 	public Portfolio() {
 	}
-	
+
 	public void add(Stock s, int numStocks) {
 		if (stockOwned.containsKey(s))
 			stockOwned.put(s, stockOwned.get(s) + numStocks);
@@ -33,14 +33,14 @@ public class Portfolio {
 			return amount;
 		}
 	}
-	
-	public void borrowShort(Stock s, int borrowAmount){
+
+	public void borrowShort(Stock s, int borrowAmount) {
 		if (stockBorrowed.containsKey(s))
 			stockBorrowed.put(s, stockBorrowed.get(s) + borrowAmount);
 		else
 			stockBorrowed.put(s, borrowAmount);
 	}
-	
+
 	public void sellShort(Stock s, int sellAmount) {
 		if (stockBorrowed.containsKey(s))
 			stockBorrowed.put(s, stockBorrowed.get(s) - sellAmount);
@@ -67,19 +67,19 @@ public class Portfolio {
 		}
 		return value;
 	}
-	
-	public void contents(){
+
+	public void contents() {
 		Iterator it = stockOwned.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<Stock,Integer> pair = (Entry<Stock, Integer>) it.next();
-	        System.out.println("  ---->   " + pair.getValue());
-	    }
+		while (it.hasNext()) {
+			Map.Entry<Stock, Integer> pair = (Entry<Stock, Integer>) it.next();
+			System.out.println("  ---->   " + pair.getValue());
+		}
 	}
-	
+
 	public Map<Stock, Integer> getOwnedStock() {
 		return stockOwned;
 	}
-	
+
 	public Map<Stock, Integer> getBorrowedStock() {
 		return stockBorrowed;
 	}

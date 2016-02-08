@@ -49,6 +49,7 @@ public class Player {
 
 	/**
 	 * Returns the maximum amount of a stock a player can buy at a given price.
+	 *
 	 * @param stock
 	 * @param price
 	 * @return
@@ -57,19 +58,20 @@ public class Player {
 		if (price == 0) {
 			return 0;
 		}
-		return (cashLeft - cashBlocked)/price;
+		return (cashLeft - cashBlocked) / price;
 	}
 
 	/**
 	 * Returns the maximum number of this stock a player can sell.
 	 * Currently this is equal to the amount of stock owned.
+	 *
 	 * @param stock
 	 * @return
 	 */
 	public long maxCanSell(Stock stock) {
 		return pf.getAmountOwned(stock) - pending_pf.getAmountOwned(stock);
 	}
-	
+
 	public Portfolio getPortfoio() {
 		return pf;
 	}
@@ -77,6 +79,7 @@ public class Player {
 	/**
 	 * Remove pending order from player's tracking.
 	 * This is necessary for accurate maxCanBuy and maxCanSell.
+	 *
 	 * @param orderNum
 	 * @return
 	 */
@@ -105,6 +108,7 @@ public class Player {
 
 	/**
 	 * Player has a buy order pending. Blocks cash equal to order.price * order.shares.
+	 *
 	 * @param order
 	 * @return
 	 */
@@ -116,6 +120,7 @@ public class Player {
 
 	/**
 	 * Player has a sell order pending. Blocks amount of stock equal to order.shares.
+	 *
 	 * @param order
 	 * @return
 	 */
@@ -130,12 +135,12 @@ public class Player {
 	public void updatePortfolio(OrderUpdateMessage orderUpdate) {
 		Stock tradedStock = orderUpdate.order.getStock();
 
-		if(orderUpdate.order.getOrderType() == OrderType.BUY){
+		if (orderUpdate.order.getOrderType() == OrderType.BUY) {
 			pf.add(tradedStock, orderUpdate.size);
 			//as player is buying stocks, they are spending money
 			updateCash(-1 * (orderUpdate.size * orderUpdate.price));
 			//System.out.println("Cash lost: " + (-1 * (orderUpdate.size * orderUpdate.price)));
-		} else if (orderUpdate.order.getOrderType() == OrderType.SELL){
+		} else if (orderUpdate.order.getOrderType() == OrderType.SELL) {
 			pf.remove(tradedStock, orderUpdate.size);
 			//as player is selling stocks, they gain cash
 			updateCash(orderUpdate.size * orderUpdate.price);

@@ -20,7 +20,7 @@ public class OrderBook {
 
 	public void addOrder(BuyOrder o) {
 		//BUY ORDER
-		synchronized(buys){
+		synchronized (buys) {
 			buys.add(o);
 			Collections.sort(buys);
 			s.setBestBid(buys.get(0).getPrice());
@@ -29,7 +29,7 @@ public class OrderBook {
 
 	public void addOrder(SellOrder o) {
 		//SELL ORDER
-		synchronized(sells){
+		synchronized (sells) {
 			sells.add(o);
 			Collections.sort(sells);
 			s.setBestOffer(sells.get(0).getPrice());
@@ -37,7 +37,7 @@ public class OrderBook {
 	}
 
 	public synchronized boolean removeOrder(BuyOrder o) {
-		synchronized(buys){
+		synchronized (buys) {
 			boolean removed = buys.remove(o);
 			//arguably, only order removed is from head, so call below
 			//not required
@@ -52,7 +52,7 @@ public class OrderBook {
 	}
 
 	public synchronized boolean removeOrder(SellOrder o) {
-		synchronized(sells){
+		synchronized (sells) {
 			boolean removed = sells.remove(o);
 			//arguably, only order removed is from head, so call below
 			//not required
@@ -71,24 +71,22 @@ public class OrderBook {
 		int countBuys = 5;
 		int countSells = 5;
 		if (type == OrderType.BUY)
-			synchronized(buys){
+			synchronized (buys) {
 				for (Order o : buys) {
-					if(countBuys != 0) {
+					if (countBuys != 0) {
 						System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
 						countBuys--;
-					}
-					else break;
+					} else break;
 				}
 			}
-		//SELL
+			//SELL
 		else
-			synchronized(sells){
+			synchronized (sells) {
 				for (Order o : sells) {
-					if(countSells != 0) {
+					if (countSells != 0) {
 						System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
 						countSells--;
-					}
-					else break;
+					} else break;
 				}
 			}
 	}
