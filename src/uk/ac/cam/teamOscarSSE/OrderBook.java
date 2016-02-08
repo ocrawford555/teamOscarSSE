@@ -42,7 +42,11 @@ public class OrderBook {
 			//arguably, only order removed is from head, so call below
 			//not required
 			Collections.sort(buys);
-			s.setBestBid(buys.get(0).getPrice());
+
+			// TODO: I put this check in to avoid exceptions. What's intended if the list is empty?
+			if (!buys.isEmpty()) {
+				s.setBestBid(buys.get(0).getPrice());
+			}
 			return removed;
 		}
 	}
@@ -53,7 +57,10 @@ public class OrderBook {
 			//arguably, only order removed is from head, so call below
 			//not required
 			Collections.sort(sells);
-			s.setBestOffer(sells.get(0).getPrice());
+			// TODO: I put this check in to avoid exceptions. What's intended if the list is empty?
+			if (!sells.isEmpty()) {
+				s.setBestOffer(sells.get(0).getPrice());
+			}
 			return removed;
 		}
 	}

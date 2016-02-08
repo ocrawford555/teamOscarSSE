@@ -144,7 +144,7 @@ public class Exchange {
 		if (order instanceof BuyOrder) {
 			BuyOrder bo = (BuyOrder) order;
 			if (bo.getShares() > player.maxCanBuy(order.getStock(), order.getPrice())) {
-				System.err.println("Player does not have enough cash to buy " + order);
+				//System.err.println("Player does not have enough cash to buy " + order);
 				// TODO
 				// return false;
 			}
@@ -154,7 +154,7 @@ public class Exchange {
 		} else if (order instanceof SellOrder) {
 			SellOrder so = (SellOrder) order;
 			if (so.getShares() > player.maxCanSell(order.getStock())) {
-				System.err.println("Player does not have enough shares to sell " + order);
+				//System.err.println("Player does not have enough shares to sell " + order);
 				// TODO
 				// return false;
 			}
