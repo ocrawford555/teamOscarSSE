@@ -170,6 +170,12 @@ public class Exchange {
 		return true;
 	}
 
+	/**
+	 * Returns pending order corresponding to orderNum and null if the order does not exist.
+	 * Note that a completed order may no longer be in the exchange.
+	 * @param orderNum
+	 * @return
+	 */
 	public synchronized Order getOrder(Long orderNum) {
 		return orders.get(orderNum);
 	}
