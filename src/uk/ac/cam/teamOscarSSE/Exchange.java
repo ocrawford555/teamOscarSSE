@@ -170,6 +170,10 @@ public class Exchange {
 		return true;
 	}
 
+	public synchronized Order getOrder(Long orderNum) {
+		return orders.get(orderNum);
+	}
+
 	/**
 	 * Remove an order from the orderbook and player's portfolio.
 	 * @param orderNum
