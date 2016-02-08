@@ -47,8 +47,7 @@ public class HTTPReturnMessage {
 	}
 	
 	public String toString() {
-		//Convert to a whole HTTPReponse
-		//TODO
+		//Convert to a whole HTTP response string
 		return header + data;
 	}
 }

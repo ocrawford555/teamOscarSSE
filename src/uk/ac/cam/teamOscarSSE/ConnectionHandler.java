@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -74,13 +75,22 @@ public class ConnectionHandler {
 					HTTPDetails requestDetails = readInput(s);
 					
 					//Send requestDetails to UserProcessor
-					UserProcessor.Process(exchange, requestDetails);
+					HTTPReturnMessage output = 
+							UserProcessor.Process(exchange, requestDetails);
 					
-					//TODO: Send return message
-					
+					//Write result back to the socket
+					PrintWriter out = new PrintWriter(s.getOutputStream());
+					out.print(output.toString());
+					out.flush();
+					out.close();
 				} catch (HTTPHeaderException e1) {
 					//TODO: Send failure message
+					System.err.println("Malformed HTTP Header");
 					e1.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					System.err.println("Error getting socket outputstream");
+					e.printStackTrace();
 				} finally {
 					// No matter what, we need to close the connection
 					try{

@@ -1,6 +1,9 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -150,7 +153,6 @@ public class UserProcessor {
 	 */
 	private static HTTPReturnMessage cancel(Exchange exchange, Player user,
 											long orderID) {
-		//TODO
 		return null;
 	}
 	
@@ -176,8 +178,30 @@ public class UserProcessor {
 	 */
 	private static HTTPReturnMessage orderbook(Exchange exchange,
 												String symbol) {
-		//TODO
-		return null;
+		OrderBook orderbook = exchange.getOrderBook(symbol);
+		List<BuyOrder> buys = orderbook.buys;
+		List<SellOrder> sells = orderbook.sells;
+		List<JSONObject> buyjson = new ArrayList<JSONObject>();
+		List<JSONObject> selljson = new ArrayList<JSONObject>();
+		for (BuyOrder order : buys) {
+			JSONObject orderObject = new JSONObject();
+			orderObject.put("price", order.getPrice());
+			orderObject.put("qty", order.getShares());
+			buyjson.add(orderObject);
+		}
+		for (SellOrder order : sells) {
+			JSONObject orderObject = new JSONObject();
+			orderObject.put("price", order.getPrice());
+			orderObject.put("qty", order.getShares());
+			selljson.add(orderObject);
+		}
+		
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap.put("success", true);
+		resultMap.put("symbol", symbol);
+		resultMap.put("buy", new JSONArray(buyjson));
+		resultMap.put("sell", new JSONArray(selljson));
+		return new HTTPReturnMessage(resultMap);
 	}
 	
 	/**
@@ -205,9 +229,19 @@ public class UserProcessor {
 	 * @return
 	 * A HTTPReturnMessage with the portfolio details in the data
 	 */
-	private static HTTPReturnMessage portfolio(Exchange exchange, Player user) {
-		//TODO
-		return null;
+	private static HTTPReturnMessage portfolio(Player user) {
+		Portfolio pf = user.getPortfoio();
+		long balance = user.getBalance();
+		JSONObject stockOwned = new JSONObject(
+										new JSONObject(pf.getOwnedStock()));
+		JSONObject stockBorrowed = new JSONObject(
+										new JSONObject(pf.getBorrowedStock()));
+		Map<String, Object> portfolioDetails = new HashMap<String, Object>();
+		portfolioDetails.put("balance", balance);
+		portfolioDetails.put("stockOwned", stockOwned);
+		portfolioDetails.put("stockBorrowed", stockBorrowed);
+		
+		return new HTTPReturnMessage(portfolioDetails);
 	}
 	
 	/**
@@ -248,21 +282,12 @@ public class UserProcessor {
 		Player user = new Player(name, email);
 		boolean success = exchange.addPlayer(user);
 		
-		if (success) {
-			Map<String, String> resultHeaderMap =
-					new HashMap<String, String>();
-			resultHeaderMap.put("Status-Code", "200");
-			resultHeaderMap.put("HTTP_Version", "HTTP/1.1");
-			resultHeaderMap.put("Reason-Phrase", "OK");
-			String resultHeader =
-					HTTP.toString(new JSONObject(resultHeaderMap));
-			
+		if (success) {			
 			Map<String, String> resultBodyMap = 
 					new HashMap<String, String>();
-			resultBodyMap.put("Response", "User Created");
-			resultBodyMap.put("User-token", user.getToken());
-			String resultBody = (new JSONObject(resultBodyMap)).toString();
-			result = new HTTPReturnMessage(resultHeader, resultBody);
+			resultBodyMap.put("response", "User Created");
+			resultBodyMap.put("user-token", user.getToken());
+			result = new HTTPReturnMessage(resultBodyMap);
 		} else { //Created user's token already exists.
 				 //At the moment the token is random, so should really just
 				 // try again to get a new token, but ideally the token
@@ -279,8 +304,8 @@ public class UserProcessor {
 			
 			Map<String, String> resultBodyMap = 
 					new HashMap<String, String>();
-			resultBodyMap.put("Response", "User Not Created (Already Exists)");
-			resultBodyMap.put("User-token", user.getToken());
+			resultBodyMap.put("response", "User Not Created (Already Exists)");
+			resultBodyMap.put("user-token", user.getToken());
 			String resultBody = (new JSONObject(resultBodyMap)).toString();
 			result = new HTTPReturnMessage(resultHeader, resultBody);
 		}
@@ -297,12 +322,9 @@ public class UserProcessor {
 	 */
 	private static Player determinePlayer(Exchange exchange,
 												HTTPDetails request) {
-		//TODO
-		//Parse request into JSONObject
 		JSONObject requestData = new JSONObject(request.getBody());
-		
-		
-		return null;
+		String userToken = (String) requestData.get("user-token");
+		return exchange.getPlayer(userToken);
 	}
 	
 	public static HTTPReturnMessage Process(Exchange exchange,
@@ -378,7 +400,7 @@ public class UserProcessor {
 			case "portfolio":
 			{
 				Player user = determinePlayer(exchange, request);
-				result = portfolio(exchange, user);
+				result = portfolio(user);
 			} break;
 			case "leaderboard":
 			{

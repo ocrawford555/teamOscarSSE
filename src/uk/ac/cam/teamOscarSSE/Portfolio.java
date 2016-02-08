@@ -12,7 +12,7 @@ public class Portfolio {
 
 	public Portfolio() {
 	}
-
+	
 	public void add(Stock s, int numStocks) {
 		if (stockOwned.containsKey(s))
 			stockOwned.put(s, stockOwned.get(s) + numStocks);
@@ -74,5 +74,13 @@ public class Portfolio {
 	        Map.Entry<Stock,Integer> pair = (Entry<Stock, Integer>) it.next();
 	        System.out.println("  ---->   " + pair.getValue());
 	    }
+	}
+	
+	public Map<Stock, Integer> getOwnedStock() {
+		return stockOwned;
+	}
+	
+	public Map<Stock, Integer> getBorrowedStock() {
+		return stockBorrowed;
 	}
 }

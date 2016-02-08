@@ -1,9 +1,13 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The exchange takes and processes orders.
@@ -17,7 +21,7 @@ public class Exchange {
 	private HashMap<String, Player> players;
 	private HashMap<Long, Order> orders;
 
-	private boolean open;	// default state is closed.
+	private boolean open;    // default state is closed.
 	private long startTime;
 	private long lastRoundUptime;
 
@@ -28,13 +32,18 @@ public class Exchange {
 		open = false;
 		lastRoundUptime = 0;
 
+		startTime = System.currentTimeMillis();
+		Date date = new Date(startTime);
+		DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
+		String dateFormatted = formatter.format(date);
+
 		String debugString = "";
 
 		for (Stock stock : stocks) {
 			orderBooks.put(stock.getSymbol(), new OrderBook(stock));
 			debugString += stock.getSymbol() + " ";
 		}
-		System.out.println("Exchanged started. Available stocks: " + debugString);
+		System.out.println("Exchanged started at " + dateFormatted + "." + " --  Available stocks: " + debugString);
 	}
 
 	public synchronized void setOpen(boolean open) {
@@ -103,8 +112,9 @@ public class Exchange {
 	 * - the number of shares is <= 0
 	 * - the number of shares is above the maximum
 	 * - the stock does not exist
-	 *
+	 * <p>
 	 * This method assumes other properties of Order are valid, but may do other checks as well.
+	 *
 	 * @param order
 	 * @return
 	 */
@@ -129,6 +139,7 @@ public class Exchange {
 	 * Adds an order to the exchange, trying to match immediately if possible.
 	 * The caller should check if successful or not.
 	 * Failure may be due to invalid orders (e.g. negative price), as well as players with insufficient funds/stocks.
+	 *
 	 * @param order
 	 * @return true if successful, false otherwise.
 	 */
@@ -173,6 +184,7 @@ public class Exchange {
 	/**
 	 * Returns pending order corresponding to orderNum and null if the order does not exist.
 	 * Note that a completed order may no longer be in the exchange.
+	 *
 	 * @param orderNum
 	 * @return
 	 */
@@ -182,6 +194,7 @@ public class Exchange {
 
 	/**
 	 * Remove an order from the orderbook and player's portfolio.
+	 *
 	 * @param orderNum
 	 * @return
 	 */
@@ -213,6 +226,7 @@ public class Exchange {
 	 * This method does best effort matching on the order book.
 	 * It assumes all orders can go through as cash and stock were already blocked when the user submitted the order.
 	 * This allows users to trade with themselves, so a buy above their own sell will go through.
+	 *
 	 * @param ob
 	 */
 	private synchronized void matchOrders(OrderBook ob) {
@@ -232,7 +246,7 @@ public class Exchange {
 
 			bo.getStock().addVolume(sizeFilled);
 			bo.getStock().setLastTransactionPrice(price);
-			
+
 			bo.setShares(bo.getShares() - sizeFilled);
 			so.setShares(so.getShares() - sizeFilled);
 
@@ -281,11 +295,15 @@ public class Exchange {
 		System.out.format("Welcome %s!\n", player.getName());
 		return true;
 	}
-	
+
+	public synchronized Player getPlayer(String userToken) {
+		return players.get(userToken);
+	}
+
 	public synchronized Set<String> getStockSymbols() {
 		return orderBooks.keySet();
 	}
-	
+
 	public synchronized Stock getStockForSymbol(String symbol) {
 		OrderBook orderBook = orderBooks.get(symbol);
 		if (orderBook != null) {
@@ -294,11 +312,11 @@ public class Exchange {
 			return null;
 		}
 	}
-	
+
 	public synchronized Collection<Player> getPlayers() {
 		return players.values();
 	}
-	
+
 	/**
 	 * Gets the number of milliseconds for which the exchange has been running
 	 * If the exchange is closed, returns the last uptime.
@@ -309,6 +327,42 @@ public class Exchange {
 		} else {
 			return lastRoundUptime;
 		}
+	}
+
+	public synchronized String getUptimeFormatted() {
+		return getDurationBreakdown(getUptime());
+	}
+
+	/**
+	 * Convert a millisecond duration to a string format
+	 *
+	 * @param millis A duration to convert to a string form
+	 * @return A string of the form "X Days Y Hours Z Minutes A Seconds".
+	 */
+	public static String getDurationBreakdown(long millis) {
+		if (millis < 0) {
+			throw new IllegalArgumentException("Duration must be greater than zero!");
+		}
+
+		long days = TimeUnit.MILLISECONDS.toDays(millis);
+		millis -= TimeUnit.DAYS.toMillis(days);
+		long hours = TimeUnit.MILLISECONDS.toHours(millis);
+		millis -= TimeUnit.HOURS.toMillis(hours);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+		millis -= TimeUnit.MINUTES.toMillis(minutes);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+
+		StringBuilder sb = new StringBuilder(64);
+		sb.append(days);
+		sb.append(" Days ");
+		sb.append(hours);
+		sb.append(" Hours ");
+		sb.append(minutes);
+		sb.append(" Minutes ");
+		sb.append(seconds);
+		sb.append(" Seconds");
+
+		return (sb.toString());
 	}
 
 	public synchronized void printOrderBooks() {
@@ -322,5 +376,9 @@ public class Exchange {
 			System.out.println("=================");
 			System.out.println("");
 		}
+	}
+
+	public synchronized OrderBook getOrderBook(String symbol) {
+		return orderBooks.get(symbol);
 	}
 }
