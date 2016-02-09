@@ -21,8 +21,11 @@ public class Portfolio {
 	}
 
 	public void remove(Stock s, int numStocks) {
-		if (stockOwned.containsKey(s))
+		if (stockOwned.containsKey(s)) {
 			stockOwned.put(s, stockOwned.get(s) - numStocks);
+		} else {
+			stockOwned.put(s, -numStocks);
+		}
 	}
 
 	public int getAmountOwned(Stock stock) {
@@ -62,7 +65,7 @@ public class Portfolio {
 	public long currentValue() {
 		long value = 0;
 		for (Map.Entry<Stock, Integer> entry : stockOwned.entrySet()) {
-			long stockValue = entry.getKey().getLastTransactionPrice();
+			long stockValue = entry.getKey().getStockPrice();
 			value += (stockValue) * entry.getValue();
 		}
 		return value;
@@ -72,7 +75,7 @@ public class Portfolio {
 		Iterator it = stockOwned.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Stock, Integer> pair = (Entry<Stock, Integer>) it.next();
-			System.out.println("  ---->   " + pair.getValue());
+			System.out.println(pair.getKey().getSymbol() + "  ---->   " + pair.getValue());
 		}
 	}
 

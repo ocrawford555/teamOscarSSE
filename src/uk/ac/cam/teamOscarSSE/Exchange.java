@@ -2,11 +2,7 @@ package uk.ac.cam.teamOscarSSE;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -14,8 +10,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class Exchange {
 	//TODO constant limits.
-	private final long MAX_STOCK_PRICE = 1000000;
-	private final long MAX_STOCK_SHARES = 10000;
+	private final long MAX_STOCK_PRICE = 100000;
+	private final long MAX_STOCK_SHARES = 5000;
 
 	private HashMap<String, OrderBook> orderBooks;
 	private HashMap<String, Player> players;
@@ -33,9 +29,7 @@ public class Exchange {
 		lastRoundUptime = 0;
 
 		startTime = System.currentTimeMillis();
-		Date date = new Date(startTime);
-		DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
-		String dateFormatted = formatter.format(date);
+		String dateFormatted = getFormattedTime(startTime);
 
 		String debugString = "";
 
@@ -43,12 +37,19 @@ public class Exchange {
 			orderBooks.put(stock.getSymbol(), new OrderBook(stock));
 			debugString += stock.getSymbol() + " ";
 		}
-		System.out.println("Exchanged started at " + dateFormatted + "." + " --  Available stocks: " + debugString);
+		System.out.println("Exchanged created at " + dateFormatted + "." + " --  Available stocks: " + debugString);
+	}
+
+	private synchronized String getFormattedTime(long millis) {
+		Date date = new Date(millis);
+		DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
+		return formatter.format(date);
 	}
 
 	public synchronized void setOpen(boolean open) {
-		if (open) {
+		if (open && !this.open) {
 			startTime = System.currentTimeMillis();
+			System.out.println("Exchanged started at " + getFormattedTime(startTime) + ".");
 		} else if (this.open && !open) {
 			lastRoundUptime = System.currentTimeMillis() - startTime;
 		}
@@ -59,51 +60,6 @@ public class Exchange {
 		return open;
 	}
 
-	/*
-	//Variables that will be used to provide users with metrics
-	private static long pointAvg5;
-	private static long pointAvg20;
-	private static long pointAvg50;
-	private static long overallAverage;
-	private static long transactionChange;
-	private static float rateOfChange5;
-	private static float rateOfChange20;
-	private static float rateOfChange50;
-
-	//Getter methods for user metrics
-	public static long getPointAvg6() {
-		return pointAvg5;
-	}
-
-	public static long getPointAvg20() {
-		return pointAvg20;
-	}
-
-	public static long getPointAvg50() {
-		return pointAvg50;
-	}
-
-	public static long overallAverage() {
-		return overallAverage;
-	}
-
-	public static long transactionChange() {
-		return transactionChange;
-	}
-
-	public static float rateOfChange5() {
-		return rateOfChange5;
-	}
-
-	public static float rateOfChange20() {
-		return rateOfChange20;
-	}
-
-	public static float rateOfChange50() {
-		return rateOfChange50;
-	}
-	//End of getter methods
-	*/
 
 	/**
 	 * An order is invalid if
@@ -144,6 +100,10 @@ public class Exchange {
 	 * @return true if successful, false otherwise.
 	 */
 	public synchronized boolean addOrder(Order order) {
+		if (!isOpen()) {
+			System.err.println("Can't add order. The exchange is closed.");
+			return false;
+		}
 		// TODO: should return exception with a message, discuss.
 		if (!validateOrder(order)) {
 			System.err.println("Invalid order " + order);
@@ -157,7 +117,7 @@ public class Exchange {
 			if (bo.getShares() > player.maxCanBuy(order.getStock(), order.getPrice())) {
 				//System.err.println("Player does not have enough cash to buy " + order);
 				// TODO
-				// return false;
+				return false;
 			}
 			orders.put(order.getOrderNum(), order);
 			player.addPendingOrder(bo);
@@ -167,7 +127,7 @@ public class Exchange {
 			if (so.getShares() > player.maxCanSell(order.getStock())) {
 				//System.err.println("Player does not have enough shares to sell " + order);
 				// TODO
-				// return false;
+				 return false;
 			}
 			orders.put(order.getOrderNum(), order);
 			player.addPendingOrder(so);
@@ -193,6 +153,35 @@ public class Exchange {
 	}
 
 	/**
+	 * Get pending orders in order book.
+	 * @param playerID
+	 * @return
+	 */
+	public synchronized Map<Long, Order> getPendingOrders(String playerID) {
+		Player player = players.get(playerID);
+		if (player == null) {
+			return null;
+		}
+		return player.getPendingOrders();
+	}
+
+	/**
+	 * Cancel all players' orders, returning true upon success and false otherwise.
+	 * @param playerID
+	 * @return
+	 */
+	public synchronized boolean removeAllOrders(String playerID) {
+		Map<Long, Order> pending_orders = getPendingOrders(playerID);
+		boolean good = true;
+		for (Map.Entry<Long, Order> entry : pending_orders.entrySet()) {
+			if (!removeOrder(entry.getKey())) {
+				good = false;
+			}
+		}
+		return good;
+	}
+
+	/**
 	 * Remove an order from the orderbook and player's portfolio.
 	 *
 	 * @param orderNum
@@ -207,7 +196,6 @@ public class Exchange {
 		}
 		Player player = players.get(order.getId());
 
-		// TODO: should check if orderbookpending_orders.remove(orderNum); has order as well
 		if (player != null && player.hasOrderPending(orderNum)) {
 			player.removeOrder(orderNum);
 			if (order instanceof BuyOrder) {
@@ -251,16 +239,16 @@ public class Exchange {
 			so.setShares(so.getShares() - sizeFilled);
 
 			OrderUpdateMessage buyUpdate = new OrderUpdateMessage(bo, sizeFilled, price);
-			//Main.onOrderChange(buyUpdate);
 			players.get(bo.getId()).updatePortfolio(buyUpdate);
 
 			OrderUpdateMessage sellUpdate = new OrderUpdateMessage(so, sizeFilled, price);
-			//Main.onOrderChange(sellUpdate);
 			players.get(so.getId()).updatePortfolio(sellUpdate);
+			bo.getStock().newPrice();
 
 			if (bo.getShares() == 0) {
 				// Order filled, remove from order book.
 				ob.removeOrder(bo);
+				orders.remove(bo.getOrderNum());
 				if (ob.buys.size() > 0) {
 					bo = ob.buys.get(0);
 				}
@@ -269,6 +257,7 @@ public class Exchange {
 			if (so.getShares() == 0) {
 				// Order filled, remove from order book.
 				ob.removeOrder(so);
+				orders.remove(so.getOrderNum());
 				if (ob.sells.size() > 0) {
 					so = ob.sells.get(0);
 				}

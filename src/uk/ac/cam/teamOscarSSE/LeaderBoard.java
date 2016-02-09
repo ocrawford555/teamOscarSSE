@@ -35,6 +35,7 @@ public class LeaderBoard {
 	//descending order using the entriesSortedByValues
 	//function.
 	public void get() {
+		update();
 		List<Entry<String, Long>> sorted = entriesSortedByValues(lB);
 
 		for (Entry<String, Long> e : sorted) {

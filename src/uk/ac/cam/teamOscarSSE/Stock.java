@@ -118,4 +118,50 @@ public class Stock {
 	public void addVolume(long volumeTraded) {
 		this.volumeTraded += volumeTraded;
 	}
+
+/*
+	//Variables that will be used to provide users with metrics
+	private static long pointAvg5;
+	private static long pointAvg20;
+	private static long pointAvg50;
+	private static long overallAverage;
+	private static long transactionChange;
+	private static float rateOfChange5;
+	private static float rateOfChange20;
+	private static float rateOfChange50;
+
+	//Getter methods for user metrics
+	public static long getPointAvg6() {
+		return pointAvg5;
+	}
+
+	public static long getPointAvg20() {
+		return pointAvg20;
+	}
+
+	public static long getPointAvg50() {
+		return pointAvg50;
+	}
+
+	public static long overallAverage() {
+		return overallAverage;
+	}
+
+	public static long transactionChange() {
+		return transactionChange;
+	}
+
+	public static float rateOfChange5() {
+		return rateOfChange5;
+	}
+
+	public static float rateOfChange20() {
+		return rateOfChange20;
+	}
+
+	public static float rateOfChange50() {
+		return rateOfChange50;
+	}
+	//End of getter methods
+	*/
 }

@@ -50,12 +50,11 @@ public class Main {
 
 		exchange.printOrderBooks();
 	}
+	*/
 
 
 	public static void main(String args[]) {
-		//test();
-		testExchange();
+		//testExchange();
 
 	}
-	*/
 }

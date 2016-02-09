@@ -5,6 +5,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Player {
+
+	// The maximum number of stocks a player can borrow via the "SellOrder" type.
+	// This is used whilst Short is not yet implemented.
+	private final int SHORT_LIMIT = 1000;
+
 	//human name of competitor
 	private String name;
 
@@ -69,7 +74,11 @@ public class Player {
 	 * @return
 	 */
 	public long maxCanSell(Stock stock) {
-		return pf.getAmountOwned(stock) - pending_pf.getAmountOwned(stock);
+		return pf.getAmountOwned(stock) - pending_pf.getAmountOwned(stock) + SHORT_LIMIT;
+	}
+
+	public Map<Long, Order> getPendingOrders() {
+		return pending_orders;
 	}
 
 	public Portfolio getPortfoio() {
@@ -131,7 +140,6 @@ public class Player {
 		return true;
 	}
 
-	// TODO: argument won't actually be an OrderUpdateMessage.
 	public void updatePortfolio(OrderUpdateMessage orderUpdate) {
 		Stock tradedStock = orderUpdate.order.getStock();
 
@@ -140,11 +148,17 @@ public class Player {
 			//as player is buying stocks, they are spending money
 			updateCash(-1 * (orderUpdate.size * orderUpdate.price));
 			//System.out.println("Cash lost: " + (-1 * (orderUpdate.size * orderUpdate.price)));
+
+			// Unblock cash
+			cashBlocked += -1 * (orderUpdate.size * orderUpdate.price);
 		} else if (orderUpdate.order.getOrderType() == OrderType.SELL) {
 			pf.remove(tradedStock, orderUpdate.size);
 			//as player is selling stocks, they gain cash
 			updateCash(orderUpdate.size * orderUpdate.price);
 			//System.out.println("Cash gained: " + (orderUpdate.size * orderUpdate.price));
+
+			// Unblock shares
+			pending_pf.remove(orderUpdate.order.getStock(), orderUpdate.getSize());
 		} else {
 			System.err.println("Unimplemented order type");
 		}
