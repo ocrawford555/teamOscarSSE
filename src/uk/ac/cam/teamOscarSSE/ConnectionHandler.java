@@ -67,7 +67,7 @@ public class ConnectionHandler {
 	}
 	
 	
-	public ConnectionHandler(Exchange exchange, final Socket s) {
+	public ConnectionHandler(final Exchange exchange, final Socket s) {
 		Thread handle = new Thread() {
 			public void run() {
 				try {
