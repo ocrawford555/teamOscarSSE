@@ -82,11 +82,11 @@ public class Stock {
 		long tradePrice = getLastTransactionPrice();
 		long price = getStockPrice();
 		float sigmaS = getUnc();
-		float temp = 1;
-//		if(getVolumeTraded()!=0)
-//			temp = TMAX/getVolumeTraded() - 1;
-//		else
-//			temp = 1;
+		float temp;
+		if(getVolumeTraded()!=0)
+			temp = TMAX/getVolumeTraded() - 1;
+		else
+			temp = 1;
 		float sigmaE = sigmaS*temp;
 		float k = (sigmaS*sigmaS)/((sigmaS*sigmaS)+(sigmaE*sigmaE));
 		price = (long) (price + (k*(tradePrice - price)));

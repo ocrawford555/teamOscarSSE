@@ -17,7 +17,7 @@ public class RecessionBot extends Bot implements Runnable {
 		int volume2 = r.nextInt(TMAX);
 		long stockP = stock.getStockPrice();
 		
-		long buyPrice1 = stockP+8;		
+		long buyPrice1 = stockP+800;		
 		
 		Order buyOrder1 = new BuyOrder(stock, playerID, volume1, buyPrice1);
 
