@@ -4,7 +4,7 @@ let body;
 
 const Leaderboard = {
 	positions: new Map(),
-	countdown: 1 * 60,
+	countdown: 60, // In seconds
 	live: false,
 	object: Ω(`div.leaderboard`).append(Ω(`div.heading`).append(Ω(`div.position`).withText("Position")).append(Ω(`div.name`).withText("Name")).append(Ω(`div.score`).withText("Score"))).append(`div.entries`),
 	animated: false,
@@ -251,22 +251,27 @@ window.addEventListener("DOMContentLoaded", () => {
 
 	// Initialise the leaderboard
 	body.querySelector("#focus").append(Leaderboard.object);
-	body.querySelector("#focus").append(Ω(`div#countdown.live`).withText(Leaderboard.formatCountdown(Leaderboard.countdown)));
+	body.querySelector("#focus").append(Ω(`div#countdown.live`).append(Ω(`span.time`)));
+	const formatTime = () => {
+		const time = body.querySelector(`#countdown .time`);
+		const formattedTime = Leaderboard.formatCountdown(Leaderboard.countdown);
+		const matches = formattedTime.replace(/[^1:]/g, "").split(":").map(ones => ones.length)
+		time.replaceText(formattedTime).addStyle({
+			paddingLeft: `${0.2 * matches[0]}em`,
+			paddingRight: `${0.2 * matches[1]}em`
+		});
+	};
+	formatTime();
 	window.setInterval(() => {
-		if (-- Leaderboard.countdown > 0) {
-			if (body.querySelector(`#countdown`).hasClass("live")) {
-				body.querySelector(`#countdown`).replaceText(Leaderboard.formatCountdown(Leaderboard.countdown));
-			} else {
-				body.querySelector(`#countdown > span`).replaceText(`Next round in: ${Leaderboard.formatCountdown(Leaderboard.countdown)}`);
-			}
-		} else {
+		if (-- Leaderboard.countdown === 0) {
 			Leaderboard.countdown = 60;
 			if (body.querySelector(`#countdown`).hasClass("live")) {
-				body.querySelector(`#countdown`).removeClass("live").replaceText("Round Complete").append(Ω(`span`).withText(`Next round in: ${Leaderboard.formatCountdown(Leaderboard.countdown)}`));
+				body.querySelector(`#countdown`).removeClass("live").replaceText("Round Complete").append(Ω(`span.sub`).withText(`Next round in: `).append(Ω(`span.time`).withText(Leaderboard.formatCountdown(Leaderboard.countdown))));
 			} else {
-				body.querySelector(`#countdown`).addClass("live").replaceText(Leaderboard.formatCountdown(Leaderboard.countdown));
+				body.querySelector(`#countdown`).addClass("live").clear().append(Ω(`span.time`).withText(Leaderboard.formatCountdown(Leaderboard.countdown)));
 			}
 		}
+		formatTime();
 	}, 1000);
 	
 	// Initialise the graph

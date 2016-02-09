@@ -3,6 +3,16 @@
 	-webkit-user-select: none;
 }
 
+@font-face {
+	font-family: "Digital";
+	src: url("DS-DIGIT.ttf");
+}
+
+@font-face {
+	font-family: "Good Times";
+	src: url("GOODTIME.ttf");
+}
+
 body {
 	margin: 0; margin-top: 36pt;
 	font-family: "Helvetica Neue", sans-serif;
@@ -68,7 +78,14 @@ canvas {
 	margin-top: -66pt;
 }
 
-#countdown > span {
+.time {
+	display: inline-block;
+	font-family: Digital;
+	color: hsl(180, 100%, 50%);
+	text-shadow: hsl(180, 100%, 50%) 0 0 2px;
+}
+
+#countdown > .sub {
 	display: block;
 	font-size: 16pt;
 }
@@ -151,14 +168,14 @@ canvas {
 		opacity: 1;
 	}
 	50% {
-		transform: translateY(-15pt);
+		transform: translateY(-5pt);
 		opacity: 1;
 	}
 	65% {
 		opacity: 1;
 	}
 	100% {
-		transform: translateY(-20pt);
+		transform: translateY(-7pt);
 		opacity: 0;
 	}
 }
