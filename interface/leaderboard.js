@@ -1,5 +1,7 @@
 "use strict";
 
+let body;
+
 const Leaderboard = {
 	positions: new Map(),
 	countdown: 1 * 60,
@@ -18,12 +20,12 @@ const Leaderboard = {
 					object: null
 				});
 				Leaderboard.addElementForEntry(entry.ID, entry.position);
-				Leaderboard.repositionEntry(entry.ID, entry.position, false);
-				Graph.addEntry(entry.ID);
+				Graph.addEntry(entry.ID, entry.name);
+				Leaderboard.repositionEntry(entry.ID, entry.position, entries.length, false);
 			} else {
 				const existingEntry = Leaderboard.positions.get(entry.ID);
 				if (existingEntry.position !== entry.position) {
-					Leaderboard.repositionEntry(entry.ID, entry.position, true);
+					Leaderboard.repositionEntry(entry.ID, entry.position, entries.length, true);
 				}
 				if (entry.name !== existingEntry.name) {
 					existingEntry.name = entry.name;
@@ -33,7 +35,10 @@ const Leaderboard = {
 					const difference = entry.score - existingEntry.score;
 					existingEntry.score = entry.score;
 					existingEntry.object.querySelector(`.score`).replaceText(Leaderboard.formatScore(entry.score));
-					const differenceObject = Ω(`span.difference.${difference > 0 ? "gain" : "loss"}`).withText(`${difference > 0 ? "+" : "-"}${Leaderboard.formatScore(Math.abs(difference))}`).appendedTo(existingEntry.object);
+					const differenceObject = Ω(`span.difference.${difference > 0 ? "gain" : "loss"}`).withText(`${difference > 0 ? "+" : "-"}${Leaderboard.formatScore(Math.abs(difference))}`).withStyle({
+						top: existingEntry.object.rect.top + window.scrollY,
+						left: existingEntry.object.rect.right - existingEntry.object.querySelector(`.score`).rect.width / 2 + window.scrollX
+					}).appendedTo(body);
 					window.setTimeout(() => {
 						differenceObject.remove();
 					}, 1.2 * 1000);
@@ -58,7 +63,7 @@ const Leaderboard = {
 	formatCountdown (seconds) {
 		return `${`0${Math.floor(seconds / 60)}`.slice(-2)}:${`0${seconds % 60}`.slice(-2)}`;
 	},
-	repositionEntry (ID, newPosition, animated) {
+	repositionEntry (ID, newPosition, totalPositions, animated) {
 		const entry = Leaderboard.positions.get(ID);
 		entry.position = newPosition;
 		if (Leaderboard.animated && animated) {
@@ -67,7 +72,10 @@ const Leaderboard = {
 		entry.object.querySelector(`.position`).replaceText(newPosition + 1);
 		entry.object.setStyle({
 			top: `calc(30pt * ${newPosition})`,
-			zIndex: Leaderboard.positions.size - newPosition
+			zIndex: totalPositions - newPosition
+		});
+		body.querySelector(`#label-${ID}`).setStyle({
+			zIndex: totalPositions - newPosition
 		});
 		if (Leaderboard.animated && animated) {
 			window.setTimeout(() => {
@@ -77,8 +85,8 @@ const Leaderboard = {
 	},
 	swapEntries (IDA, IDB) {
 		const positionA = Leaderboard.positions.get(IDA).position, positionB = Leaderboard.positions.get(IDB).position;
-		Leaderboard.repositionEntry(IDA, positionB, true);
-		Leaderboard.repositionEntry(IDB, positionA, true);
+		Leaderboard.repositionEntry(IDA, positionB, Leaderboard.positions.size, true);
+		Leaderboard.repositionEntry(IDB, positionA, Leaderboard.positions.size, true);
 	}
 };
 
@@ -86,8 +94,9 @@ const Graph = {
 	object: Ω(`canvas`),
 	temporary: Ω(`canvas`),
 	histories: new Map(),
-	addEntry (ID) {
+	addEntry (ID, name) {
 		Graph.histories.set(ID, new Map());
+		Ω(`span.identifier.hidden#label-${ID}`).withText(name).appendedTo(body);
 	},
 	addPoint (timestamp, ID, value) {
 		const history = Graph.histories.get(ID);
@@ -110,19 +119,25 @@ const Graph = {
 
 		// Plot the points
 		let totalMin = canvas.width - 1;
-		for (const history of Graph.histories.values()) {
+		for (const ID of Graph.histories.keys()) {
+			const history = Graph.histories.get(ID);
 			let first = true;
 			let min = null, max = null;
+			let currentScore = null;
 			for (const pair of history) {
 				const x = (1 + (pair[0] - now) / duration) * canvas.width;
-				const y = (pair[1] - minY) / (maxY - minY) * canvas.height;
+				const y = canvas.height * (1 - (pair[1] - minY) / (maxY - minY));
 				if (min === null || x < min) {
 					min = x;
 				}
 				if (max === null || x > max) {
 					max = x;
+					currentScore = (pair[1] - minY) / (maxY - minY);
 				}
 				[strokePath, fillPath].forEach(path => path[first ? "moveTo" : "lineTo"](x, y));
+				if (history.size === 1) {
+					strokePath.arc(x, y, 2, 0, Math.PI * 2, false);
+				}
 				first = false;
 			}
 			if (min !== null && max !== null) {
@@ -131,6 +146,12 @@ const Graph = {
 				if (min < totalMin) {
 					totalMin = min;
 				}
+			}
+			if (currentScore !== null) {
+				const rect = Graph.object.rect;
+				body.querySelector(`#label-${ID}`).removeClass("hidden").setStyle({
+					top: rect.bottom + window.scrollY - currentScore * rect.height
+				});
 			}
 		}
 		let fadeGradient;
@@ -153,8 +174,8 @@ const Graph = {
 		// Fill the area under the lines with a gradient
 		let hue = 0;
 		const fillGradient = context.createLinearGradient(canvas.width / 2, 0, canvas.width / 2, canvas.height - 1);
-		fillGradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0.6)`);
-		fillGradient.addColorStop(1, `hsla(${hue + 240}, 100%, 50%, 0.3)`);
+		fillGradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0.7)`);
+		fillGradient.addColorStop(1, `hsla(${hue + 240}, 100%, 50%, 0.4)`);
 		context.globalCompositeOperation = "source-in";
 		context.fillStyle = fillGradient;
 		context.fillRect(0, 0, canvas.width, canvas.height);
@@ -192,7 +213,8 @@ const Graph = {
 };
 
 window.addEventListener("DOMContentLoaded", () => {
-	const body = Ω(document.body);
+	body = Ω(document.body);
+
 	// Initialise testing data
 	let entries = [];
 	for (const name of ["Cam", "Ox", "MIT", "Imp"]) {
@@ -210,13 +232,14 @@ window.addEventListener("DOMContentLoaded", () => {
 		if (++ progression === 60) {
 			const timestamp = performance.now();
 			const entries = [];
+			const variance = 40000;
 			for (const pair of Leaderboard.positions) {
 				const entryID = pair[0];
 				const entry = pair[1];
 				entries.push({
 					ID: entryID,
 					name: entry.name,
-					score: 10000 + 1000000 / 2 + Math.round(Math.random() * 1000000 / 10) - entries.length * 100000
+					score: /*10000 + 1000000 / 2 + Math.round(Math.random() * 1000000 / 10) - entries.length * 100000*/ entry.score + Math.random() * variance * 2 - variance
 				});
 			}
 			Leaderboard.update(timestamp, entries);
