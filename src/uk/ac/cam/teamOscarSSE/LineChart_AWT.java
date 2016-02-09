@@ -14,19 +14,22 @@ import org.jfree.ui.RefineryUtilities;
 
 public class LineChart_AWT extends ApplicationFrame
 {
+	private long highest = Long.MIN_VALUE;
+	private long lowest = Long.MAX_VALUE;
+	
 	public LineChart_AWT( String applicationTitle , String chartTitle )
 	{
 		super(applicationTitle);
 		JFreeChart lineChart = ChartFactory.createLineChart(
 				chartTitle,
-				"Price","Time",
+				"Time","Price",
 				createDataset(),
 				PlotOrientation.VERTICAL,
 				true,true,false);
 
 		CategoryPlot plot = (CategoryPlot) lineChart.getPlot();
 		ValueAxis yAxis = plot.getRangeAxis();
-		yAxis.setRange(12000.0, 13500.0);
+		yAxis.setRange(lowest, highest);
 
 		ChartPanel chartPanel = new ChartPanel( lineChart );
 		chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
@@ -41,6 +44,8 @@ public class LineChart_AWT extends ApplicationFrame
 		List<Long> graphData = MainAlgoTest.exchange.prices;
 		synchronized(graphData){
 			for(long value: graphData){
+				if(value > highest) highest = value;
+				if(value < lowest) lowest = value;
 				i++;
 				dataset.addValue(value, "prices", String.valueOf(i));
 			}
@@ -51,7 +56,7 @@ public class LineChart_AWT extends ApplicationFrame
 	{
 		LineChart_AWT chart = new LineChart_AWT(
 				"stock_Prices" ,
-				"Stock Movement of BP with Boom Bot.");
+				"Stock Movement of BP.");
 
 		chart.pack( );
 		RefineryUtilities.centerFrameOnScreen( chart );
