@@ -1,5 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.List;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -21,10 +23,10 @@ public class LineChart_AWT extends ApplicationFrame
 				createDataset(),
 				PlotOrientation.VERTICAL,
 				true,true,false);
-		
+
 		CategoryPlot plot = (CategoryPlot) lineChart.getPlot();
 		ValueAxis yAxis = plot.getRangeAxis();
-		yAxis.setRange(12000.0, 14000.0);
+		yAxis.setRange(12000.0, 13500.0);
 
 		ChartPanel chartPanel = new ChartPanel( lineChart );
 		chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
@@ -36,11 +38,13 @@ public class LineChart_AWT extends ApplicationFrame
 		MainAlgoTest.main(null);
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset( );
 		int i = 0;
-		for(long value: MainAlgoTest.exchange.prices){
-			i++;
-			dataset.addValue(value, "prices", String.valueOf(i));
+		List<Long> graphData = MainAlgoTest.exchange.prices;
+		synchronized(graphData){
+			for(long value: MainAlgoTest.exchange.prices){
+				i++;
+				dataset.addValue(value, "prices", String.valueOf(i));
+			}
 		}
-		
 		return dataset;
 	}
 	public static void main( String[ ] args ) 
