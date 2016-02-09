@@ -1,0 +1,3 @@
+[submodule "interface/libraries"]
+	path = interface/libraries
+	url = https://github.com/varkor/Omega.git

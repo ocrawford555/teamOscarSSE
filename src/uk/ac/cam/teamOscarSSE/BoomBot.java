@@ -1,5 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.Random;
+
 public class BoomBot extends Bot implements Runnable {
 
 	private Player playerID = new Player("BomBot", "abc@abc.com");
@@ -17,16 +19,16 @@ public class BoomBot extends Bot implements Runnable {
 		int volume3 = r.nextInt(TMAX);
 		long stockP = stock.getStockPrice();
 		
-		long buyPrice1 = stockP+13;		
-		long buyPrice2 = stockP+27;
-		long buyPrice3 = stockP+10;
+		long buyPrice1 = stockP+300;		
+		long buyPrice2 = stockP+700;
+		long buyPrice3 = stockP+100;
 		
 		Order buyOrder1 = new BuyOrder(stock, playerID, volume1, buyPrice1);
 		Order buyOrder2 = new BuyOrder(stock, playerID, volume2, buyPrice2);
 		Order buyOrder3 = new BuyOrder(stock, playerID, volume3, buyPrice3);
 
-		long sellPrice1 = stockP+20;
-		long sellPrice2 = stockP+4;
+		long sellPrice1 = stockP+200;
+		long sellPrice2 = stockP+400;
 		long sellPrice3 = stockP;
 		
 		Order sellOrder1 = new SellOrder(stock, playerID, volume1, sellPrice1);
@@ -44,9 +46,11 @@ public class BoomBot extends Bot implements Runnable {
 
 	@Override
 	public void run() {
+		Random rand = new Random();
 		while(super.ex.isOpen()){
 			try{
-				Thread.sleep(200);
+				int nextWait = rand.nextInt(200) + 75;
+				Thread.sleep(nextWait);
 				this.sendOrders();
 			}
 			catch (InterruptedException e) {

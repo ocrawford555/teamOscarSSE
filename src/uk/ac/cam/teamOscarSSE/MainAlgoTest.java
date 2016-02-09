@@ -14,30 +14,30 @@ public class MainAlgoTest {
 		Pennying p = new Pennying(exchange,stocks,players,lb);
 		Thread a = new Thread(p);
 		Randy d = new Randy(exchange,stocks,players);
-		Thread b = new Thread(d);
+		Thread b = new Thread(p);
 		Thread c = new Thread(d);
 		
-		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),15,15,40);
+		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),150,150,600);
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
 		BoomBot bb = new BoomBot(exchange, stocks.get(0));
 		RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
 
 		Thread f = new Thread(mm);
-		Thread g = new Thread(gb);
+		//Thread g = new Thread(gb);
 		Thread h = new Thread(bb);
-		Thread j = new Thread(rb);
+		//Thread j = new Thread(rb);
 		
 		a.start();
 		b.start();
 		c.start();
 		
 		f.start();
-		g.start();
+		//g.start();
 		h.start();
-		j.start();
+		//j.start();
 				
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(7000);
 			exchange.setOpen(false);
 
 			lb.update();
@@ -66,7 +66,7 @@ public class MainAlgoTest {
 
 	public static void open() {
 		//create and add stocks
-		Stock stock1 = new Stock("BP", "British Petroleum", 5000,0.2f,12347,100);
+		Stock stock1 = new Stock("BP", "British Petroleum", 5000,0.2f,12347,1000);
 		stocks.add(stock1);
 //		Stock stock2 = new Stock("BAM", "Bank of America", 12000,0.2f,26487,125);
 //		stocks.add(stock2);
@@ -134,8 +134,8 @@ class Pennying implements Runnable{
 		
 		while (exchange.isOpen()) {
 			try {
-				//execute something every 0.20 seconds
-				Thread.sleep(200);
+				int nextWait = rand.nextInt(300) + 75;
+				Thread.sleep(nextWait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -143,7 +143,7 @@ class Pennying implements Runnable{
 			for (Stock s : stocks) {
 				long pennyBuy = s.getBestBid();
 				long pennySell = s.getBestOffer();
-				int amount = rand.nextInt(45) + 5;
+				int amount = rand.nextInt(400) + 200;
 				
 				//chooses player to make exchange more random
 				int playingFor = rand.nextInt(4);
@@ -175,14 +175,15 @@ class Randy implements Runnable{
 		while (exchange.isOpen()) {
 			try {
 				//execute something every 0.21 seconds
-				Thread.sleep(210);
+				int nextWait = rand.nextInt(300) + 75;
+				Thread.sleep(nextWait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			
 			for (Stock s : stocks) {
-				long delta = rand.nextInt(8);
-				int amount = rand.nextInt(45) + 5;
+				long delta = rand.nextInt(20);
+				int amount = rand.nextInt(400) + 200;
 				int direction = Math.round((float)Math.random() + 1f);
 				if(direction==1) delta*=-1;
 				long pennyBuy = s.getBestBid();
@@ -196,7 +197,7 @@ class Randy implements Runnable{
 				exchange.addOrder(new SellOrder(s,players.get(playingFor),amount,pennySell-delta));
 			}
 			
-			exchange.printOrderBooks();
+			//exchange.printOrderBooks();
 			System.out.println("Value of BP from algorithm: " + stocks.get(0).getStockPrice());
 			//System.out.println("Value of BAML from algorithm: " + stocks.get(1).getStockPrice());
 		}

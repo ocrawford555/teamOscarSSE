@@ -2,7 +2,12 @@ package uk.ac.cam.teamOscarSSE;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -10,8 +15,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class Exchange {
 	//TODO constant limits.
-	private final long MAX_STOCK_PRICE = 100000;
-	private final long MAX_STOCK_SHARES = 5000;
+	private final long MAX_STOCK_PRICE = 1000000;
+	private final long MAX_STOCK_SHARES = 10000;
+
+	public List<Long> prices = new LinkedList<Long>();
 
 	private HashMap<String, OrderBook> orderBooks;
 	private HashMap<String, Player> players;
@@ -262,6 +269,8 @@ public class Exchange {
 					so = ob.sells.get(0);
 				}
 			}
+
+			prices.add(price);
 		}
 	}
 
