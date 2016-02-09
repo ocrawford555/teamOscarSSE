@@ -1,5 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.Random;
+
 public class BoomBot extends Bot implements Runnable {
 
 	private Player playerID = new Player("BomBot", "abc@abc.com");
@@ -44,9 +46,11 @@ public class BoomBot extends Bot implements Runnable {
 
 	@Override
 	public void run() {
+		Random rand = new Random();
 		while(super.ex.isOpen()){
 			try{
-				Thread.sleep(200);
+				int nextWait = rand.nextInt(200) + 75;
+				Thread.sleep(nextWait);
 				this.sendOrders();
 			}
 			catch (InterruptedException e) {

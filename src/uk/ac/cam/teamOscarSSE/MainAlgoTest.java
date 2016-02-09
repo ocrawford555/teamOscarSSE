@@ -134,8 +134,8 @@ class Pennying implements Runnable{
 		
 		while (exchange.isOpen()) {
 			try {
-				//execute something every 0.20 seconds
-				Thread.sleep(200);
+				int nextWait = rand.nextInt(300) + 75;
+				Thread.sleep(nextWait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -175,7 +175,8 @@ class Randy implements Runnable{
 		while (exchange.isOpen()) {
 			try {
 				//execute something every 0.21 seconds
-				Thread.sleep(210);
+				int nextWait = rand.nextInt(300) + 75;
+				Thread.sleep(nextWait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

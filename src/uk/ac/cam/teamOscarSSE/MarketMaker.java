@@ -1,5 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.Random;
+
 //ASSUMPTION: Market Maker has infinite Stock
 public class MarketMaker implements Runnable {
 
@@ -59,9 +61,11 @@ public class MarketMaker implements Runnable {
 
 	@Override
 	public void run() {
+		Random rand = new Random();
 		while(ex.isOpen()){
 			try{
-				Thread.sleep(150);
+				int nextWait = rand.nextInt(200) + 75;
+				Thread.sleep(nextWait);
 				stock.newPrice();
 				this.submitOrder();
 			}

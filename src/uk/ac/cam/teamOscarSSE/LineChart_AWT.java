@@ -40,7 +40,7 @@ public class LineChart_AWT extends ApplicationFrame
 		int i = 0;
 		List<Long> graphData = MainAlgoTest.exchange.prices;
 		synchronized(graphData){
-			for(long value: MainAlgoTest.exchange.prices){
+			for(long value: graphData){
 				i++;
 				dataset.addValue(value, "prices", String.valueOf(i));
 			}
