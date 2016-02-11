@@ -154,6 +154,12 @@ class Pennying implements Runnable{
 				
 				//chooses player to make exchange more random
 				int playingFor = rand.nextInt(4);
+
+				// Periodically remove all pending orders to unblock stock/cash.
+				// Feel free to comment this out.
+				if (rand.nextDouble() < 0.1) {
+					exchange.removeAllOrders(players.get(playingFor).getToken());
+				}
 				
 				//initiate pennying
 				exchange.addOrder(new BuyOrder(s,players.get(playingFor),amount,pennyBuy+1));

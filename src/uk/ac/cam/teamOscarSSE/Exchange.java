@@ -253,13 +253,18 @@ public class Exchange {
 	 * @return
 	 */
 	public synchronized boolean removeAllOrders(String traderID) {
-		Map<Long, Order> pending_orders = getPendingOrders(traderID);
 		boolean good = true;
-		for (Map.Entry<Long, Order> entry : pending_orders.entrySet()) {
-			if (!removeOrder(entry.getKey())) {
+		Set<Long> orders = getPendingOrders(traderID).keySet();
+
+		// TODO: temporary
+		Set<Long> orders2 = new TreeSet(orders);
+
+		for (Long orderNum : orders2) {
+			if (!removeOrder(orderNum)) {
 				good = false;
 			}
 		}
+
 		return good;
 	}
 
@@ -273,13 +278,14 @@ public class Exchange {
 		// Check if both orderbook and trader contains ordernum.
 		Order order = orders.get(orderNum);
 		if (order == null) {
-			System.err.println("Order does not exist.");
+			// System.err.println("Order does not exist.");
 			return false;
 		}
 		Trader trader = traders.get(order.getId());
 
 		if (trader != null && trader.hasOrderPending(orderNum)) {
 			trader.removeOrder(orderNum);
+			orders.remove(orderNum);
 			if (order instanceof BuyOrder) {
 				return orderBooks.get(order.getStock().getSymbol()).removeOrder((BuyOrder) order);
 			} else if (order instanceof SellOrder) {

@@ -35,9 +35,10 @@ public class GodBot extends Bot implements Runnable {
 		if (numToSell > 0) {
 			submitOrder(new SellOrder(stock, this, numToSell, price));
 		} else {
-			submitOrder(new SellOrder(
-					stock, this, stock.getStockQty() / 2, price));
+
 		}
+
+		submitOrder(new SellOrder(stock, this, stock.getStockQty() / 4, price));
 
 		int numToBuy = 0;
 		for (SellOrder so : ob.sells) {
@@ -49,17 +50,15 @@ public class GodBot extends Bot implements Runnable {
 		}
 		if (numToBuy > 0) {
 			submitOrder(new BuyOrder(stock, this, numToBuy, price));
-		} else {
-			submitOrder(new BuyOrder(stock, this, stock.getStockQty() / 2, price));
 		}
-		System.out.println(price);
+
+		submitOrder(new BuyOrder(stock, this, stock.getStockQty() / 4, price));
 	}
 
 	private void computeNewPrice() {
 		if (rand.nextDouble() < FLIP_PROBABILITY) {
 			priceUp = !priceUp;
 			++flip_ctr;
-			System.out.println("FLIIIIIIIIIIIP " + flip_ctr);
 			rate = rand.nextDouble() / 500.0;
 		}
 

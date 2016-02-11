@@ -115,7 +115,7 @@ public abstract class Trader {
 	/**
 	 * @return orders pending in the exchange.
 	 */
-	public final Map<Long, Order> getPendingOrders() {
+	public synchronized final Map<Long, Order> getPendingOrders() {
 		return pending_orders;
 	}
 
@@ -123,7 +123,7 @@ public abstract class Trader {
 	 * @param orderNum
 	 * @return true if the trader has the order pending.
 	 */
-	public final boolean hasOrderPending(Long orderNum) {
+	public synchronized final boolean hasOrderPending(Long orderNum) {
 		return pending_orders.containsKey(orderNum);
 	}
 
@@ -134,7 +134,7 @@ public abstract class Trader {
 	 * @param orderNum
 	 * @return true if successfully removed, false otherwise (e.g. order does not exist).
 	 */
-	public boolean removeOrder(Long orderNum) {
+	public synchronized boolean removeOrder(Long orderNum) {
 		Order order = pending_orders.get(orderNum);
 		if (order == null) {
 			return false;
