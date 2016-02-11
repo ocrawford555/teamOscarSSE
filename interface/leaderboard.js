@@ -34,7 +34,10 @@ const Leaderboard = {
 				if (entry.score !== existingEntry.score) {
 					const difference = entry.score - existingEntry.score;
 					existingEntry.score = entry.score;
-					existingEntry.object.querySelector(`.score`).replaceText(Leaderboard.formatScore(entry.score));
+					existingEntry.object.querySelector(`.score`).replaceText(Leaderboard.formatScore(entry.score)).removeClass("red");
+					if (entry.score < 0) {
+						existingEntry.object.querySelector(`.score`).addClass("red");
+					}
 					const differenceObject = Ω(`span.difference.${difference > 0 ? "gain" : "loss"}`).withText(`${difference > 0 ? "+" : "-"}${Leaderboard.formatScore(Math.abs(difference))}`).withStyle({
 						top: existingEntry.object.rect.top + window.scrollY,
 						left: existingEntry.object.rect.right - existingEntry.object.querySelector(`.score`).rect.width / 2 + window.scrollX
@@ -51,14 +54,14 @@ const Leaderboard = {
 	},
 	addElementForEntry (ID, position) {
 		const entry = Leaderboard.positions.get(ID);
-		entry.object = Ω(`div.entry${Leaderboard.animated ? ".new" : ""}`).append(Ω(`div.position`).withText(entry.position + 1)).append(Ω(`div.name`).withText(entry.name)).append(Ω(`div.score`).withText(Leaderboard.formatScore(entry.score))).appendedTo(Leaderboard.object.querySelector(`.entries`));
+		entry.object = Ω(`div.entry${Leaderboard.animated ? ".new" : ""}`).append(Ω(`div.position`).withText(entry.position + 1)).append(Ω(`div.name`).withText(entry.name)).append(Ω(`div.score${entry.score < 0 ? ".red" : ""}`).withText(Leaderboard.formatScore(entry.score))).appendedTo(Leaderboard.object.querySelector(`.entries`));
 		if (Leaderboard.animated) {
 			window.setTimeout(() => entry.object.removeClass("new"), 10);
 		}
 	},
 	formatScore (score) {
-		const string = `00${score}`;
-		return `$${parseInt(`${string.slice(0, -2)}`).toLocaleString()}.${string.slice(-2)}`;
+		const string = `00${Math.abs(score)}`;
+		return `${score < 0 ? "-" : ""}$${parseInt(`${string.slice(0, -2)}`).toLocaleString()}.${string.slice(-2)}`;
 	},
 	formatCountdown (seconds) {
 		return `${`0${Math.floor(seconds / 60)}`.slice(-2)}:${`0${seconds % 60}`.slice(-2)}`;
@@ -149,9 +152,14 @@ const Graph = {
 			}
 			if (currentScore !== null) {
 				const rect = Graph.object.rect;
-				body.querySelector(`#label-${ID}`).removeClass("hidden").setStyle({
-					top: rect.bottom + window.scrollY - currentScore * rect.height
-				});
+				currentScore = Math.min(currentScore, 1);
+				if (currentScore >= 0) {
+					body.querySelector(`#label-${ID}`).removeClass("hidden").setStyle({
+						top: rect.bottom + window.scrollY - currentScore * rect.height
+					});
+				} else {
+					body.querySelector(`#label-${ID}`).addClass("hidden");
+				}
 			}
 		}
 		let fadeGradient;
