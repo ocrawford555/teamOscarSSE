@@ -344,7 +344,7 @@ public class Exchange {
 					so = ob.sells.get(0);
 				}
 			}
-
+			//prices.add(ob.getStock().getStockPrice());
 			prices.add(price);
 		}
 	}

@@ -21,20 +21,25 @@ public class MainAlgoTest {
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
 		BoomBot bb = new BoomBot(exchange, stocks.get(0));
 		RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
+		GodBot godBot = new GodBot(exchange, stocks.get(0));
 
-		Thread f = new Thread(mm);
+
+		//Thread f = new Thread(mm);
 		//Thread g = new Thread(gb);
-		Thread h = new Thread(bb);
+		//Thread h = new Thread(bb);
 		//Thread j = new Thread(rb);
+		Thread godBotThread = new Thread(godBot);
+
 		
 		a.start();
 		b.start();
 		c.start();
-		
-		f.start();
+
+		//f.start();
 		//g.start();
-		h.start();
+		//h.start();
 		//j.start();
+		godBotThread.start();
 				
 		try {
 			Thread.sleep(7000);
@@ -63,6 +68,7 @@ public class MainAlgoTest {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	public static void open() {
@@ -135,7 +141,7 @@ class Pennying implements Runnable{
 		
 		while (exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(300) + 75;
+				int nextWait = rand.nextInt(100) + 100;
 				Thread.sleep(nextWait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -144,7 +150,7 @@ class Pennying implements Runnable{
 			for (Stock s : stocks) {
 				long pennyBuy = s.getBestBid();
 				long pennySell = s.getBestOffer();
-				int amount = rand.nextInt(400) + 200;
+				int amount = rand.nextInt(50);
 				
 				//chooses player to make exchange more random
 				int playingFor = rand.nextInt(4);
