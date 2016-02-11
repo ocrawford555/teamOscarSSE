@@ -49,7 +49,8 @@ public class MainAlgoTest {
 			System.out.println("");
 			System.out.println("Final Portfolio Contents");
 			for(Player px:players) {
-				System.out.println(px.getName() + " "); px.getPortfoio().contents();
+				System.out.println(px.getName() + " ");
+				px.getPortfolio().contents();
 			}
 			System.out.println("");
 			System.out.println("");

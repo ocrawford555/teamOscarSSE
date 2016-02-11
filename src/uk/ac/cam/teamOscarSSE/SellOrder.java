@@ -1,7 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
 public class SellOrder extends Order implements Comparable<SellOrder> {
-	public SellOrder(Stock s, Player p, int numShares, long price) {
+	public SellOrder(Stock s, Trader p, int numShares, long price) {
 		super(OrderType.SELL, p.getToken(), s, numShares, price);
 	}
 

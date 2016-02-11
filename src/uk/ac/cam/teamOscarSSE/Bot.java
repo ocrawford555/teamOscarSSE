@@ -2,24 +2,72 @@ package uk.ac.cam.teamOscarSSE;
 
 import java.util.Random;
 
-public abstract class Bot {
-	
+/**
+ * A bot running on an exchange.
+ */
+public abstract class Bot extends Trader {
+
+	// The stock traded by the bot.
 	protected Stock stock;
+
+	// The exchange on which the bot trades.
 	protected Exchange ex;
-	protected int TMAX;
+
+	// A random number generator used in randomizing a bot's actions.
 	protected Random r = new Random();
-	
-	public Bot(Exchange e, Stock s) {
-		ex = e;
-		stock = s;
-		TMAX = s.getTMAX();
+
+	protected int TMAX;
+
+	/**
+	 * A bot trades with a given stock on the exchange.
+	 * A bot is automatically added to the exchange upon construction.
+	 *
+	 * @param exchange
+	 * @param stock
+	 * @param botName
+	 */
+	public Bot(Exchange exchange, Stock stock, String botName) {
+		super(botName, "bot@bot.com");
+		ex = exchange;
+		this.stock = stock;
+		TMAX = stock.getTMAX();
+		ex.addPlayer(this);
 	}
-	
+
+	/**
+	 * Returns the maximum integer, as a bot can buy an unlimited amount.
+	 *
+	 * @param stock
+	 * @param price
+	 * @return
+	 */
+	@Override
+	public int maxCanBuy(Stock stock, long price) {
+		return Integer.MAX_VALUE;
+	}
+
+	/**
+	 * Returns the maximum integer, as a bot can sell an unlimited amount.
+	 *
+	 * @param stock
+	 * @return
+	 */
+	public int maxCanSell(Stock stock) {
+		return Integer.MAX_VALUE;
+	}
+
+	/**
+	 * Submits an order to the exchange.
+	 *
+	 * @param order
+	 * @return
+	 */
 	public boolean submitOrder(Order order) {
 		return ex.addOrder(order);
 	}
-	
-	public abstract void sendOrders();
-	
 
+	/**
+	 * Abstract method that sends an order to the exchange.
+	 */
+	public abstract void sendOrders();
 }

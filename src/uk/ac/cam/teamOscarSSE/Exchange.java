@@ -9,24 +9,46 @@ import java.util.concurrent.TimeUnit;
  * The exchange takes and processes orders.
  */
 public class Exchange {
-	//TODO constant limits.
+	// The maximum price at which a user can buy/sell a stock.
 	private final long MAX_STOCK_PRICE = 1000000;
+
+	// The maximum number of shares a user can buy/sell.
 	private final long MAX_STOCK_SHARES = 10000;
 
 	public List<Long> prices = new LinkedList<Long>();
 
-	private HashMap<String, OrderBook> orderBooks;
-	private HashMap<String, Player> players;
-	private HashMap<Long, Order> orders;
+	// A map from stock symbol to OrderBook for each stock.
+	private Map<String, OrderBook> orderBooks;
 
-	private boolean open;    // default state is closed.
+	// A map from trader ID to Trader participating in the exchange.
+	private Map<String, Trader> traders;
+
+	// A map from player ID to Player participating in the exchange.
+	// This is a subset of traders and is used to provide a method
+	// to access "human" players.
+	private Map<String, Player> players;
+
+	// A map from orderNum to Order containing pending orders in the exchange.
+	private Map<Long, Order> orders;
+
+	// Represents whether the exchange is open or closed. The default state is closed.
+	private boolean open;
+
+	// The round's start time: set when the exchange changes state from closed to open.
 	private long startTime;
+
+	// The round's uptime. This is frozen when the exchange is closed until it is reopen.
 	private long lastRoundUptime;
 
 	public Exchange(List<Stock> stocks) {
+		if (stocks == null) {
+			System.err.println("Tried to create an exchange with no stocks.");
+			stocks = new ArrayList<>();
+		}
 		orderBooks = new HashMap<>();
-		players = new HashMap<>();
+		traders = new HashMap<>();
 		orders = new HashMap<>();
+		players = new HashMap<>();
 		open = false;
 		lastRoundUptime = 0;
 
@@ -42,12 +64,64 @@ public class Exchange {
 		System.out.println("Exchanged created at " + dateFormatted + "." + " --  Available stocks: " + debugString);
 	}
 
+	/**
+	 * Convert a millisecond duration to a string format
+	 *
+	 * @param millis A duration to convert to a string form
+	 * @return A string of the form "X Days Y Hours Z Minutes A Seconds".
+	 */
+	public static String getDurationBreakdown(long millis) {
+		if (millis < 0) {
+			throw new IllegalArgumentException("Duration must be greater than zero!");
+		}
+
+		long days = TimeUnit.MILLISECONDS.toDays(millis);
+		millis -= TimeUnit.DAYS.toMillis(days);
+		long hours = TimeUnit.MILLISECONDS.toHours(millis);
+		millis -= TimeUnit.HOURS.toMillis(hours);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+		millis -= TimeUnit.MINUTES.toMillis(minutes);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+
+		StringBuilder sb = new StringBuilder(64);
+		sb.append(days);
+		sb.append(" Days ");
+		sb.append(hours);
+		sb.append(" Hours ");
+		sb.append(minutes);
+		sb.append(" Minutes ");
+		sb.append(seconds);
+		sb.append(" Seconds");
+
+		return (sb.toString());
+	}
+
+	/**
+	 * Formats the time given im millis in HH:mm:ss:SSS format.
+	 *
+	 * @param millis
+	 * @return
+	 */
 	private synchronized String getFormattedTime(long millis) {
 		Date date = new Date(millis);
 		DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
 		return formatter.format(date);
 	}
 
+	/**
+	 * Returns whether or not the exchange is open and able to accept orders.
+	 *
+	 * @return
+	 */
+	public synchronized boolean isOpen() {
+		return open;
+	}
+
+	/**
+	 * Changes the open/closed state of the exchange.
+	 *
+	 * @param open
+	 */
 	public synchronized void setOpen(boolean open) {
 		if (open && !this.open) {
 			startTime = System.currentTimeMillis();
@@ -57,11 +131,6 @@ public class Exchange {
 		}
 		this.open = open;
 	}
-
-	public synchronized boolean isOpen() {
-		return open;
-	}
-
 
 	/**
 	 * An order is invalid if
@@ -87,16 +156,17 @@ public class Exchange {
 			return false;
 		} else if (!orderBooks.containsKey(order.getStock().getSymbol())) {
 			return false;
-		} else if (!players.containsKey(order.getId())) {
+		} else if (!traders.containsKey(order.getId())) {
 			return false;
 		}
 		return true;
 	}
 
 	/**
-	 * Adds an order to the exchange, trying to match immediately if possible.
-	 * The caller should check if successful or not.
-	 * Failure may be due to invalid orders (e.g. negative price), as well as players with insufficient funds/stocks.
+	 * Adds an order to the exchange, trying to match it immediately if possible.
+	 * The caller should check if this was successful or not.
+	 * Failure may be due to invalid orders (e.g. negative price), as well as
+	 * traders with insufficient funds/stocks.
 	 *
 	 * @param order
 	 * @return true if successful, false otherwise.
@@ -112,27 +182,25 @@ public class Exchange {
 			return false;
 		}
 		OrderBook ob = orderBooks.get(order.getStock().getSymbol());
-		Player player = players.get(order.getId());
+		Trader trader = traders.get(order.getId());
 
 		if (order instanceof BuyOrder) {
 			BuyOrder bo = (BuyOrder) order;
-			if (bo.getShares() > player.maxCanBuy(order.getStock(), order.getPrice())) {
-				//System.err.println("Player does not have enough cash to buy " + order);
-				// TODO
+			if (bo.getShares() > trader.maxCanBuy(order.getStock(), order.getPrice())) {
+				System.err.format("%s does not have enough cash to buy %s\n", trader.getName(), order);
 				return false;
 			}
 			orders.put(order.getOrderNum(), order);
-			player.addPendingOrder(bo);
+			trader.addPendingOrder(bo);
 			ob.addOrder(bo);
 		} else if (order instanceof SellOrder) {
 			SellOrder so = (SellOrder) order;
-			if (so.getShares() > player.maxCanSell(order.getStock())) {
-				//System.err.println("Player does not have enough shares to sell " + order);
-				// TODO
-				 return false;
+			if (so.getShares() > trader.maxCanSell(order.getStock())) {
+				System.err.format("%s does not have enough shares to sell %s\n", trader.getName(), order);
+				return false;
 			}
 			orders.put(order.getOrderNum(), order);
-			player.addPendingOrder(so);
+			trader.addPendingOrder(so);
 			ob.addOrder(so);
 		} else {
 			System.err.println("Unimplemented order type: " + order.getClass());
@@ -144,7 +212,9 @@ public class Exchange {
 	}
 
 	/**
-	 * Returns pending order corresponding to orderNum and null if the order does not exist.
+	 * Returns pending order corresponding to orderNum and null if the order
+	 * does not exist.
+	 * <p>
 	 * Note that a completed order may no longer be in the exchange.
 	 *
 	 * @param orderNum
@@ -155,25 +225,27 @@ public class Exchange {
 	}
 
 	/**
-	 * Get pending orders in order book.
-	 * @param playerID
+	 * Get a trader's orders that are pending in the exchange.
+	 *
+	 * @param traderID
 	 * @return
 	 */
-	public synchronized Map<Long, Order> getPendingOrders(String playerID) {
-		Player player = players.get(playerID);
-		if (player == null) {
+	public synchronized Map<Long, Order> getPendingOrders(String traderID) {
+		Trader trader = traders.get(traderID);
+		if (trader == null) {
 			return null;
 		}
-		return player.getPendingOrders();
+		return trader.getPendingOrders();
 	}
 
 	/**
-	 * Cancel all players' orders, returning true upon success and false otherwise.
-	 * @param playerID
+	 * Cancel all traders' orders, returning true upon success and false otherwise.
+	 *
+	 * @param traderID
 	 * @return
 	 */
-	public synchronized boolean removeAllOrders(String playerID) {
-		Map<Long, Order> pending_orders = getPendingOrders(playerID);
+	public synchronized boolean removeAllOrders(String traderID) {
+		Map<Long, Order> pending_orders = getPendingOrders(traderID);
 		boolean good = true;
 		for (Map.Entry<Long, Order> entry : pending_orders.entrySet()) {
 			if (!removeOrder(entry.getKey())) {
@@ -184,22 +256,22 @@ public class Exchange {
 	}
 
 	/**
-	 * Remove an order from the orderbook and player's portfolio.
+	 * Remove an order from the orderbook and trader's portfolio.
 	 *
 	 * @param orderNum
 	 * @return
 	 */
 	public synchronized boolean removeOrder(Long orderNum) {
-		// Check if both orderbook and player contains ordernum.
+		// Check if both orderbook and trader contains ordernum.
 		Order order = orders.get(orderNum);
 		if (order == null) {
 			System.err.println("Order does not exist.");
 			return false;
 		}
-		Player player = players.get(order.getId());
+		Trader trader = traders.get(order.getId());
 
-		if (player != null && player.hasOrderPending(orderNum)) {
-			player.removeOrder(orderNum);
+		if (trader != null && trader.hasOrderPending(orderNum)) {
+			trader.removeOrder(orderNum);
 			if (order instanceof BuyOrder) {
 				return orderBooks.get(order.getStock().getSymbol()).removeOrder((BuyOrder) order);
 			} else if (order instanceof SellOrder) {
@@ -241,10 +313,10 @@ public class Exchange {
 			so.setShares(so.getShares() - sizeFilled);
 
 			OrderUpdateMessage buyUpdate = new OrderUpdateMessage(bo, sizeFilled, price);
-			players.get(bo.getId()).updatePortfolio(buyUpdate);
+			traders.get(bo.getId()).updatePortfolio(buyUpdate);
 
 			OrderUpdateMessage sellUpdate = new OrderUpdateMessage(so, sizeFilled, price);
-			players.get(so.getId()).updatePortfolio(sellUpdate);
+			traders.get(so.getId()).updatePortfolio(sellUpdate);
 			bo.getStock().newPrice();
 
 			if (bo.getShares() == 0) {
@@ -270,33 +342,61 @@ public class Exchange {
 	}
 
 	/**
-	 * Adds a player to the exchange.
+	 * Adds a trader to the exchange.
 	 *
-	 * @param player
-	 * @return True if successful, false if player already exists in the exchange.
+	 * @param trader
+	 * @return True if successful, false if trader already exists in the exchange.
 	 */
-	public synchronized boolean addPlayer(Player player) {
-		if (player == null) {
-			System.err.println("player should not be null.");
+	public synchronized boolean addPlayer(Trader trader) {
+		// TODO: rename to addTrader
+		if (trader == null) {
+			System.err.println("trader should not be null.");
 			return false;
 		}
-		if (players.containsKey(player.getToken())) {
-			System.err.format("Player %s already exists in the exchange.\n", player.getName());
+		if (traders.containsKey(trader.getToken())) {
+			System.err.format("Player %s already exists in the exchange.\n", trader.getName());
 			return false;
 		}
-		players.put(player.getToken(), player);
-		System.out.format("Welcome %s!\n", player.getName());
+		traders.put(trader.getToken(), trader);
+		if (trader instanceof Player) {
+			players.put(trader.getToken(), (Player) trader);
+		}
+		System.out.format("Welcome %s!\n", trader.getName());
 		return true;
 	}
 
+	/**
+	 * Returns the player with the given userToken.
+	 * <p>
+	 * If the userToken does not exist or corresponds to a bot, null is returned.
+	 *
+	 * @param userToken
+	 * @return
+	 */
 	public synchronized Player getPlayer(String userToken) {
-		return players.get(userToken);
+		Trader trader = traders.get(userToken);
+		if (trader == null || !(trader instanceof Player)) {
+			return null;
+		} else {
+			return (Player) trader;
+		}
 	}
 
+	/**
+	 * Returns the set of symbols of the stocks available on the exchange.
+	 *
+	 * @return
+	 */
 	public synchronized Set<String> getStockSymbols() {
 		return orderBooks.keySet();
 	}
 
+	/**
+	 * Returns the stock corresponding to the stock symbol.
+	 *
+	 * @param symbol
+	 * @return
+	 */
 	public synchronized Stock getStockForSymbol(String symbol) {
 		OrderBook orderBook = orderBooks.get(symbol);
 		if (orderBook != null) {
@@ -306,13 +406,30 @@ public class Exchange {
 		}
 	}
 
+	/**
+	 * Returns a collection of "human" players on the exchange.
+	 *
+	 * @return
+	 */
 	public synchronized Collection<Player> getPlayers() {
 		return players.values();
 	}
 
 	/**
+	 * Returns a collection of all traders on the exchange.
+	 * This includes "human" players as well as bots.
+	 *
+	 * @return
+	 */
+	public synchronized Collection<Trader> getTraders() {
+		return traders.values();
+	}
+
+	/**
 	 * Gets the number of milliseconds for which the exchange has been running
 	 * If the exchange is closed, returns the last uptime.
+	 *
+	 * @return
 	 */
 	public synchronized long getUptime() {
 		if (open) {
@@ -322,55 +439,42 @@ public class Exchange {
 		}
 	}
 
+	/**
+	 * Returns the formatted time the exchange has been running.
+	 * If the exchange is closed, returns the last uptime.
+	 *
+	 * @return
+	 */
 	public synchronized String getUptimeFormatted() {
 		return getDurationBreakdown(getUptime());
 	}
 
 	/**
-	 * Convert a millisecond duration to a string format
-	 *
-	 * @param millis A duration to convert to a string form
-	 * @return A string of the form "X Days Y Hours Z Minutes A Seconds".
+	 * Outputs the order books. Defaults to print 5 buys and 5 sells.
 	 */
-	public static String getDurationBreakdown(long millis) {
-		if (millis < 0) {
-			throw new IllegalArgumentException("Duration must be greater than zero!");
-		}
-
-		long days = TimeUnit.MILLISECONDS.toDays(millis);
-		millis -= TimeUnit.DAYS.toMillis(days);
-		long hours = TimeUnit.MILLISECONDS.toHours(millis);
-		millis -= TimeUnit.HOURS.toMillis(hours);
-		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
-		millis -= TimeUnit.MINUTES.toMillis(minutes);
-		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-
-		StringBuilder sb = new StringBuilder(64);
-		sb.append(days);
-		sb.append(" Days ");
-		sb.append(hours);
-		sb.append(" Hours ");
-		sb.append(minutes);
-		sb.append(" Minutes ");
-		sb.append(seconds);
-		sb.append(" Seconds");
-
-		return (sb.toString());
+	public synchronized void printOrderBooks() {
+		printOrderBooks(5);
 	}
 
-	public synchronized void printOrderBooks() {
+	public synchronized void printOrderBooks(int maxNum) {
 		for (OrderBook ob : orderBooks.values()) {
-			System.out.println("BUYS TOP FIVE");
-			ob.printPendingOrders(OrderType.BUY);
+			System.out.println("BUYS TOP " + maxNum);
+			ob.printPendingOrders(OrderType.BUY, maxNum);
 			System.out.println("");
 			System.out.println("");
-			System.out.println("SELLS TOP FIVE");
-			ob.printPendingOrders(OrderType.SELL);
+			System.out.println("SELLS TOP " + maxNum);
+			ob.printPendingOrders(OrderType.SELL, maxNum);
 			System.out.println("=================");
 			System.out.println("");
 		}
 	}
 
+	/**
+	 * Returns the order book corresponding to the stock symbol.
+	 *
+	 * @param symbol
+	 * @return
+	 */
 	public synchronized OrderBook getOrderBook(String symbol) {
 		return orderBooks.get(symbol);
 	}

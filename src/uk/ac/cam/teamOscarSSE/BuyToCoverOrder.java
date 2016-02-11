@@ -1,7 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
 public class BuyToCoverOrder extends Order implements Comparable<BuyToCoverOrder> {
-	public BuyToCoverOrder(Stock s, Player p, int numShares, long price) {
+	public BuyToCoverOrder(Stock s, Trader p, int numShares, long price) {
 		super(OrderType.BUY_TO_COVER, p.getToken(), s, numShares, price);
 	}
 

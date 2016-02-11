@@ -5,17 +5,15 @@ import java.util.Collections;
 import java.util.List;
 
 public class OrderBook {
+	final List<BuyOrder> buys = new ArrayList<>();
+	final List<SellOrder> sells = new ArrayList<>();
 	private Stock s;
+	public OrderBook(Stock s) {
+		this.s = s;
+	}
 
 	public Stock getStock() {
 		return s;
-	}
-
-	final List<BuyOrder> buys = new ArrayList<BuyOrder>();
-	final List<SellOrder> sells = new ArrayList<SellOrder>();
-
-	public OrderBook(Stock s) {
-		this.s = s;
 	}
 
 	public void addOrder(BuyOrder o) {
@@ -65,17 +63,16 @@ public class OrderBook {
 		}
 	}
 
-	public void printPendingOrders(OrderType type) {
+	public void printPendingOrders(OrderType type, int maxNum) {
 		//BUY
 		//for showing only top five results
-		int countBuys = 5;
-		int countSells = 5;
+		int ctr = maxNum;
 		if (type == OrderType.BUY)
 			synchronized (buys) {
 				for (Order o : buys) {
-					if (countBuys != 0) {
+					if (ctr != 0) {
 						System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
-						countBuys--;
+						ctr--;
 					} else break;
 				}
 			}
@@ -83,9 +80,9 @@ public class OrderBook {
 		else
 			synchronized (sells) {
 				for (Order o : sells) {
-					if (countSells != 0) {
+					if (ctr != 0) {
 						System.out.println(o.getOrderNum() + " --- " + o.getId() + " --- " + o.getTime() + " --- " + o);
-						countSells--;
+						ctr--;
 					} else break;
 				}
 			}

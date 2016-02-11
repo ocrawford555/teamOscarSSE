@@ -1,7 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
 public class ShortOrder extends Order implements Comparable<ShortOrder> {
-	public ShortOrder(Stock s, Player p, int numShares, long price) {
+	public ShortOrder(Stock s, Trader p, int numShares, long price) {
 		super(OrderType.SHORT, p.getToken(), s, numShares, price);
 	}
 

@@ -5,10 +5,10 @@ import java.util.ArrayList;
 public class ExchangeTest {
 
 	public static void voidExchange() {
-		ArrayList<Stock> stocks = new ArrayList<Stock>();
-		stocks.add(new Stock("BP", "British Petroleum", 5000,0.2f,1000,100));
+		ArrayList<Stock> stocks = new ArrayList<>();
+		stocks.add(new Stock("BP", "British Petroleum", 5000, 0.2f, 1000, 500));
 
-		ArrayList<Player> players = new ArrayList<Player>();
+		ArrayList<Player> players = new ArrayList<>();
 		players.add(new Player("Alice", "AA"));
 		players.add(new Player("Bob", "BB"));
 		LeaderBoard lb = new LeaderBoard(players);
@@ -34,10 +34,10 @@ public class ExchangeTest {
 	}
 
 	public static void singleTradeExchange() {
-		ArrayList<Stock> stocks = new ArrayList<Stock>();
-		stocks.add(new Stock("BP", "British Petroleum", 5000,0.2f,1000,100));
+		ArrayList<Stock> stocks = new ArrayList<>();
+		stocks.add(new Stock("BP", "British Petroleum", 5000, 0.2f, 1000, 500));
 
-		ArrayList<Player> players = new ArrayList<Player>();
+		ArrayList<Player> players = new ArrayList<>();
 		players.add(new Player("Alice", "AA"));
 		players.add(new Player("Bob", "BB"));
 		LeaderBoard lb = new LeaderBoard(players);
@@ -56,12 +56,12 @@ public class ExchangeTest {
 		exchange.printOrderBooks();
 
 
-
 		exchange.setOpen(false);
-		for(Player px:players) {
-			System.out.println(px.getName() + " "); px.getPortfoio().contents();
+		for (Player px : players) {
+			System.out.println(px.getName() + " ");
+			px.getPortfolio().contents();
 		}
-		for(Player px:players) {
+		for (Player px : players) {
 			System.out.println(px.getName() + " -- " + px.getBalance());
 		}
 		for (Stock stock : stocks) {
@@ -71,10 +71,10 @@ public class ExchangeTest {
 	}
 
 	public static void basicOrderMatching() {
-		ArrayList<Stock> stocks = new ArrayList<Stock>();
-		stocks.add(new Stock("BP", "British Petroleum", 5000,0.2f,1000,100));
+		ArrayList<Stock> stocks = new ArrayList<>();
+		stocks.add(new Stock("BP", "British Petroleum", 5000, 0.2f, 1000, 100));
 
-		ArrayList<Player> players = new ArrayList<Player>();
+		ArrayList<Player> players = new ArrayList<>();
 		players.add(new Player("Alice", "AA"));
 		players.add(new Player("Bob", "BB"));
 		LeaderBoard lb = new LeaderBoard(players);

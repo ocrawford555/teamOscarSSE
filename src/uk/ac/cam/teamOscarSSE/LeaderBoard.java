@@ -1,11 +1,6 @@
 package uk.ac.cam.teamOscarSSE;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class LeaderBoard {
@@ -14,18 +9,28 @@ public class LeaderBoard {
 	Map<String, Long> lB = new HashMap<String, Long>();
 
 	public LeaderBoard(ArrayList<Player> players) {
-		long startingCash = 10000000;
 		for (Player p : players) {
 			playersInRound.add(p);
-			lB.put(p.getName(), p.getBalance()-startingCash);
+			lB.put(p.getName(), p.getBalance() - p.getStartingCash());
 		}
+	}
+
+	static <K, V extends Comparable<? super V>> List<Entry<K, V>> entriesSortedByValues(Map<K, V> map) {
+		List<Entry<K, V>> sortedEntries = new ArrayList<Entry<K, V>>(map.entrySet());
+		Collections.sort(sortedEntries, new Comparator<Entry<K, V>>() {
+					@Override
+					public int compare(Entry<K, V> e1, Entry<K, V> e2) {
+						return e2.getValue().compareTo(e1.getValue());
+					}
+				}
+		);
+		return sortedEntries;
 	}
 
 	//method called by server to update leader board
 	public void update() {
-		long startingCash = 10000000;
 		for (Player p : playersInRound) {
-			lB.put(p.getName(), p.getBalance()-startingCash);
+			lB.put(p.getName(), p.getBalance() - p.getStartingCash());
 		}
 	}
 
@@ -43,19 +48,6 @@ public class LeaderBoard {
 		}
 	}
 
-	static <K, V extends Comparable<? super V>> List<Entry<K, V>> entriesSortedByValues(Map<K, V> map) {
-		List<Entry<K, V>> sortedEntries = new ArrayList<Entry<K, V>>(map.entrySet());
-		Collections.sort(sortedEntries, new Comparator<Entry<K, V>>() {
-					@Override
-					public int compare(Entry<K, V> e1, Entry<K, V> e2) {
-						return e2.getValue().compareTo(e1.getValue());
-					}
-				}
-		);
-		return sortedEntries;
-	}
-
-	
 	//send email to winner of the round, with score
 	//not major priority currently
 	public void sendEmail() {}	
