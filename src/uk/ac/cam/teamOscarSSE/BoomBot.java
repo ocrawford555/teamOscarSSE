@@ -23,9 +23,9 @@ public class BoomBot extends Bot implements Runnable {
 	//Call sendOrders() to automatically submit the required orders to Exchange
 	@Override
 	public void sendOrders() {
-		int volume1 = r.nextInt(TMAX);
-		int volume2 = r.nextInt(TMAX);
-		int volume3 = r.nextInt(TMAX);
+		int volume1 = rand.nextInt(TMAX);
+		int volume2 = rand.nextInt(TMAX);
+		int volume3 = rand.nextInt(TMAX);
 		long stockP = stock.getStockPrice();
 
 		long buyPrice1 = stockP + 300;

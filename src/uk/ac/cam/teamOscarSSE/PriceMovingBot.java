@@ -29,14 +29,14 @@ public class PriceMovingBot extends Bot implements Runnable {
 		long stockP = stock.getStockPrice();
 
 		if (stock.getPointAvg5() < stock.getPointAvg20()) {
-			int volume1 = r.nextInt(TMAX);
-			long buyPrice1 = stockP + r.nextInt(25);
+			int volume1 = rand.nextInt(TMAX);
+			long buyPrice1 = stockP + rand.nextInt(25);
 
 			Order buyOrder1 = new BuyOrder(stock, this, volume1, buyPrice1);
 
 			if (stock.getPointAvg20() < stock.getPointAvg50()) {
-				int volume2 = r.nextInt(TMAX);
-				long buyPrice2 = stockP + r.nextInt(80);
+				int volume2 = rand.nextInt(TMAX);
+				long buyPrice2 = stockP + rand.nextInt(80);
 				Order buyOrder2 = new BuyOrder(stock, this, volume2, buyPrice2);
 				super.submitOrder(buyOrder2);
 
@@ -46,14 +46,14 @@ public class PriceMovingBot extends Bot implements Runnable {
 
 		//if price is going down, then buy, surely?
 		if (stock.getPointAvg5() > stock.getPointAvg20()) {
-			int volume1 = r.nextInt(TMAX);
-			long sellPrice1 = stockP - r.nextInt(40);
+			int volume1 = rand.nextInt(TMAX);
+			long sellPrice1 = stockP - rand.nextInt(40);
 
 			Order sellOrder1 = new SellOrder(stock, this, volume1, sellPrice1);
 
 			if (stock.getPointAvg20() > stock.getPointAvg50()) {
-				int volume2 = r.nextInt(TMAX);
-				long sellPrice2 = stockP - r.nextInt(100);
+				int volume2 = rand.nextInt(TMAX);
+				long sellPrice2 = stockP - rand.nextInt(100);
 				Order sellOrder2 = new SellOrder(stock, this, volume2, sellPrice2);
 				super.submitOrder(sellOrder2);
 			}
