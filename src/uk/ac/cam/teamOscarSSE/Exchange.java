@@ -182,7 +182,8 @@ public class Exchange {
 		}
 		// TODO: should return exception with a message, discuss.
 		if (!validateOrder(order)) {
-			System.err.println("Invalid order " + order);
+			System.err.println("Invalid order " + " - " + traders.get(order.getId()).getName() +
+					" - "  + order);
 			return false;
 		}
 		OrderBook ob = orderBooks.get(order.getStock().getSymbol());

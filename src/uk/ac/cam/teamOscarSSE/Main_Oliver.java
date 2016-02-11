@@ -69,14 +69,15 @@ public class Main_Oliver {
 		//recession bot
 		RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
 
-		//BoomBot bb = new BoomBot(exchange, stocks.get(0));
-		//RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
+		//add God bot
+		GodBot god = new GodBot(exchange,stocks.get(0));
 
 		Thread marketM = new Thread(mm);
 		Thread generalBot = new Thread(gb);
 		Thread priceMover = new Thread(pmb);
 		Thread boomBot = new Thread(bb);
 		Thread recession = new Thread(rb);
+		Thread godly = new Thread(god);
 
 
 		//start the trading
@@ -86,6 +87,8 @@ public class Main_Oliver {
 		generalBot.start();
 		boomBot.start();
 		priceMover.start();
+
+		godly.start();
 
 		//after 6 seconds, bring in the recession!
 		try {
