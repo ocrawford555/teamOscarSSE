@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
  * The exchange takes and processes orders.
  */
 public class Exchange {
+	private final boolean DEBUG = true;
+
 	// The maximum price at which a user can buy/sell a stock.
 	private final long MAX_STOCK_PRICE = 1000000;
 
@@ -173,7 +175,9 @@ public class Exchange {
 	 */
 	public synchronized boolean addOrder(Order order) {
 		if (!isOpen()) {
-			System.err.println("Can't add order. The exchange is closed.");
+			if (DEBUG) {
+				System.err.println("Can't add order. The exchange is closed.");
+			}
 			return false;
 		}
 		// TODO: should return exception with a message, discuss.
@@ -187,7 +191,9 @@ public class Exchange {
 		if (order instanceof BuyOrder) {
 			BuyOrder bo = (BuyOrder) order;
 			if (bo.getShares() > trader.maxCanBuy(order.getStock(), order.getPrice())) {
-				System.err.format("%s does not have enough cash to buy %s\n", trader.getName(), order);
+				if (DEBUG) {
+					System.err.format("%s does not have enough cash to buy %s\n", trader.getName(), order);
+				}
 				return false;
 			}
 			orders.put(order.getOrderNum(), order);
@@ -196,7 +202,9 @@ public class Exchange {
 		} else if (order instanceof SellOrder) {
 			SellOrder so = (SellOrder) order;
 			if (so.getShares() > trader.maxCanSell(order.getStock())) {
-				System.err.format("%s does not have enough shares to sell %s\n", trader.getName(), order);
+				if (DEBUG) {
+					System.err.format("%s does not have enough shares to sell %s\n", trader.getName(), order);
+				}
 				return false;
 			}
 			orders.put(order.getOrderNum(), order);
