@@ -176,31 +176,31 @@ public class Stock {
 		return pointAvg50;
 	}
 
-	public long overallAverage() {
+	public long getOverallAverage() {
 		return overallAvg;
 	}
 
-	public long transactionAvg5() {
+	public long getTransactionAvg5() {
 		return transactionAvg5;
 	}
 		
-	public long transactionAvg20() {
+	public long getTransactionAvg20() {
 		return transactionAvg20;
 	}
 		
-	public long transactionAvg50() {
+	public long getTransactionAvg50() {
 		return transactionAvg50;
 	}
 
-	public float rateOfChange5() {
+	public float getRateOfChange5() {
 		return rateOfChange5;
 	}
 
-	public float rateOfChange20() {
+	public float getRateOfChange20() {
 		return rateOfChange20;
 	}
 
-	public float rateOfChange50() {
+	public float getRateOfChange50() {
 		return rateOfChange50;
 	}
 	//End of getter methods
@@ -275,26 +275,20 @@ public class Stock {
 		for (int i=pointAvgPtr; i>pointAvgPtr-4; i--) {
 			if (i>=0) {
 				priceA = priceBuf[i];
-				System.out.println("Pricea: "+priceA);
 			}
 			else {
 				priceA = priceBuf[i+50];
-				System.out.println("PriceA: "+priceA);
 			}
 			if (i-1>=0) {
 				priceB = priceBuf[(i-1)];
-				System.out.println("Priceb: "+priceB);
 			}
 			else {
 				priceB = priceBuf[i-1+50];
-				System.out.println("PriceB: "+priceB);
 			}
 			
 			change += (priceA - priceB);
-			System.out.println("Change: "+change);
 		}
 		rateOfChange5 = change/5;
-		System.out.println("rateOfChange: "+rateOfChange5);
 		
 		priceA = 0;
 		priceB = 0;
