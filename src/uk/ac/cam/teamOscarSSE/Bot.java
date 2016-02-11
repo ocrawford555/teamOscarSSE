@@ -11,7 +11,7 @@ public abstract class Bot extends Trader {
 	protected Stock stock;
 
 	// The exchange on which the bot trades.
-	protected Exchange ex;
+	protected Exchange exchange;
 
 	// A random number generator used in randomizing a bot's actions.
 	protected Random r = new Random();
@@ -28,10 +28,10 @@ public abstract class Bot extends Trader {
 	 */
 	public Bot(Exchange exchange, Stock stock, String botName) {
 		super(botName, "bot@bot.com");
-		ex = exchange;
+		this.exchange = exchange;
 		this.stock = stock;
 		TMAX = stock.getTMAX();
-		ex.addPlayer(this);
+		this.exchange.addPlayer(this);
 	}
 
 	/**
@@ -63,7 +63,7 @@ public abstract class Bot extends Trader {
 	 * @return
 	 */
 	public boolean submitOrder(Order order) {
-		return ex.addOrder(order);
+		return exchange.addOrder(order);
 	}
 
 	/**

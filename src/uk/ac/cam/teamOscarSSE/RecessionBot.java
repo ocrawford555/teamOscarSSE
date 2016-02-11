@@ -37,7 +37,7 @@ public class RecessionBot extends Bot implements Runnable {
 	@Override
 	public void run() {
 		Random rand = new Random();
-		while (super.ex.isOpen()) {
+		while (super.exchange.isOpen()) {
 			try {
 				int nextWait = rand.nextInt(200) + 75;
 				Thread.sleep(nextWait);

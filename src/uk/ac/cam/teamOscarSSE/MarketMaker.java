@@ -32,25 +32,25 @@ public class MarketMaker extends Bot implements Runnable {
 	public void submitOrder() {
 		Order buyOrder = new BuyOrder(stock, this, volume, stock.getStockPrice() + buySpread);
 		Order sellOrder = new SellOrder(stock, this, volume, stock.getStockPrice() + sellSpread);
-		
-		ex.addOrder(buyOrder);
-		ex.addOrder(sellOrder);
+
+		exchange.addOrder(buyOrder);
+		exchange.addOrder(sellOrder);
 	}
 	
 	public void submitOrder(int volume) {
 		Order buyOrder = new BuyOrder(stock, this, volume, stock.getStockPrice() + buySpread);
 		Order sellOrder = new SellOrder(stock, this, volume, stock.getStockPrice() + sellSpread);
-		
-		ex.addOrder(buyOrder);
-		ex.addOrder(sellOrder);
+
+		exchange.addOrder(buyOrder);
+		exchange.addOrder(sellOrder);
 	}
 	
 	public void submitOrder(long buySp, long sellSp, int volume) {
 		Order buyOrder = new BuyOrder(stock, this, volume, stock.getStockPrice() + buySp);
 		Order sellOrder = new SellOrder(stock, this, volume, stock.getStockPrice() + sellSp);
-		
-		ex.addOrder(buyOrder);
-		ex.addOrder(sellOrder);
+
+		exchange.addOrder(buyOrder);
+		exchange.addOrder(sellOrder);
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class MarketMaker extends Bot implements Runnable {
 	@Override
 	public void run() {
 		Random rand = new Random();
-		while(ex.isOpen()){
+		while (exchange.isOpen()) {
 			try{
 				int nextWait = rand.nextInt(200) + 75;
 				Thread.sleep(nextWait);
