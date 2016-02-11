@@ -143,6 +143,9 @@ canvas {
 .entry .score {
 	font-family: monospace;
 }
+.entry .score.red {
+	color: hsl(0, 100%, 40%);
+}
 
 .difference {
 	position: absolute;
