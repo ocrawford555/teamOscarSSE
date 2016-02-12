@@ -139,7 +139,7 @@ const Graph = {
 				}
 				[strokePath, fillPath].forEach(path => path[first ? "moveTo" : "lineTo"](x, y));
 				if (history.size === 1) {
-					strokePath.arc(x, y, 2, 0, Math.PI * 2, false);
+					strokePath.arc(x, y, 1 * window.devicePixelRatio, 0, Math.PI * 2, false);
 				}
 				first = false;
 			}
@@ -163,7 +163,7 @@ const Graph = {
 			}
 		}
 		let fadeGradient;
-		let fadeWidth = 250;
+		let fadeWidth = 125 * window.devicePixelRatio;
 		context.fillStyle = "black";
 		context.fill(fillPath);
 		context.globalCompositeOperation = "destination-out";
@@ -171,7 +171,7 @@ const Graph = {
 		fadeGradient.addColorStop(0, "rgba(0, 0, 0, 1)");
 		fadeGradient.addColorStop(1, "rgba(0, 0, 0, 0)");
 		context.fillStyle = fadeGradient;
-		context.fillRect(totalMin, 0, 250, canvas.height);
+		context.fillRect(totalMin, 0, fadeWidth, canvas.height);
 		fadeGradient = context.createLinearGradient(canvas.width - 1 - fadeWidth, 0, canvas.width - 1, 0);
 		fadeGradient.addColorStop(0, "rgba(0, 0, 0, 0)");
 		fadeGradient.addColorStop(1, "rgba(0, 0, 0, 1)");
@@ -191,8 +191,8 @@ const Graph = {
 
 		// Draw the lines
 		context.strokeStyle = "white";
-		context.lineWidth = 4;
-		context.shadowBlur = 10;
+		context.lineWidth = 2 * window.devicePixelRatio;
+		context.shadowBlur = 5 * window.devicePixelRatio;
 		context.shadowColor = "white";
 		context.stroke(strokePath);
 
@@ -203,18 +203,18 @@ const Graph = {
 		const secondsPerDivider = 10;
 		const dividers = duration / (1000 * secondsPerDivider) - 1;
 		context.beginPath();
-		const padding = 20;
+		const padding = 10 * window.devicePixelRatio;
 		context.textBaseline = "top";
 		context.textAlign = "center";
 		context.fillStyle = "hsla(0, 0%, 100%, 0.6)";
-		context.font = `20pt "Myriad Pro"`;
+		context.font = `${10 * window.devicePixelRatio}pt "Myriad Pro"`;
 		for (let i = 0; i < dividers; ++ i) {
 			context.moveTo(canvas.width / (dividers + 1) * (i + 1), 0);
 			context.lineTo(canvas.width / (dividers + 1) * (i + 1), canvas.height - 1);
 			context.fillText(`- ${(dividers - i) * secondsPerDivider}s`, canvas.width / (dividers + 1) * (i + 1), padding);
 		}
 		context.strokeStyle = "hsla(0, 0%, 100%, 0.2)";
-		context.lineWidth = 1;
+		context.lineWidth = 0.5 * window.devicePixelRatio;
 		context.stroke();
 		context.drawImage(canvas.element, 0, 0);
 	}
@@ -283,11 +283,11 @@ window.addEventListener("DOMContentLoaded", () => {
 	}, 1000);
 	
 	// Initialise the graph
-	let width = Leaderboard.object.rect.width;
-	let height = 320;
+	const width = Leaderboard.object.rect.width;
+	const height = 320;
 	for (const object of [Graph.object, Graph.temporary]) {
-		object.width = width * 2;
-		object.height = height * 2;
+		object.width = width * window.devicePixelRatio;
+		object.height = height * window.devicePixelRatio;
 		object.setStyle({ width, height });
 	}
 	Graph.draw();
@@ -299,4 +299,15 @@ window.addEventListener("DOMContentLoaded", () => {
 			document.webkitCancelFullScreen();
 		}
 	}, false);
+});
+
+window.addEventListener("resize", () => {
+	const width = Leaderboard.object.rect.width;
+	const height = 320;
+	for (const object of [Graph.object, Graph.temporary]) {
+		object.width = width * window.devicePixelRatio;
+		object.height = height * window.devicePixelRatio;
+		object.setStyle({ width, height });
+	}
+	Graph.draw();
 });
