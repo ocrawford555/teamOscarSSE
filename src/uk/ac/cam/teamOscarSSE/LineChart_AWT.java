@@ -29,7 +29,7 @@ public class LineChart_AWT extends ApplicationFrame
 
 		CategoryPlot plot = (CategoryPlot) lineChart.getPlot();
 		ValueAxis yAxis = plot.getRangeAxis();
-		yAxis.setRange(lowest, highest);
+		yAxis.setRange(lowest-400, highest+400);
 
 		ChartPanel chartPanel = new ChartPanel( lineChart );
 		chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
