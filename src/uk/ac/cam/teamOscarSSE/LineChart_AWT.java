@@ -14,8 +14,8 @@ import org.jfree.ui.RefineryUtilities;
 
 public class LineChart_AWT extends ApplicationFrame
 {
-	private long highest = Long.MIN_VALUE;
-	private long lowest = Long.MAX_VALUE;
+	private float highest = Long.MIN_VALUE;
+	private float lowest = Long.MAX_VALUE;
 	
 	public LineChart_AWT( String applicationTitle , String chartTitle )
 	{
@@ -29,7 +29,7 @@ public class LineChart_AWT extends ApplicationFrame
 
 		CategoryPlot plot = (CategoryPlot) lineChart.getPlot();
 		ValueAxis yAxis = plot.getRangeAxis();
-		yAxis.setRange(lowest-400, highest+400);
+		yAxis.setRange(lowest-5, highest+5);
 
 		ChartPanel chartPanel = new ChartPanel( lineChart );
 		chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
@@ -44,10 +44,11 @@ public class LineChart_AWT extends ApplicationFrame
 		List<Long> graphData = MainAlgoTest.exchange.prices;
 		synchronized(graphData){
 			for(long value: graphData){
-				if(value > highest) highest = value;
-				if(value < lowest) lowest = value;
+				float valueNew = ((float)value) / 100;
+				if(valueNew > highest) highest = valueNew;
+				if(valueNew < lowest) lowest = valueNew;
 				i++;
-				dataset.addValue(value, "prices", String.valueOf(i));
+				dataset.addValue(valueNew, "prices", String.valueOf(i));
 			}
 		}
 		return dataset;
