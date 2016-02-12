@@ -61,7 +61,7 @@ const Leaderboard = {
 	},
 	formatScore (score) {
 		const string = `00${Math.abs(score)}`;
-		return `${score < 0 ? "-" : ""}$${parseInt(`${string.slice(0, -2)}`).toLocaleString()}.${string.slice(-2)}`;
+		return `${score < 0 ? "-" : ""}£${parseInt(`${string.slice(0, -2)}`).toLocaleString()}.${string.slice(-2)}`;
 	},
 	formatCountdown (seconds) {
 		return `${`0${Math.floor(seconds / 60)}`.slice(-2)}:${`0${seconds % 60}`.slice(-2)}`;
