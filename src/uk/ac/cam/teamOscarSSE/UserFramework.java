@@ -21,6 +21,7 @@ public class UserFramework implements Runnable {
 	private long pointAvg5;
 	private long pointAvg20;
 	private long pointAvg50;
+	private long pointAvg500;
 	
 	private long overallAvg;
 
