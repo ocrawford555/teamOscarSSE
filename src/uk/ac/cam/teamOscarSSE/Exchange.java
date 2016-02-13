@@ -353,7 +353,7 @@ public class Exchange {
 			}
 
 			//update line chart
-			prices.add(ob.getStock().getPointAvg20());
+			prices.add(ob.getStock().getPointAvg().get(20));
 			//prices.add(price);
 		}
 	}

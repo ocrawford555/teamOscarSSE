@@ -1,5 +1,7 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 public class UserFramework implements Runnable {
@@ -17,25 +19,12 @@ public class UserFramework implements Runnable {
 	//Change these to reflect HTTP Server format and all the get methods
 	
 	private long stockPrice;
-	
-	private long pointAvg5;
-	private long pointAvg20;
-	private long pointAvg50;
-	private long pointAvg500;
-	
+	private List<Long> pointAvg = new LinkedList<Long>();
 	private long overallAvg;
-
-	private long transactionAvg5;
-	private long transactionAvg20;
-	private long transactionAvg50;
-
-	//Change in stock price
-	private float rateOfChange5;
-	private float rateOfChange20;
-	private float rateOfChange50;
-	
-	//User statistics
+	private List<Long> transactionAvg = new LinkedList<Long>();
+	private List<Float> rateOfChange = new LinkedList<Float>();
 	private long cash;
+	
 	
 	public boolean Buy(){
 		return false;
@@ -66,20 +55,13 @@ public class UserFramework implements Runnable {
 	public void update() {
 		stockPrice = stock.getStockPrice();
 		
-		pointAvg5 = stock.getPointAvg5();
-		pointAvg20 = stock.getPointAvg20();
-		pointAvg50 = stock.getPointAvg50();
+		pointAvg = stock.getPointAvg();
 		
 		overallAvg = stock.getOverallAverage();
 
-		transactionAvg5 = stock.getTransactionAvg5();
-		transactionAvg20 = stock.getTransactionAvg20();
-		transactionAvg50 = stock.getTransactionAvg50();
+		transactionAvg = stock.getTransactionAvg();
 
-		//Change in stock price
-		rateOfChange5 = stock.getRateOfChange5();
-		rateOfChange20 = stock.getRateOfChange20();
-		rateOfChange50 = stock.getRateOfChange50();
+		rateOfChange = stock.getRateOfChange();
 		
 		//cash = stock.getCash();
 	}

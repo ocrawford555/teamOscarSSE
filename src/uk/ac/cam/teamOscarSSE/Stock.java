@@ -157,20 +157,20 @@ public class Stock {
 	private List<Float> rateOfChange = new ArrayList<Float>();
 	
 	//Getter methods for user metrics
-	public long getPointAvg(int a) {
-		return pointAvg.get(a);
+	public List<Long> getPointAvg() {
+		return pointAvg;
 	}
 
 	public long getOverallAverage() {
 		return overallAvg;
 	}
 
-	public long getTransactionAvg(int a) {
-		return transactionAvg.get(a);
+	public List<Long> getTransactionAvg() {
+		return transactionAvg;
 	}
 
-	public float getRateOfChange(int a) {
-		return rateOfChange.get(a);
+	public List<Float> getRateOfChange() {
+		return rateOfChange;
 	}
 	//End of getter methods
 	

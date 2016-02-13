@@ -7,13 +7,20 @@ public class User {
 	static Exchange e;
 	
 	
+	/*
+	 * Metrics:
+	 * pointAvg List
+	 * overallAvg
+	 * transactionAvg List
+	 * rateOfChange List
+	 */
 	public static void main(String[] args) {
 		UserFramework a = new UserFramework(s,e) {
 			
 			@Override
 			public boolean Buy(){
 				//Algorithm when to buy shares
-				
+				//Get merics by metric.get(index between 1 and 50)
 				return false;
 			}
 			@Override
