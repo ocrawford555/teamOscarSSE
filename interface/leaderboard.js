@@ -111,7 +111,7 @@ const Graph = {
 		const canvas = Graph.temporary;
 		let context = canvas.getContext("2d");
 		const now = performance.now();
-		const duration = 1000 * 60;
+		const duration = 1000 * 30;
 		const minY = 10000;
 		const maxY = 1000000 + minY;
 		// Clear the canvas
@@ -130,9 +130,13 @@ const Graph = {
 			let first = true;
 			let min = null, max = null;
 			let currentScore = null;
+			const removal = [];
 			for (const pair of history) {
 				const x = (1 + (pair[0] - now) / duration) * canvas.width;
 				const y = canvas.height * (1 - (pair[1] - minY) / (maxY - minY));
+				if (x < 0) {
+					removal.push(pair[0]);
+				}
 				if (min === null || x < min) {
 					min = x;
 				}
@@ -145,6 +149,11 @@ const Graph = {
 					strokePath.arc(x, y, 1 * window.devicePixelRatio, 0, Math.PI * 2, false);
 				}
 				first = false;
+			}
+			removal.shift();
+			removal.pop();
+			for (const remove of removal) {
+				history.delete(remove);
 			}
 			if (min !== null && max !== null) {
 				fillPath.lineTo(max, canvas.height);
