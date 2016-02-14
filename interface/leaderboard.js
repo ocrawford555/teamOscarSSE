@@ -117,13 +117,16 @@ const Graph = {
 		// Clear the canvas
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
-		const strokePath = new Path2D();
+		const strokePaths = [];
+		let strokePath;
 		const fillPath = new Path2D();
 
 		// Plot the points
 		let totalMin = canvas.width - 1;
-		for (const ID of Graph.histories.keys()) {
+		for (const ID of Array.from(Graph.histories.keys()).sort((a, b) => Leaderboard.positions.get(a).position - Leaderboard.positions.get(b).position)) {
 			const history = Graph.histories.get(ID);
+			strokePath = new Path2D();
+			strokePaths.push(strokePath);
 			let first = true;
 			let min = null, max = null;
 			let currentScore = null;
@@ -194,7 +197,14 @@ const Graph = {
 		context.lineWidth = 2 * window.devicePixelRatio;
 		context.shadowBlur = 5 * window.devicePixelRatio;
 		context.shadowColor = "white";
-		context.stroke(strokePath);
+		let i = 0;
+		for (const strokePath of strokePaths) {
+			context.strokeStyle = `hsla(0, 0%, 100%, ${(strokePaths.length - i) / strokePaths.length * 100}%)`;
+			context.globalAlpha = (strokePaths.length - i) / strokePaths.length;
+			context.stroke(strokePath);
+			++ i;
+		}
+		context.globalAlpha = 1;
 
 		// Draw the timeline
 		context = Graph.object.getContext("2d");
@@ -225,7 +235,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
 	// Initialise testing data
 	let entries = [];
-	for (const name of ["Cam", "Ox", "MIT", "Imp"]) {
+	const playerNames = ["Cam", "Ox", "MIT", "Imp"];
+	for (let i = 0; i < 2; ++ i) {
+		playerNames.push(`${i}-`);
+	}
+	for (const name of playerNames) {
 		entries.push({
 			ID: name,
 			name: `${name}bot`,
@@ -247,7 +261,7 @@ window.addEventListener("DOMContentLoaded", () => {
 				entries.push({
 					ID: entryID,
 					name: entry.name,
-					score: /*10000 + 1000000 / 2 + Math.round(Math.random() * 1000000 / 10) - entries.length * 100000*/ entry.score + Math.random() * variance * 2 - variance
+					score: entry.score + Math.random() * variance * 2 - variance
 				});
 			}
 			Leaderboard.update(timestamp, entries);
@@ -299,6 +313,23 @@ window.addEventListener("DOMContentLoaded", () => {
 			document.webkitCancelFullScreen();
 		}
 	}, false);
+
+	fetch("http://localhost:8080/").then(response => {
+		if (response.ok) {
+			try {
+				const data = JSON.parse(response);
+				const elapsedTime = data["elapsed time"];
+				const players = data["players"];
+				Leaderboard.update(elapsedTime, players);
+				console.log("Updated");
+			} catch (error) {
+				// The response from the server was malformed
+				console.warn("The response received from the server was malformed.");
+			}
+		} else {
+			console.warn("The network response was not okay.");
+		}
+	}).catch(error => console.warn("Failed to fetch data from the server."));
 });
 
 window.addEventListener("resize", () => {
