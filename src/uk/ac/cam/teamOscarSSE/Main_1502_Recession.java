@@ -60,7 +60,7 @@ public class Main_1502_Recession {
 		//add some orders to the order book occasionally - not in the game for
 		//profit -> this bot is simulating normal consumers looking to buy and 
 		//sell stocks.
-		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),100,100,200);
+		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),50,50,200);
 
 		//general bot in play for simplification only
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
@@ -80,13 +80,13 @@ public class Main_1502_Recession {
 		user1.start();
 		user2.start();
 		marketM.start();
-		generalBot.start();
+		//generalBot.start();
 		recession.start();
 		priceMover.start();
 
-		for(int j=0; j<100; j++){
+		for(int j=0; j<120; j++){
 			try {
-				Thread.sleep(100);
+				Thread.sleep(75);
 				prices.add(stocks.get(0).getPointAvg().get(20));
 				balA.add(players.get(0).getBalance());
 				balB.add(players.get(1).getBalance());

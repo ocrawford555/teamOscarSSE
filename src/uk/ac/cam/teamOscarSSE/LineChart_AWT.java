@@ -61,6 +61,13 @@ public class LineChart_AWT extends ApplicationFrame
 				dataset.addValue(valueNew, "Recession", String.valueOf(i));
 			}
 		}
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		Main_1502_Normal.main(null);
 
@@ -78,6 +85,13 @@ public class LineChart_AWT extends ApplicationFrame
 			}
 		}
 
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		Main_1502_Boom.main(null);
 
 		i = 0;
