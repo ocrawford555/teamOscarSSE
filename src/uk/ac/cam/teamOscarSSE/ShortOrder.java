@@ -6,6 +6,13 @@ public class ShortOrder extends Order implements Comparable<ShortOrder> {
 	}
 
 	@Override
+	/**
+	 * Compare method makes sure that all short orders
+	 * that are added to the order book are in the correct
+	 * order - i.e. the shorts with the highest price are
+	 * at the top of the order book, with ties broken
+	 * on which order arrived first.
+	 */
 	public int compareTo(ShortOrder sellO) {
 		if (this.getPrice() > sellO.getPrice()) return 1;
 		else if (this.getPrice() < sellO.getPrice()) return -1;

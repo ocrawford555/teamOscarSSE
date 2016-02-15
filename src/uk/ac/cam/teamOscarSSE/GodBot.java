@@ -69,7 +69,7 @@ public class GodBot extends Bot implements Runnable {
 	public void run() {
 		while (super.exchange.isOpen()) {
 			try {
-				Thread.sleep(rand.nextInt(100) + 50);
+				Thread.sleep(rand.nextInt(150) + 25);
 				this.sendOrders();
 			} catch (InterruptedException e) {
 				e.printStackTrace();

@@ -16,6 +16,7 @@ public abstract class Bot extends Trader {
 	// A random number generator used in randomizing a bot's actions.
 	protected Random rand = new Random();
 
+	//Transaction maximum value
 	protected int TMAX;
 
 	/**

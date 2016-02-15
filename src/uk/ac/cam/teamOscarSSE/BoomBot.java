@@ -2,26 +2,39 @@ package uk.ac.cam.teamOscarSSE;
 
 import java.util.Random;
 
+/**
+ * BoomBot designed to increase price of stock rapidly.
+ * Achieves this by buying high in order to get stocks,
+ * and sell only at a high price.
+ */
 public class BoomBot extends Bot implements Runnable {
 
+	//Name of bot
 	private static final String botName = "BoomBot";
 
 	/**
-	 * Adds a BoomBot to the exchange with a default name.
-	 *
-	 * @param e
-	 * @param s
+	 * 
+	 * @param e - Exchange being used.
+	 * @param s - Stock the bot is trading with.
 	 */
 	public BoomBot(Exchange e, Stock s) {
 		this(e, s, botName);
 	}
-
+	
+	/**
+	 * 
+	 * @param e - Exchange being used.
+	 * @param s - Stock the bot is trading with.
+	 * @param botName - name of bot
+	 */
 	public BoomBot(Exchange e, Stock s, String botName) {
 		super(e, s, botName);
 	}
 
-	//Call sendOrders() to automatically submit the required orders to Exchange
 	@Override
+	/**
+	 * Sends orders to the exchange.
+	 */
 	public void sendOrders() {
 		int volume1 = rand.nextInt(TMAX);
 		int volume2 = rand.nextInt(TMAX);
@@ -38,27 +51,28 @@ public class BoomBot extends Bot implements Runnable {
 
 		long sellPrice1 = stockP + 200;
 		long sellPrice2 = stockP + 400;
-		long sellPrice3 = stockP;
 
 		Order sellOrder1 = new SellOrder(stock, this, volume1, sellPrice1);
 		Order sellOrder2 = new SellOrder(stock, this, volume2, sellPrice2);
-		Order sellOrder3 = new SellOrder(stock, this, volume3, sellPrice3);
 
 		super.submitOrder(buyOrder1);
 		super.submitOrder(buyOrder2);
 		super.submitOrder(buyOrder3);
 		super.submitOrder(sellOrder1);
 		super.submitOrder(sellOrder2);
-		super.submitOrder(sellOrder3);
-
 	}
 
 	@Override
+	/**
+	 * Orders are submitted at random intervals
+	 * for increased market realism. Loops until the
+	 * exchange is closed and the round is over.
+	 */
 	public void run() {
 		Random rand = new Random();
 		while (super.exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(200) + 75;
+				int nextWait = rand.nextInt(150) + 25;
 				Thread.sleep(nextWait);
 				this.sendOrders();
 			} catch (InterruptedException e) {

@@ -3,9 +3,14 @@ package uk.ac.cam.teamOscarSSE;
 import java.util.*;
 import java.util.Map.Entry;
 
+/**
+ * The LeaderBoard class keeps info about the leaderboard.
+ */
 public class LeaderBoard {
-	//keep track of score for all the players
+	//List of players in the competition
 	ArrayList<Player> playersInRound = new ArrayList<Player>();
+	
+	//Map of the scores of each player
 	Map<String, Long> lB = new HashMap<String, Long>();
 
 	public LeaderBoard(ArrayList<Player> players) {
@@ -14,7 +19,14 @@ public class LeaderBoard {
 			lB.put(p.getName(), p.getBalance() - p.getStartingCash());
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @param map
+	 * 	takes unsorted leaderboard and sorts them
+	 * @return
+	 * 	the sorted entries
+	 */
 	static <K, V extends Comparable<? super V>> List<Entry<K, V>> entriesSortedByValues(Map<K, V> map) {
 		List<Entry<K, V>> sortedEntries = new ArrayList<Entry<K, V>>(map.entrySet());
 		Collections.sort(sortedEntries, new Comparator<Entry<K, V>>() {
@@ -27,18 +39,20 @@ public class LeaderBoard {
 		return sortedEntries;
 	}
 
-	//method called by server to update leader board
+	/**
+	 * Update contents of the leaderboard. Iterate through
+	 * each player, changing their P/L score.
+	 */
 	public void update() {
 		for (Player p : playersInRound) {
 			lB.put(p.getName(), p.getBalance() - p.getStartingCash());
 		}
 	}
 
-	//method called by web interface to get latest
-	//results
-	//first of all, hashmap has to be sorted in
-	//descending order using the entriesSortedByValues
-	//function.
+	/**
+	 * To get the correct leaderboard, first update,
+	 * and then sort, and then output.
+	 */
 	public void get() {
 		update();
 		List<Entry<String, Long>> sorted = entriesSortedByValues(lB);
@@ -48,12 +62,9 @@ public class LeaderBoard {
 		}
 	}
 
-	//send email to winner of the round, with score
-	//not major priority currently
+	//not for current version; future implementation
 	public void sendEmail() {}	
 
-	//arguably not required, future versions may
-	//choose to save results from round on to a
-	//permanent store
+	//not for current version; future implementation
 	public void saveResults() {}
 }

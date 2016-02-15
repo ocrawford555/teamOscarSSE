@@ -14,7 +14,7 @@ public class PriceMovingBot extends Bot implements Runnable {
 		Random rand = new Random();
 		while (super.exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(200) + 25;
+				int nextWait = rand.nextInt(150) + 25;
 				Thread.sleep(nextWait);
 				this.sendOrders();
 			} catch (InterruptedException e) {

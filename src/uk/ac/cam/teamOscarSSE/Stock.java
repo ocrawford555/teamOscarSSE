@@ -226,7 +226,7 @@ public class Stock {
 		float change = 0;
 		for (int i=0; i<=50; i++) {
 			for (int j=pointAvgPtr; j>pointAvgPtr-i+1; j--) {
-				System.out.println("J: "+j);
+				//System.out.println("J: "+j);
 				if (j>=0) priceA = priceBuf[j];
 				else {priceA = priceBuf[j+50];}
 				if ((j-1)>=0) priceB = priceBuf[(j-1)];

@@ -1,13 +1,18 @@
 package uk.ac.cam.teamOscarSSE;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
-public class Main_Oliver {
+public class Main_1502_Recession {
 	//have these as static -- only need one copy
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
 	static Exchange exchange;
 	static LeaderBoard lb;
+	static public List<Long> prices = new LinkedList<Long>();
+	static public List<Long> balA = new LinkedList<Long>();
+	static public List<Long> balB = new LinkedList<Long>();
 
 	public static void open() {
 		//create and add stocks
@@ -20,8 +25,8 @@ public class Main_Oliver {
 		//over Bob.
 		Player Alice = new Player("Alice", "A");
 		players.add(Alice);
-		
-		
+
+
 		//Bob is using the random order algorithm, which has no logic
 		//Making a decent profit would be lucky, but is possible.
 		Player Bob = new Player("Bob", "B");
@@ -63,65 +68,54 @@ public class Main_Oliver {
 		//price moving bot
 		PriceMovingBot pmb = new PriceMovingBot(exchange,stocks.get(0));
 
-		//boom bot
-		BoomBot bb = new BoomBot(exchange,stocks.get(0));
-
 		//recession bot
 		RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
-
-		//add God bot
-		GodBot god = new GodBot(exchange,stocks.get(0));
 
 		Thread marketM = new Thread(mm);
 		Thread generalBot = new Thread(gb);
 		Thread priceMover = new Thread(pmb);
-		Thread boomBot = new Thread(bb);
 		Thread recession = new Thread(rb);
-		Thread godly = new Thread(god);
-
 
 		//start the trading
 		user1.start();
 		user2.start();
 		marketM.start();
 		generalBot.start();
-		boomBot.start();
+		recession.start();
 		priceMover.start();
 
-		godly.start();
-
-		//after 6 seconds, bring in the recession!
-		try {
-			Thread.sleep(6000);
-			boomBot.suspend();
-			recession.start();
-		} catch (InterruptedException e1) {}
-
-
-		try {
-			//run the exchange for 10 seconds
-			Thread.sleep(10000);
-			exchange.setOpen(false);
-
-			lb.update();
-
-			System.out.println("");
-			System.out.println("");
-			System.out.println("--- ROUND OVER ---");
-			System.out.println("");
-			System.out.println("");
-			System.out.println("Final Portfolio Contents");
-			for(Player px:players) {
-				System.out.println(px.getName() + " ");
-				px.getPortfolio().contents();
+		for(int j=0; j<100; j++){
+			try {
+				Thread.sleep(100);
+				prices.add(stocks.get(0).getPointAvg().get(20));
+				balA.add(players.get(0).getBalance());
+				balB.add(players.get(1).getBalance());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-			System.out.println("");
-			System.out.println("");
-			System.out.println("");
-			lb.get();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
+
+		exchange.setOpen(false);
+
+		lb.update();
+
+		System.out.println("");
+		System.out.println("");
+		System.out.println("--- ROUND OVER ---");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("Final Portfolio Contents");
+		
+		for(Player px:players) {
+			System.out.println(px.getName() + " ");
+			px.getPortfolio().contents();
+		}
+		
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		lb.get();
+
 	}
 
 	public static void main(String args[]) {

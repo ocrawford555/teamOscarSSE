@@ -20,9 +20,7 @@ public class RandomTrading implements Runnable {
 		
 		while (exchange.isOpen()) {
 			try {
-				//wait 1.5 seconds before it can trade
-				Thread.sleep(1500);
-				int nextWait = rand.nextInt(200) + 25;
+				int nextWait = rand.nextInt(150) + 25;
 				Thread.sleep(nextWait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();

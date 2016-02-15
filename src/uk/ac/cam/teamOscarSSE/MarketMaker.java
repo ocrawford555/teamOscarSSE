@@ -63,11 +63,8 @@ public class MarketMaker extends Bot implements Runnable {
 		Random rand = new Random();
 		while (exchange.isOpen()) {
 			try{
-				int nextWait = rand.nextInt(200) + 75;
+				int nextWait = rand.nextInt(150) + 25;
 				Thread.sleep(nextWait);
-				// TODO: I think we should let only the Exchange call stock.newPrice()
-				// ^ agreed, commented out.
-				//stock.newPrice();
 				this.sendOrders();
 			}
 			catch (InterruptedException e) {

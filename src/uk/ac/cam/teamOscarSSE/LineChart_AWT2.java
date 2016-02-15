@@ -13,28 +13,29 @@ import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- *  Display on a line graph the price of the stock
+ *  Display on a line graph the balances of the players
  *  over one round.
+ *  Currently only shows two players.
  */
-public class LineChart_AWT extends ApplicationFrame
+public class LineChart_AWT2 extends ApplicationFrame
 {
 	private static final long serialVersionUID = 1L;
 	private float highest = Long.MIN_VALUE;
 	private float lowest = Long.MAX_VALUE;
 	
-	public LineChart_AWT( String applicationTitle , String chartTitle )
+	public LineChart_AWT2( String applicationTitle , String chartTitle )
 	{
 		super(applicationTitle);
 		JFreeChart lineChart = ChartFactory.createLineChart(
 				chartTitle,
-				"Time","Price",
+				"Time","Balance",
 				createDataset(),
 				PlotOrientation.VERTICAL,
 				true,true,false);
 
 		CategoryPlot plot = (CategoryPlot) lineChart.getPlot();
 		ValueAxis yAxis = plot.getRangeAxis();
-		yAxis.setRange(lowest-5, highest+5);
+		yAxis.setRange(lowest-10000, highest+10000);
 
 		ChartPanel chartPanel = new ChartPanel( lineChart );
 		chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
@@ -43,12 +44,13 @@ public class LineChart_AWT extends ApplicationFrame
 
 	private DefaultCategoryDataset createDataset( )
 	{
-		Main_1502_Recession.main(null);
+		Main_1502_Normal.main(null);
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset( );
 		
 		int i = 0;
 		
-		List<Long> graphData = Main_1502_Recession.prices;
+		List<Long> graphData = Main_1502_Normal.balA;
+		List<Long> graphDataX = Main_1502_Normal.balB;
 		
 		synchronized(graphData){
 			for(long value: graphData){
@@ -56,17 +58,31 @@ public class LineChart_AWT extends ApplicationFrame
 				if(valueNew > highest) highest = valueNew;
 				if(valueNew < lowest) lowest = valueNew;
 				i++;
-				dataset.addValue(valueNew, "BAML", String.valueOf(i));
+				dataset.addValue(valueNew, "Alice", String.valueOf(i));
 			}
 		}
+		
+		i=0;
+		
+		synchronized(graphDataX){
+			for(long value: graphDataX){
+				float valueNew = ((float)value) / 100;
+				if(valueNew > highest) highest = valueNew;
+				if(valueNew < lowest) lowest = valueNew;
+				i++;
+				dataset.addValue(valueNew, "Bob", String.valueOf(i));
+			}
+		}
+		
+		
 		return dataset;
 	}
 	
 	public static void main( String[ ] args ) 
 	{
-		LineChart_AWT chart = new LineChart_AWT(
+		LineChart_AWT2 chart = new LineChart_AWT2(
 				"stock_Prices" ,
-				"Stock Movement of BAML.");
+				"Balance of Players at end of round.");
 
 		chart.pack( );
 		RefineryUtilities.centerFrameOnScreen( chart );

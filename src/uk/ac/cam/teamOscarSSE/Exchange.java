@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
  * The exchange takes and processes orders.
  */
 public class Exchange {
+	//DEBUG variable for outputting information to the console.
 	private final boolean DEBUG = true;
 
 	// The maximum price at which a user can buy/sell a stock.
@@ -16,8 +17,6 @@ public class Exchange {
 
 	// The maximum number of shares a user can buy/sell.
 	private final long MAX_STOCK_SHARES = 10000;
-
-	public List<Long> prices = new LinkedList<Long>();
 
 	// A map from stock symbol to OrderBook for each stock.
 	private Map<String, OrderBook> orderBooks;
@@ -47,6 +46,7 @@ public class Exchange {
 			System.err.println("Tried to create an exchange with no stocks.");
 			stocks = new ArrayList<>();
 		}
+		
 		orderBooks = new HashMap<>();
 		traders = new HashMap<>();
 		orders = new HashMap<>();
@@ -351,10 +351,6 @@ public class Exchange {
 					so = ob.sells.get(0);
 				}
 			}
-
-			//update line chart
-			prices.add(ob.getStock().getPointAvg().get(20));
-			//prices.add(price);
 		}
 	}
 

@@ -20,7 +20,7 @@ public class PennyingAlgo implements Runnable{
 		
 		while (exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(200) + 25;
+				int nextWait = rand.nextInt(150) + 25;
 				Thread.sleep(nextWait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -30,10 +30,7 @@ public class PennyingAlgo implements Runnable{
 				long pennyBuy = s.getBestBid();
 				long pennySell = s.getBestOffer();
 				int amount = rand.nextInt(350) + 5;
-				
-				//chooses player to make exchange more random
-				//int playingFor = rand.nextInt(2);
-				
+						
 				// Periodically remove all pending orders to unblock stock/cash.
 				// Feel free to comment this out.
 				if (rand.nextDouble() < 0.1) {
