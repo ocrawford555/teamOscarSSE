@@ -1,18 +1,21 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Main_1502_Normal {
+	static public List<Long> prices = new LinkedList<Long>();
+	static public List<Long> balA = new LinkedList<Long>();
+	static public List<Long> balB = new LinkedList<Long>();
 	//have these as static -- only need one copy
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
 	static Exchange exchange;
 	static LeaderBoard lb;
-	static public List<Long> prices = new LinkedList<Long>();
-	static public List<Long> balA = new LinkedList<Long>();
-	static public List<Long> balB = new LinkedList<Long>();
+	// The number of simulation steps.
+	private static int NUM_SIM_STEPS = 100000;
 
 	public static void open() {
 		//create and add stocks
@@ -37,6 +40,14 @@ public class Main_1502_Normal {
 
 		//create the exchange
 		exchange = new Exchange(stocks);
+
+		// TODO: temporary modification
+		try {
+			NewServer.start(8080, exchange);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 
 		//add the players to the exchange
 		for (Player player : players) {
@@ -84,7 +95,7 @@ public class Main_1502_Normal {
 		priceMover.start();
 		godly.start();
 
-		for(int j=0; j<120; j++){
+		for (int j = 0; j < NUM_SIM_STEPS; j++) {
 			try {
 				Thread.sleep(75);
 				prices.add(stocks.get(0).getPointAvg().get(20));
