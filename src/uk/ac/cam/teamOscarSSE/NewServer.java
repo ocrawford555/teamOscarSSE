@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.nio.charset.MalformedInputException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,13 +22,9 @@ public class NewServer {
 		}
 	}
 	
-	public static void main(String[] args) throws IOException {
-		
-		List<Stock> stocks = new ArrayList<Stock>();
-		stocks.add(new Stock("BAML", "Bank America", 100, 0.2f, 23054, 2000));
-		Exchange stockExchange = new Exchange(stocks);
-		
-		HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 32);
+	public static void start(int port, Exchange stockExchange) throws IOException {
+		int maximumClients = 32;
+		HttpServer server = HttpServer.create(new InetSocketAddress("localhost", port), maximumClients);
 		HttpHandler handler = new HttpHandler() {
 			
 			@Override
