@@ -43,7 +43,7 @@ public class NewServer {
 				StringBuilder builder = new StringBuilder();
 				int nextByte;
 				while ((nextByte = inputStream.read()) != -1) {
-					builder.append(nextByte);
+					builder.append((char) nextByte);
 				}
 				debugPrint("");
 				inputStream.close();
