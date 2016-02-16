@@ -22,7 +22,7 @@ public class NewServer {
 		}
 	}
 	
-	public static void start(int port, Exchange stockExchange) throws IOException {
+	public static void start(int port, final Exchange stockExchange) throws IOException {
 		int maximumClients = 32;
 		HttpServer server = HttpServer.create(new InetSocketAddress("localhost", port), maximumClients);
 		HttpHandler handler = new HttpHandler() {
