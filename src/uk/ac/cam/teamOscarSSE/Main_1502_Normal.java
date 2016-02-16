@@ -45,7 +45,9 @@ public class Main_1502_Normal {
 		try {
 			NewServer.start(8080, exchange);
 		} catch (IOException e) {
+			System.out.println("Failed to start the server.");
 			e.printStackTrace();
+			return;
 		}
 
 
