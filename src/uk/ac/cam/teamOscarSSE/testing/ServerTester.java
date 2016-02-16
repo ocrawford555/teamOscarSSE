@@ -22,36 +22,12 @@ import uk.ac.cam.teamOscarSSE.HTTPServer;
 import uk.ac.cam.teamOscarSSE.Stock;
 
 public class ServerTester {
-	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
-		
-		//Make and start the server		
-		Thread server = new Thread() {
-			public void run() {
-				List<Stock> stocks = new ArrayList<Stock>();
-				stocks.add(new Stock("BAML", "Bank America", 100, 0.2f, 23054, 2000));
-				Exchange exchange = new Exchange(stocks);
-				HTTPServer testserver = new HTTPServer(8080, exchange);
-				testserver.start();
-			}
-		};
-		server.setDaemon(true);
-		server.start();
-		TimeUnit.SECONDS.sleep(1);
-		
-		//Send a demo request to it
-		Map<String, String> requestheaders = new HashMap<String, String>();
-		requestheaders.put("Method", "GET");
-		requestheaders.put("HTTP-Version", "HTTP/1.1");
-		requestheaders.put("Request-URI", "/stock/BAML");
-		
-		JSONObject requestjson = new JSONObject(requestheaders);
-		String requestheader = HTTP.toString(requestjson);
-		
+	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {		
+		// Connection to Server
 		final Socket s = new Socket("localhost", 8080);
-		OutputStream socketoutput = s.getOutputStream();
-		PrintWriter writer = new PrintWriter(socketoutput);
 
-		Thread reader = new Thread() {
+		// Reads data from the server
+		Thread readerConn = new Thread() {
 			public void run() {
 				BufferedReader in = null;
 				try {
@@ -61,6 +37,7 @@ public class ServerTester {
 					e.printStackTrace();
 				}
 				
+				/*
 				//Use StringBuilder to read in the input header
 				String line;
 				List<String> headers = new LinkedList<String>();
@@ -83,21 +60,58 @@ public class ServerTester {
 					System.err.println("Closing Connection");
 				}
 				
-				System.out.println("Response Recieved");
+				System.out.println("CLIENT READER: Response Recieved");
 				for (String header : headers) {
-					System.out.println(header);
+					System.out.println("CLIENT READER: " + header);
 				}			
 				System.out.println(body.toString());
+				System.out.println("CLIENT READER CLOSING");
+				*/
+				
+				//Read in and output all data
+				String line;
+				try {
+					while ((line = in.readLine()) != null) {
+						System.out.println("CLIENT READER: " + line);
+					}
+				} catch (IOException e) {
+					System.err.println("CLIENT READER ERROR READING LINE");
+					e.printStackTrace();
+				}
 			}
 		};
 				
-		reader.start();
+		readerConn.start();
 		
-		//Send header
-		System.out.println("Sending Header");
-		writer.print(requestheader);
+		// Sends data to the server
+		Thread writerConn = new Thread() {
+			public void run() {
+				
+				//Send a demo request to it
+				Map<String, String> requestheaders = new HashMap<String, String>();
+				requestheaders.put("Method", "GET");
+				requestheaders.put("HTTP-Version", "HTTP/1.1");
+				requestheaders.put("Request-URI", "/stock/BAML");				
+				
+				JSONObject requestjson = new JSONObject(requestheaders);
+				String requestheader = HTTP.toString(requestjson);
+				
+				// Writer to server
+				OutputStream socketoutput = null;
+				try {
+					socketoutput = s.getOutputStream();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				PrintWriter writer = new PrintWriter(socketoutput);
+				writer.print(requestheader);
+				writer.println("");
+				writer.println("");
+				writer.flush();
+			}
+		};
 		
-		TimeUnit.SECONDS.sleep(30);
-		s.close();
+		
+		writerConn.start();
 	}
 }
