@@ -323,22 +323,28 @@ window.addEventListener("DOMContentLoaded", () => {
 		}
 	}, false);
 
-	fetch("http://localhost:8080/").then(response => {
+	fetch("http://localhost:8080/leaderboard").then(response => {
 		if (response.ok) {
-			try {
-				const data = JSON.parse(response);
-				const elapsedTime = data["elapsed time"];
-				const players = data["players"];
-				Leaderboard.update(elapsedTime, players);
-				console.log("Updated");
-			} catch (error) {
-				// The response from the server was malformed
-				console.warn("The response received from the server was malformed.");
-			}
+			const decoder = new TextDecoder();
+			response.body.getReader().read().then(result => {
+				return decoder.decode(result.value, {
+					stream: !result.done
+				});
+			}).then(result => {
+				try {
+					const data = JSON.parse(result);
+					const elapsedTime = data["elapsed time"];
+					const players = data["players"];
+					Leaderboard.update(elapsedTime, players);
+				} catch (error) {
+					// The response from the server was malformed
+					console.warn("The response received from the server was malformed.", data, error);
+				}
+			});
 		} else {
 			console.warn("The network response was not okay.");
 		}
-	}).catch(error => console.warn("Failed to fetch data from the server."));
+	}).catch(error => console.warn("Failed to fetch data from the server.", error));
 });
 
 window.addEventListener("resize", () => {

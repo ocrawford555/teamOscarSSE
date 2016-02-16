@@ -49,6 +49,7 @@ public class NewServer {
 				inputStream.close();
 				
 				// Send response
+				exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
 				PrintWriter writer = null;
 				try {
 					String response = UserProcessor.processRequest(stockExchange, exchange.getRequestURI(), headers, builder.toString());
