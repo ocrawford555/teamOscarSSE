@@ -1,9 +1,13 @@
 package uk.ac.cam.teamOscarSSE;
 
-import org.json.HTTP;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.sun.net.httpserver.Headers;
+
+import java.net.URI;
+import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,19 +26,19 @@ public class UserProcessor {
 	 * @return A HTTPReturnMessage with success (and the relevant order-id) or failure
 	 * (and accompanying reason)
 	 */
-	private static HTTPReturnMessage buy(Exchange exchange, Player user,
+	private static String buy(Exchange exchange, Player user,
 										 String symbol, int qty,
 										 long price) {
 		Stock stock = exchange.getStockForSymbol(symbol);
-		Map<String, Object> resultBody =
+		Map<String, Object> data =
 				new HashMap<String, Object>();
-		resultBody.put("success", stock != null);
+		data.put("success", stock != null);
 		if (stock != null) {
 			Order order = new BuyOrder(stock, user, qty, price);
 			exchange.addOrder(order);
-			resultBody.put("orderID", order.getOrderNum());
+			data.put("orderID", order.getOrderNum());
 		}
-		return new HTTPReturnMessage(resultBody);
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -48,71 +52,19 @@ public class UserProcessor {
 	 * @return A HTTPReturnMessage with success (and the relevant order-id) or failure
 	 * (and accompanying reason)
 	 */
-	private static HTTPReturnMessage sell(Exchange exchange, Player user,
+	private static String sell(Exchange exchange, Player user,
 										  String symbol, int qty,
 										  long price) {
 		Stock stock = exchange.getStockForSymbol(symbol);
-		Map<String, Object> resultBody =
+		Map<String, Object> data =
 				new HashMap<String, Object>();
-		resultBody.put("success", stock != null);
+		data.put("success", stock != null);
 		if (stock != null) {
 			Order order = new SellOrder(stock, user, qty, price);
 			exchange.addOrder(order);
-			resultBody.put("orderID", order.getOrderNum());
+			data.put("orderID", order.getOrderNum());
 		}
-		return new HTTPReturnMessage(resultBody);
-	}
-
-	/**
-	 * Place a new buy-to-cover order on the exchange for the specified user
-	 *
-	 * @param exchange
-	 * @param user
-	 * @param symbol
-	 * @param qty
-	 * @param price
-	 * @return A HTTPReturnMessage with success (and the relevant order-id) or failure
-	 * (and accompanying reason)
-	 */
-	private static HTTPReturnMessage cover(Exchange exchange, Player user,
-										   String symbol, int qty,
-										   long price) {
-		Stock stock = exchange.getStockForSymbol(symbol);
-		Map<String, Object> resultBody =
-				new HashMap<String, Object>();
-		resultBody.put("success", stock != null);
-		if (stock != null) {
-			Order order = new BuyToCoverOrder(stock, user, qty, price);
-			exchange.addOrder(order);
-			resultBody.put("orderID", order.getOrderNum());
-		}
-		return new HTTPReturnMessage(resultBody);
-	}
-
-	/**
-	 * Place a new short order on the exchange for the specified user
-	 *
-	 * @param exchange
-	 * @param user
-	 * @param symbol
-	 * @param qty
-	 * @param price
-	 * @return A HTTPReturnMessage with success (and the relevant order-id) or failure
-	 * (and accompanying reason)
-	 */
-	private static HTTPReturnMessage sellShort(Exchange exchange, Player user,
-											   String symbol, int qty,
-											   long price) {
-		Stock stock = exchange.getStockForSymbol(symbol);
-		Map<String, Object> resultBody =
-				new HashMap<String, Object>();
-		resultBody.put("success", stock != null);
-		if (stock != null) {
-			Order order = new ShortOrder(stock, user, qty, price);
-			exchange.addOrder(order);
-			resultBody.put("orderID", order.getOrderNum());
-		}
-		return new HTTPReturnMessage(resultBody);
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -122,7 +74,7 @@ public class UserProcessor {
 	 * @param user
 	 * @return A HTTPReturnMessage with a list of order-ids in the data
 	 */
-	private static HTTPReturnMessage orders(Exchange exchange, Player user) {
+	private static String orders(Exchange exchange, Player user) {
 		//TODO
 		return null;
 	}
@@ -136,7 +88,7 @@ public class UserProcessor {
 	 * @param orderID
 	 * @return A HTTPReturnMessage with the order details in the data
 	 */
-	private static HTTPReturnMessage orders(Exchange exchange, Player user,
+	private static String orders(Exchange exchange, Player user,
 											long orderID) {
 		//TODO
 		return null;
@@ -150,7 +102,7 @@ public class UserProcessor {
 	 * @param orderID
 	 * @return A HTTPReturnMessage with success/failure in the data
 	 */
-	private static HTTPReturnMessage cancel(Exchange exchange, Player user,
+	private static String cancel(Exchange exchange, Player user,
 											long orderID) {
 		return null;
 	}
@@ -161,11 +113,11 @@ public class UserProcessor {
 	 * @param exchange
 	 * @return A HTTPReturnMessage with a list of available stock symbols in the data
 	 */
-	private static HTTPReturnMessage stocks(Exchange exchange) {
-		Map<String, JSONArray> resultBody =
+	private static String stocks(Exchange exchange) {
+		Map<String, JSONArray> data =
 				new HashMap<String, JSONArray>();
-		resultBody.put("stocks", new JSONArray(exchange.getStockSymbols()));
-		return new HTTPReturnMessage(resultBody);
+		data.put("stocks", new JSONArray(exchange.getStockSymbols()));
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -175,7 +127,7 @@ public class UserProcessor {
 	 * @param symbol
 	 * @return A HTTPReturnMessage with all the details about the stock in the data
 	 */
-	private static HTTPReturnMessage orderbook(Exchange exchange,
+	private static String orderbook(Exchange exchange,
 											   String symbol) {
 		OrderBook orderbook = exchange.getOrderBook(symbol);
 		List<BuyOrder> buys = orderbook.buys;
@@ -195,12 +147,12 @@ public class UserProcessor {
 			selljson.add(orderObject);
 		}
 
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		resultMap.put("success", true);
-		resultMap.put("symbol", symbol);
-		resultMap.put("buy", new JSONArray(buyjson));
-		resultMap.put("sell", new JSONArray(selljson));
-		return new HTTPReturnMessage(resultMap);
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("success", true);
+		data.put("symbol", symbol);
+		data.put("buy", new JSONArray(buyjson));
+		data.put("sell", new JSONArray(selljson));
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -210,15 +162,15 @@ public class UserProcessor {
 	 * @param symbol
 	 * @return A HTTPReturnMessage with the stock details in the data
 	 */
-	private static HTTPReturnMessage stock(Exchange exchange, String symbol) {
+	private static String stock(Exchange exchange, String symbol) {
 		Stock stock = exchange.getStockForSymbol(symbol);
-		Map<String, Object> resultBody =
+		Map<String, Object> data =
 				new HashMap<String, Object>();
-		resultBody.put("success", stock != null);
+		data.put("success", stock != null);
 		if (stock != null) {
-			resultBody.put("symbol", stock.getSymbol());
+			data.put("symbol", stock.getSymbol());
 		}
-		return new HTTPReturnMessage(resultBody);
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -227,19 +179,18 @@ public class UserProcessor {
 	 * @param user
 	 * @return A HTTPReturnMessage with the portfolio details in the data
 	 */
-	private static HTTPReturnMessage portfolio(Player user) {
+	private static String portfolio(Player user) {
 		Portfolio pf = user.getPortfolio();
 		long balance = user.getBalance();
 		JSONObject stockOwned = new JSONObject(
 				new JSONObject(pf.getOwnedStock()));
 		JSONObject stockBorrowed = new JSONObject(
 				new JSONObject(pf.getBorrowedStock()));
-		Map<String, Object> portfolioDetails = new HashMap<String, Object>();
-		portfolioDetails.put("balance", balance);
-		Object stockOwned1 = portfolioDetails.put("stockOwned", stockOwned);
-		portfolioDetails.put("stockBorrowed", stockBorrowed);
-
-		return new HTTPReturnMessage(portfolioDetails);
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("balance", balance);
+		data.put("stockOwned", stockOwned);
+		data.put("stockBorrowed", stockBorrowed);
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -248,7 +199,7 @@ public class UserProcessor {
 	 * @param exchange
 	 * @return A HTTPReturnMessage with the leaderboard data in the data
 	 */
-	private static HTTPReturnMessage leaderboard(Exchange exchange) {
+	private static String leaderboard(Exchange exchange) {
 		JSONArray players = new JSONArray();
 		for (Player player : exchange.getPlayers()) {
 			Map<String, Object> playerDetails = new HashMap<>();
@@ -257,11 +208,11 @@ public class UserProcessor {
 			playerDetails.put("score", player.getBalance());
 			players.put(playerDetails);
 		}
-		Map<String, Object> resultBody =
+		Map<String, Object> data =
 				new HashMap<String, Object>();
-		resultBody.put("elapsed time", exchange.getUptime());
-		resultBody.put("players", players);
-		return new HTTPReturnMessage(resultBody);
+		data.put("elapsed time", exchange.getUptime());
+		data.put("players", players);
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -272,43 +223,29 @@ public class UserProcessor {
 	 * @param email
 	 * @return A HTTPReturnMessage with the user-id in the data
 	 */
-	private static HTTPReturnMessage registerUser(Exchange exchange,
-												  String name, String email) {
-		HTTPReturnMessage result = null;
+	private static String registerUser(Exchange exchange, JSONObject requestData) {
+		
+		String name = (String) requestData.get("name");
+		String email = (String) requestData.get("email");
 
 		//Create a new player and add to the exchange's database
 		Player user = new Player(name, email);
 		boolean success = exchange.addPlayer(user);
 
 		if (success) {
-			Map<String, String> resultBodyMap =
+			Map<String, String> data =
 					new HashMap<String, String>();
-			resultBodyMap.put("response", "User Created");
-			resultBodyMap.put("user-token", user.getToken());
-			result = new HTTPReturnMessage(resultBodyMap);
+			data.put("response", "User Created");
+			data.put("user-token", user.getToken());
+			return convertMapToJSONString(data);
 		} else { //Created user's token already exists.
 			//At the moment the token is random, so should really just
 			// try again to get a new token, but ideally the token
 			// should be based on the user's name and/or email
 			// Returns the token of the existing user, although maybe
 			// it shouldn't? TODO
-			Map<String, String> resultHeaderMap =
-					new HashMap<String, String>();
-			resultHeaderMap.put("Status-Code", "409");
-			resultHeaderMap.put("HTTP_Version", "HTTP/1.1");
-			resultHeaderMap.put("Reason-Phrase", "Conflict");
-			String resultHeader =
-					HTTP.toString(new JSONObject(resultHeaderMap));
-
-			Map<String, String> resultBodyMap =
-					new HashMap<String, String>();
-			resultBodyMap.put("response", "User Not Created (Already Exists)");
-			resultBodyMap.put("user-token", user.getToken());
-			String resultBody = (new JSONObject(resultBodyMap)).toString();
-			result = new HTTPReturnMessage(resultHeader, resultBody);
+			return null;
 		}
-
-		return result;
 	}
 
 	/**
@@ -320,115 +257,87 @@ public class UserProcessor {
 	 * @return
 	 */
 	private static Player determinePlayer(Exchange exchange,
-										  HTTPDetails request) {
-		JSONObject requestData = new JSONObject(request.getBody());
+										  JSONObject requestData) {
+		if (requestData == null) {
+			return null;
+		}
 		String userToken = (String) requestData.get("user-token");
 		return exchange.getPlayer(userToken);
 	}
-
-	public static HTTPReturnMessage Process(Exchange exchange,
-											HTTPDetails request) {
-		String uri = request.getURI();
-		uri = uri.substring(7, uri.length()); //Remove 'http://'
-		String[] splituri = uri.split("/");
-
-		HTTPReturnMessage result = null;
-		switch (splituri[1]) { //Determine which function to call
-			case "buy": {
-				Player user = determinePlayer(exchange, request);
-				String symbol = splituri[2];
-				int qty = Integer.getInteger(splituri[3]);
-				long price = Long.getLong(splituri[4]);
-				result = buy(exchange, user, symbol, qty, price);
-			}
-			break;
-			case "sell": {
-				Player user = determinePlayer(exchange, request);
-				String symbol = splituri[2];
-				int qty = Integer.getInteger(splituri[3]);
-				long price = Long.getLong(splituri[4]);
-				result = sell(exchange, user, symbol, qty, price);
-			}
-			break;
-			case "cover": {
-				Player user = determinePlayer(exchange, request);
-				String symbol = splituri[2];
-				int qty = Integer.getInteger(splituri[3]);
-				long price = Long.getLong(splituri[4]);
-				result = cover(exchange, user, symbol, qty, price);
-			}
-			break;
-			case "short": {
-				Player user = determinePlayer(exchange, request);
-				String symbol = splituri[2];
-				int qty = Integer.getInteger(splituri[3]);
-				long price = Long.getLong(splituri[4]);
-				result = sellShort(exchange, user, symbol, qty, price);
-			}
-			break;
-			case "orders": {
-				Player user = determinePlayer(exchange, request);
-				if (splituri.length == 2) {
-					// uri: /orders
-					result = orders(exchange, user);
-				} else {
-					// uri: /orders/{id}
-					long orderID = Long.getLong(splituri[2]);
-					result = orders(exchange, user, orderID);
+	
+	private static String convertMapToJSONString (Map<String, ?> map) {
+		return new JSONObject(map).toString();
+	}
+	
+	public static String processRequest(Exchange exchange, URI uri, Headers headers, String body) throws MalformedInputException {
+		String[] components = uri.toString().split("/");
+		JSONObject data;
+		try {
+			data = new JSONObject(body);
+		} catch (JSONException exception) {
+			data = null;
+		}
+		
+		if (components.length >= 2) {
+			switch (components[1]) {
+				case "buy": {
+					Player user = determinePlayer(exchange, data);
+					if (user == null) {
+						return null;
+					}
+					String symbol = components[2];
+					int qty = Integer.getInteger(components[3]);
+					long price = Long.getLong(components[4]);
+					return buy(exchange, user, symbol, qty, price);
+				}
+				case "sell": {
+					Player user = determinePlayer(exchange, data);
+					if (user == null) {
+						return null;
+					}
+					String symbol = components[2];
+					int qty = Integer.getInteger(components[3]);
+					long price = Long.getLong(components[4]);
+					return sell(exchange, user, symbol, qty, price);
+				}
+				case "orders": {
+					Player user = determinePlayer(exchange, data);
+					if (user == null) {
+						return null;
+					}
+					if (components.length == 2) {
+						return orders(exchange, user);
+					} else {
+						long orderID = Long.getLong(components[2]);
+						return orders(exchange, user, orderID);
+					}
+				}
+				case "cancel": {
+					Player user = determinePlayer(exchange, data);
+					if (user == null) {
+						return null;
+					}
+					long orderID = Long.getLong(components[3]);
+					return cancel(exchange, user, orderID);
+				}
+				case "stocks":
+					return stocks(exchange);
+				case "orderbook":
+					return orderbook(exchange, components[2]);
+				case "stock":
+					return stock(exchange, components[2]);
+				case "portfolio": {
+					Player user = determinePlayer(exchange, data);
+					return portfolio(user);
+				}
+				case "leaderboard":
+					return leaderboard(exchange);
+				case "register": {
+					// Get user name and email from request
+					return registerUser(exchange, data);
 				}
 			}
-			break;
-			case "cancel": {
-				Player user = determinePlayer(exchange, request);
-				long orderID = Long.getLong(splituri[3]);
-				result = cancel(exchange, user, orderID);
-			}
-			break;
-			case "stocks": {
-				result = stocks(exchange);
-			}
-			break;
-			case "orderbook": {
-				result = orderbook(exchange, splituri[2]);
-			}
-			break;
-			case "stock": {
-				result = stock(exchange, splituri[2]);
-			}
-			break;
-			case "portfolio": {
-				Player user = determinePlayer(exchange, request);
-				result = portfolio(user);
-			}
-			break;
-			case "leaderboard": {
-				result = leaderboard(exchange);
-			}
-			break;
-			case "register": {
-				//Get user name and email from request
-				JSONObject json = new JSONObject(request.getBody());
-				String name = json.getString("name");
-				String email = json.getString("email");
-				result = registerUser(exchange, name, email);
-			}
-			break;
-			default:
-				Map<String, String> resultHeaderMap =
-						new HashMap<String, String>();
-				resultHeaderMap.put("Status-Code", "400");
-				resultHeaderMap.put("HTTP_Version", "HTTP/1.1");
-				resultHeaderMap.put("Reason-Phrase", "Bad Request");
-				String resultHeader =
-						HTTP.toString(new JSONObject(resultHeaderMap));
-				Map<String, String> resultBodyMap =
-						new HashMap<String, String>();
-				resultBodyMap.put("Reponse", "Invalid URI");
-				String resultBody = resultBodyMap.toString();
-				result = new HTTPReturnMessage(resultHeader, resultBody);
-
 		}
-
-		return result;
+		return null;
 	}
 }
