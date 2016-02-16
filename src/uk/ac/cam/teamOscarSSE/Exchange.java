@@ -37,6 +37,9 @@ public class Exchange {
 
 	// The round's start time: set when the exchange changes state from closed to open.
 	private long startTime;
+	
+	// The round's end time: set when the exchange changes state from closed to open.
+	private long endTime;
 
 	// The round's uptime. This is frozen when the exchange is closed until it is reopen.
 	private long lastRoundUptime;
@@ -53,8 +56,10 @@ public class Exchange {
 		players = new HashMap<>();
 		open = false;
 		lastRoundUptime = 0;
-
+		
+		int roundLength = 30; // How many seconds the round will last
 		startTime = System.currentTimeMillis();
+		endTime = System.currentTimeMillis() + 1000 * roundLength;
 		String dateFormatted = getFormattedTime(startTime);
 
 		String debugString = "";
@@ -449,6 +454,20 @@ public class Exchange {
 			return System.currentTimeMillis() - startTime;
 		} else {
 			return lastRoundUptime;
+		}
+	}
+	
+	/**
+	 * Gets the remaining number of milliseconds for which the exchange will be running
+	 * If the exchange is closed, returns the 0.
+	 *
+	 * @return
+	 */
+	public synchronized long getRemainingTime() {
+		if (open) {
+			return Math.max(0, endTime - System.currentTimeMillis());
+		} else {
+			return 0;
 		}
 	}
 

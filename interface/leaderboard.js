@@ -112,8 +112,8 @@ const Graph = {
 		let context = canvas.getContext("2d");
 		const now = performance.now();
 		const duration = 1000 * 30;
-		const minY = 10000;
-		const maxY = 1000000 + minY;
+		const minY = 10000000 - 1000000 * 5;
+		const maxY = 10000000 + 1000000 * 5;
 		// Clear the canvas
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -241,44 +241,7 @@ const Graph = {
 
 window.addEventListener("DOMContentLoaded", () => {
 	body = Ω(document.body);
-
-	// Initialise testing data
-	let entries = [];
-	const playerNames = ["Cam", "Ox", "MIT", "Imp"];
-	for (let i = 0; i < 2; ++ i) {
-		playerNames.push(`${i}-`);
-	}
-	for (const name of playerNames) {
-		entries.push({
-			ID: name,
-			name: `${name}bot`,
-			score: 10000 + 1000000 / 2 + Math.round(Math.random() * 1000000 / 10) - entries.length * 100000
-		});
-	}
-	Leaderboard.update(0, entries);
 	Leaderboard.animated = true;
-
-	let progression = 0;
-	window.setInterval(() => {
-		if (++ progression === 60) {
-			const timestamp = performance.now();
-			const entries = [];
-			const variance = 40000;
-			for (const pair of Leaderboard.positions) {
-				const entryID = pair[0];
-				const entry = pair[1];
-				entries.push({
-					ID: entryID,
-					name: entry.name,
-					score: entry.score + Math.random() * variance * 2 - variance
-				});
-			}
-			Leaderboard.update(timestamp, entries);
-			progression = 0;
-		} else {
-			Graph.draw();
-		}
-	}, 1000 / 60);
 
 	// Initialise the leaderboard
 	body.querySelector("#focus").append(Leaderboard.object);
@@ -292,18 +255,17 @@ window.addEventListener("DOMContentLoaded", () => {
 			paddingRight: `${0.2 * matches[1]}em`
 		});
 	};
-	formatTime();
-	window.setInterval(() => {
-		if (-- Leaderboard.countdown === 0) {
-			Leaderboard.countdown = 60;
-			if (body.querySelector(`#countdown`).hasClass("live")) {
-				body.querySelector(`#countdown`).removeClass("live").replaceText("Round Complete").append(Ω(`span.sub`).withText(`Next round in: `).append(Ω(`span.time`).withText(Leaderboard.formatCountdown(Leaderboard.countdown))));
-			} else {
-				body.querySelector(`#countdown`).addClass("live").clear().append(Ω(`span.time`).withText(Leaderboard.formatCountdown(Leaderboard.countdown)));
-			}
+	const updateTime = (active, secondsRemaining) => {
+		Leaderboard.countdown = secondsRemaining;
+		if (!active && body.querySelector(`#countdown`).hasClass("live")) {
+			body.querySelector(`#countdown`).removeClass("live").replaceText("Round Complete").append(Ω(`span.sub`).withText(`Next round in: `).append(Ω(`span.time`).withText(Leaderboard.formatCountdown(Leaderboard.countdown))));
+		}
+		if (active && !body.querySelector(`#countdown`).hasClass("live")) {
+			body.querySelector(`#countdown`).addClass("live").clear().append(Ω(`span.time`).withText(Leaderboard.formatCountdown(Leaderboard.countdown)));
 		}
 		formatTime();
-	}, 1000);
+	};
+	updateTime(true, Leaderboard.countdown);
 	
 	// Initialise the graph
 	const width = Leaderboard.object.rect.width;
@@ -323,7 +285,9 @@ window.addEventListener("DOMContentLoaded", () => {
 		}
 	}, false);
 
-	fetch("http://localhost:8080/leaderboard").then(response => {
+	let begun = null;
+
+	const fetchLeaderboard = () => fetch("http://localhost:8080/leaderboard").then(response => {
 		if (response.ok) {
 			const decoder = new TextDecoder();
 			response.body.getReader().read().then(result => {
@@ -333,18 +297,27 @@ window.addEventListener("DOMContentLoaded", () => {
 			}).then(result => {
 				try {
 					const data = JSON.parse(result);
-					const elapsedTime = data["elapsed time"];
+					if (begun === null) {
+						begun = performance.now() - data["elapsed time"];
+					}
+					const elapsedTime = data["elapsed time"] + begun;
+					const remainingTime = data["remaining time"];
 					const players = data["players"];
 					Leaderboard.update(elapsedTime, players);
+					updateTime(true, Math.ceil(remainingTime / 1000));
 				} catch (error) {
-					// The response from the server was malformed
 					console.warn("The response received from the server was malformed.", data, error);
 				}
 			});
 		} else {
-			console.warn("The network response was not okay.");
+			throw new Error("The network response was not okay.");
 		}
-	}).catch(error => console.warn("Failed to fetch data from the server.", error));
+	}).catch(error => {});
+	fetchLeaderboard();
+	const frequency = 1; // In seconds
+	const fps = 24;
+	setInterval(fetchLeaderboard, 1000 * frequency);
+	setInterval(Graph.draw, 1000 / fps);
 });
 
 window.addEventListener("resize", () => {
