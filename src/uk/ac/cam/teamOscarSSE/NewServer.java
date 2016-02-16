@@ -22,7 +22,7 @@ public class NewServer {
 		}
 	}
 	
-	public static void start(int port, Exchange stockExchange) throws IOException {
+	public static void start(int port, final Exchange stockExchange) throws IOException {
 		int maximumClients = 32;
 		HttpServer server = HttpServer.create(new InetSocketAddress("localhost", port), maximumClients);
 		HttpHandler handler = new HttpHandler() {
@@ -49,6 +49,7 @@ public class NewServer {
 				inputStream.close();
 				
 				// Send response
+				exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
 				PrintWriter writer = null;
 				try {
 					String response = UserProcessor.processRequest(stockExchange, exchange.getRequestURI(), headers, builder.toString());
