@@ -1,11 +1,11 @@
 package uk.ac.cam.teamOscarSSE;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Main_1502_Boom {
-	//have these as static -- only need one copy
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
 	static Exchange exchange;
@@ -14,7 +14,10 @@ public class Main_1502_Boom {
 	static public List<Long> balA = new LinkedList<Long>();
 	static public List<Long> balB = new LinkedList<Long>();
 
-	public static void open() {
+	// The number of simulation steps.
+	private static int NUM_SIM_STEPS = 600;
+
+	public static void open() throws IOException {
 		//create and add stocks
 		Stock stock1 = new Stock("BAML", "Bank of America", 5000,0.15f,3482,400);
 		stocks.add(stock1);
@@ -31,6 +34,12 @@ public class Main_1502_Boom {
 		//Making a decent profit would be lucky, but is possible.
 		Player Bob = new Player("Bob", "B");
 		players.add(Bob);
+		
+		Player Cath = new Player("Cath", "C");
+		players.add(Cath);
+		
+		Player Dan = new Player("Dan", "C");
+		players.add(Dan);
 
 		//create the leader board
 		lb = new LeaderBoard(players);
@@ -38,6 +47,24 @@ public class Main_1502_Boom {
 		//create the exchange
 		exchange = new Exchange(stocks);
 
+		// TODO: temporary modification
+		try {
+			NewServer.start(8080, exchange);
+		} catch (IOException e) {
+			System.out.println("Failed to start the server.");
+			e.printStackTrace();
+			return;
+		}
+	
+		UserFrameServer user = new UserFrameServer(stocks.get(0));
+		
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		//add the players to the exchange
 		for (Player player : players) {
 			exchange.addPlayer(player);
@@ -45,6 +72,9 @@ public class Main_1502_Boom {
 
 		// Open the exchange
 		exchange.setOpen(true);
+		
+		Thread haha = new Thread(user);
+		haha.start();
 	}
 
 	public static void testExchange() {
@@ -53,8 +83,12 @@ public class Main_1502_Boom {
 		//for the eventual user of the competition
 		PennyingAlgo penny = new PennyingAlgo(exchange,stocks,players);
 		Thread user1 = new Thread(penny);
+		Thread userb = new Thread(penny);
 		RandomTrading random = new RandomTrading(exchange,stocks,players);
 		Thread user2 = new Thread(random);
+		FairPriceGuess fpg = new FairPriceGuess(exchange,stocks,players);
+		Thread user3 = new Thread(fpg);
+	
 
 		//include a non-aggressive market maker to just set up some orders, and then
 		//add some orders to the order book occasionally - not in the game for
@@ -79,14 +113,16 @@ public class Main_1502_Boom {
 		//start the trading
 		user1.start();
 		user2.start();
+		user3.start();
+		userb.start();
 		marketM.start();
 		//generalBot.start();
 		priceMover.start();
 		boomBot.start();
 
-		for(int j=0; j<120; j++){
+		for(int j=0; j< NUM_SIM_STEPS; j++){
 			try {
-				Thread.sleep(75);
+				Thread.sleep(50);
 				prices.add(stocks.get(0).getPointAvg().get(20));
 				balA.add(players.get(0).getBalance());
 				balB.add(players.get(1).getBalance());
@@ -105,12 +141,12 @@ public class Main_1502_Boom {
 		System.out.println("");
 		System.out.println("");
 		System.out.println("Final Portfolio Contents");
-		
+
 		for(Player px:players) {
 			System.out.println(px.getName() + " ");
 			px.getPortfolio().contents();
 		}
-		
+
 		System.out.println("");
 		System.out.println("");
 		System.out.println("");
@@ -118,7 +154,7 @@ public class Main_1502_Boom {
 
 	}
 
-	public static void main(String args[]) {
+	public static void main(String args[]) throws IOException {
 		open();
 		testExchange();
 	}

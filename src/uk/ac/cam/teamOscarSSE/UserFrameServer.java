@@ -9,16 +9,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import org.json.JSONObject;
 
 public class UserFrameServer implements Runnable {
 
 	private Stock stock;
-	//private String token;
+	private String token;
 
-	public void networkCom(String urlType, String urlParameters){
+	public String networkCom(String urlType, String urlParameters){
 		URL url;
 		HttpURLConnection connection = null;  
 
@@ -54,8 +53,8 @@ public class UserFrameServer implements Runnable {
 				response.append('\r');
 			}
 			rd.close();
-			System.out.println(response.toString());
-			//JSONObject jsonObj = new JSONObject(response.toString());
+			return response.toString();
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {
@@ -63,11 +62,15 @@ public class UserFrameServer implements Runnable {
 				connection.disconnect(); 
 			}
 		}
+		return null;
 	}
 
 	public UserFrameServer(Stock s) throws IOException {
 		stock = s;
-		networkCom("register/","{\"name\": \"Oliver\", \"email\": \"Awesome\"}\n");
+		String register = 
+				networkCom("register/","{\"name\": \"Oliver\", \"email\": \"Awesome\"}\n");
+		JSONObject reJ = new JSONObject(register);
+		token = (String) reJ.get("user-token");
 	}
 
 	//Change these to reflect HTTP Server format and all the get methods
@@ -97,10 +100,20 @@ public class UserFrameServer implements Runnable {
 	}
 
 	//TODO
-	public void submitBuyOrder() {}
+	public void submitBuyOrder() {
+		String url = "buy/BAML/40/" + (stockPrice + 2);
+		String ob = networkCom(url,
+				"{\"user-token\": " + token + "}\n");
+		System.out.println(ob);
+	}
 
 	//TODO
-	public void submitSellOrder() {}
+	public void submitSellOrder() {
+		String url = "sell/BAML/40/" + (stockPrice - 3);
+		String ob = networkCom(url,
+				"{\"user-token\": " + token + "}\n");
+		System.out.println(ob);
+	}
 
 	public void update() {
 		stockPrice = stock.getStockPrice();
@@ -121,21 +134,29 @@ public class UserFrameServer implements Runnable {
 		//have an initial wait period until the server has
 		//started and running.
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(200);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 		
 		while(true){
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
 			update();
-			//TODO: get working!
 			submitBuyOrder();
+			submitSellOrder();
+			//obtainOrderBook();
 		}
+	}
+
+	private void obtainOrderBook() {
+		String ob = networkCom("orderbook/BAML",
+				"{}\n");
+		System.out.println(ob);
+		//TODO do something with order book returned.
 	}
 }

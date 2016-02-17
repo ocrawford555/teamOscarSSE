@@ -1,17 +1,17 @@
 package uk.ac.cam.teamOscarSSE;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.sun.net.httpserver.Headers;
-
 import java.net.URI;
 import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.sun.net.httpserver.Headers;
 
 public class UserProcessor {
 
@@ -287,8 +287,8 @@ public class UserProcessor {
 						return null;
 					}
 					String symbol = components[2];
-					int qty = Integer.getInteger(components[3]);
-					long price = Long.getLong(components[4]);
+					int qty = Integer.parseInt(components[3]);
+					long price = Long.parseLong(components[4]);
 					return buy(exchange, user, symbol, qty, price);
 				}
 				case "sell": {
@@ -297,8 +297,8 @@ public class UserProcessor {
 						return null;
 					}
 					String symbol = components[2];
-					int qty = Integer.getInteger(components[3]);
-					long price = Long.getLong(components[4]);
+					int qty = Integer.parseInt(components[3]);
+					long price = Long.parseLong(components[4]);
 					return sell(exchange, user, symbol, qty, price);
 				}
 				case "orders": {
@@ -309,7 +309,7 @@ public class UserProcessor {
 					if (components.length == 2) {
 						return orders(exchange, user);
 					} else {
-						long orderID = Long.getLong(components[2]);
+						long orderID = Long.parseLong(components[2]);
 						return orders(exchange, user, orderID);
 					}
 				}
@@ -318,7 +318,7 @@ public class UserProcessor {
 					if (user == null) {
 						return null;
 					}
-					long orderID = Long.getLong(components[3]);
+					long orderID = Long.parseLong(components[3]);
 					return cancel(exchange, user, orderID);
 				}
 				case "stocks":
