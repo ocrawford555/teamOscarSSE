@@ -1,17 +1,16 @@
 package uk.ac.cam.teamOscarSSE;
 
+import com.sun.net.httpserver.Headers;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.URI;
 import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.sun.net.httpserver.Headers;
 
 public class UserProcessor {
 
@@ -167,8 +166,16 @@ public class UserProcessor {
 		Map<String, Object> data =
 				new HashMap<String, Object>();
 		data.put("success", stock != null);
+
 		if (stock != null) {
 			data.put("symbol", stock.getSymbol());
+			data.put("price", stock.getStockPrice());
+			data.put("pointAvg", stock.getPointAvg());
+			data.put("overallAvg", stock.getOverallAverage());
+			data.put("transactionAvg", stock.getTransactionAvg());
+			//JSONArray rateOfChange = new JSONArray(stock.getRateOfChange());
+			//System.out.println("HERE" + stock.getRateOfChange());
+			//data.put("rateOfChange", rateOfChange);
 		}
 		return convertMapToJSONString(data);
 	}

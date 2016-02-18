@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Exchange {
 	//DEBUG variable for outputting information to the console.
-	private final boolean DEBUG = true;
+	private final boolean DEBUG = false;
 
 	// The maximum price at which a user can buy/sell a stock.
 	private final long MAX_STOCK_PRICE = 1000000;
