@@ -58,9 +58,22 @@ public class Exchange {
 		lastRoundUptime = 0;
 		
 		int roundLength = 30; // How many seconds the round will last
+		int timeBetweenRounds = 30;
 		startTime = System.currentTimeMillis();
 		endTime = System.currentTimeMillis() + 1000 * roundLength;
 		String dateFormatted = getFormattedTime(startTime);
+		
+		// Close the exchange automatically after a set period of time
+		Timer endTimer = new Timer();
+		Date endDate = new Date();
+		endDate.setTime(endDate.getTime() + 1000 * roundLength);
+		endTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				setOpen(false);
+				endTime = System.currentTimeMillis() + 1000 * timeBetweenRounds;
+			}
+		}, endDate);
 
 		String debugString = "";
 
@@ -467,7 +480,7 @@ public class Exchange {
 		if (open) {
 			return Math.max(0, endTime - System.currentTimeMillis());
 		} else {
-			return 0;
+			return Math.min(0, System.currentTimeMillis() - endTime);
 		}
 	}
 

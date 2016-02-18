@@ -4,8 +4,8 @@ let body;
 
 const Leaderboard = {
 	positions: new Map(),
-	countdown: 60, // In seconds
-	live: false,
+	countdown: 60 * 5, // In seconds
+	halted: null,
 	object: Ω(`div.leaderboard`).append(Ω(`div.heading`).append(Ω(`div.position`).withText("Position")).append(Ω(`div.name`).withText("Name")).append(Ω(`div.score`).withText("Score"))).append(`div.entries`),
 	animated: false,
 	update (timestamp, entries) {
@@ -110,7 +110,7 @@ const Graph = {
 	draw () {
 		const canvas = Graph.temporary;
 		let context = canvas.getContext("2d");
-		const now = performance.now();
+		const now = Leaderboard.halted === null ? performance.now() : Leaderboard.halted;
 		const duration = 1000 * 30;
 		const minY = 10000000 - 1000000 * 5;
 		const maxY = 10000000 + 1000000 * 5;
@@ -265,7 +265,7 @@ window.addEventListener("DOMContentLoaded", () => {
 		}
 		formatTime();
 	};
-	updateTime(true, Leaderboard.countdown);
+	updateTime(false, Leaderboard.countdown);
 	
 	// Initialise the graph
 	const width = Leaderboard.object.rect.width;
@@ -303,8 +303,16 @@ window.addEventListener("DOMContentLoaded", () => {
 					const elapsedTime = data["elapsed time"] + begun;
 					const remainingTime = data["remaining time"];
 					const players = data["players"];
+					const halted = !data["open"];
+					if (Leaderboard.halted !== null) {
+						if (!halted) {
+							Leaderboard.halted = null;
+						}
+					} else if (halted) {
+						Leaderboard.halted = performance.now();
+					}
 					Leaderboard.update(elapsedTime, players);
-					updateTime(true, Math.ceil(remainingTime / 1000));
+					updateTime(!halted, Math.ceil(Math.abs(remainingTime) / 1000));
 				} catch (error) {
 					console.warn("The response received from the server was malformed.", data, error);
 				}
@@ -312,9 +320,13 @@ window.addEventListener("DOMContentLoaded", () => {
 		} else {
 			throw new Error("The network response was not okay.");
 		}
-	}).catch(error => {});
+	}).catch(error => {
+		if (Leaderboard.halted === null) {
+			Leaderboard.halted = performance.now();
+		}
+	});
 	fetchLeaderboard();
-	const frequency = 1; // In seconds
+	const frequency = 0.5; // In seconds
 	const fps = 24;
 	setInterval(fetchLeaderboard, 1000 * frequency);
 	setInterval(Graph.draw, 1000 / fps);
