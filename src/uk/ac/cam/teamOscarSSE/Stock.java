@@ -155,6 +155,7 @@ public class Stock {
 
 	//Change in stock price, so e.g. rateOfChange.get(20) returns the average of rate of change between 20 stock prices, i.e. aveage of 19 rates
 	private List<Float> rateOfChange = new ArrayList<Float>();
+	long[] tempRateChange = new long[49];
 	
 	//Getter methods for user metrics
 	public List<Long> getPointAvg() {
@@ -224,21 +225,22 @@ public class Stock {
 		long priceA = 0;
 		long priceB = 0;
 		float change = 0;
-		for (int i=0; i<=50; i++) {
-			for (int j=pointAvgPtr; j>pointAvgPtr-i+1; j--) {
-				//System.out.println("J: "+j);
-				if (j>=0) priceA = priceBuf[j];
-				else {priceA = priceBuf[j+50];}
-				if ((j-1)>=0) priceB = priceBuf[(j-1)];
-				else {priceB = priceBuf[(j-1)+50];}
-				change += (priceA - priceB);
-			}
-			if (i == 0) rateOfChange.set(i, 0F);
-			else rateOfChange.set(i, change/(i-1));
-			priceA = 0;
-			priceB = 0;
-			change = 0;
+		//tempRateChange holds price differences
+		tempRateChange = new long[49];
+		for (int i=0; i<priceBuf.length-1; i++) {
+			priceA = priceBuf[i];
+			priceB = priceBuf[i+1];
+			tempRateChange[i] = priceB - priceA;
 		}
+		int count = 2;
+		for (int i=pointAvgPtr-1; i>pointAvgPtr-50; i--) {
+			int j = i;
+			if (i<0) j+=49;
+			change += tempRateChange[j];
+			rateOfChange.set(count, change/(count-1));
+			count++;
+		}
+		
 	}
 	
 	//printMetrics() is for debugging purposes, to see how metrics have changed
@@ -266,21 +268,30 @@ public class Stock {
 	public static void main(String[] args) {
 		Stock s = new Stock("BAML", "BoA", 2000, 0.2F, 120, 2000);
 		Random r = new Random();	
-//		System.out.println("---Before---");
-//		s.printMetrics();
-		for (int i=120; i<200; i++) {
-			s.setLastTransactionPrice(r.nextInt(250));
+		System.out.println("---Before---");
+		s.printMetrics();
+		for (int i=150; i<200; i++) {
+			s.setLastTransactionPrice(r.nextInt(500));
 			s.newPrice();
 		}
 		System.out.println("---After---");
 		s.printMetrics();
 		
-		System.out.println("0th from list "+s.transactionAvg.get(0));
-		System.out.println("5th from list "+s.rateOfChange.get(5));
-		System.out.println("20th from list "+s.rateOfChange.get(20));
-		System.out.println("50th from list "+s.rateOfChange.get(50));
+		//System.out.println("0th from list "+s.transactionAvg.get(0));
+		//System.out.println("5th from list "+s.rateOfChange.get(5));
+		//System.out.println("20th from list "+s.rateOfChange.get(20));
+		System.out.println("List "+s.rateOfChange.toString());
+		System.out.println("Change "+Arrays.toString(s.tempRateChange));
+		System.out.println("List Ptr"+s.pointAvgPtr);
+		System.out.println("Prices "+Arrays.toString(s.priceBuf));
+		
+		int t = 0;
+		for (int i=s.pointAvgPtr; i>s.pointAvgPtr-50+1; i--) {
+			t+= (s.priceBuf[i]-s.priceBuf[i-1]);
+			System.out.println("Change value: "+t);
+		}
+		System.out.println("Last 5: "+(float)t/49);
 	}
 	*/
-	
 	
 }
