@@ -121,7 +121,7 @@ public class LineChart_AWT2 extends ApplicationFrame
 			}
 		}
 		
-		try {	
+		try {
 			Thread.sleep(3000);
 			System.out.println("");
 			System.out.println("");

@@ -108,7 +108,7 @@ public class UserFrameServer implements Runnable {
 
 	//TODO
 	public void submitBuyOrder() {
-		String url = "buy/BAML/40/" + (stockPrice + 2);
+		String url = "buy/BAML/"+Integer.toString(volumeToBuy())+"/" + (stockPrice);
 		String ob = networkCom(url,
 				"{\"user-token\": " + token + "}\n");
 		System.out.println(ob);
@@ -116,10 +116,21 @@ public class UserFrameServer implements Runnable {
 
 	//TODO
 	public void submitSellOrder() {
-		String url = "sell/BAML/40/" + (stockPrice - 3);
+		String url = "sell/BAML/"+Integer.toString(volumeToSell())+"/" + (stockPrice);
 		String ob = networkCom(url,
 				"{\"user-token\": " + token + "}\n");
 		System.out.println(ob);
+	}
+
+	public void getMoneratyMetrics(){
+		String url = "cash/BAML";
+		String ob = networkCom(url,
+				"{\"user-token\": " + token + "}\n");
+		//ob contains return String in JSON format
+		JSONObject obj = new JSONObject(ob);
+		cash = obj.getLong("cash");
+		maxBuy = obj.getInt("max-can-buy");
+		maxSell = obj.getInt("max-can-sell");
 	}
 
 	/**
@@ -174,13 +185,12 @@ public class UserFrameServer implements Runnable {
 	}
 
 	public void update() {
+		getMoneratyMetrics();
 		update(stockSym);
 	}
 
 	public void update(String stockSymbol) {
 		updateStock(stockSymbol);
-
-		//cash = stock.getCash();
 	}
 
 	@Override

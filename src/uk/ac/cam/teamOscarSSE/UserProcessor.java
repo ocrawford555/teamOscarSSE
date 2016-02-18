@@ -219,6 +219,7 @@ public class UserProcessor {
 				new HashMap<String, Object>();
 		data.put("elapsed time", exchange.getUptime());
 		data.put("remaining time", exchange.getRemainingTime());
+		data.put("open", exchange.isOpen());
 		data.put("players", players);
 		return convertMapToJSONString(data);
 	}
@@ -254,6 +255,14 @@ public class UserProcessor {
 			// it shouldn't? TODO
 			return null;
 		}
+	}
+	
+	private static String monetaryMetrics(long cash, int maxBuy, int maxSell) {
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("cash", cash);
+		data.put("max-can-buy", maxBuy);
+		data.put("max-can-sell", maxSell);
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -338,11 +347,23 @@ public class UserProcessor {
 					Player user = determinePlayer(exchange, data);
 					return portfolio(user);
 				}
+				//Leaderboard case not used for now
 				case "leaderboard":
 					return leaderboard(exchange);
 				case "register": {
 					// Get user name and email from request
 					return registerUser(exchange, data);
+				}
+				//Returns cash left for user and MaxBuy/MaxSell for specified company
+				//"cash/TickerSym"?
+				case "cash": {
+					Player user = determinePlayer(exchange, data);
+					String company = components[2];
+					Stock s = exchange.getStockForSymbol(company);
+					long c = user.returnCash();
+					int maxBuy = user.maxCanBuy(s, s.getStockPrice());
+					int maxSell = user.maxCanSell(s);
+					return monetaryMetrics(c, maxBuy, maxSell);
 				}
 			}
 		}

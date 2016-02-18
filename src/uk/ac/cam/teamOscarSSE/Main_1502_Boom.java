@@ -17,7 +17,7 @@ public class Main_1502_Boom {
 	// The number of simulation steps.
 	private static int NUM_SIM_STEPS = 600;
 
-	public static void open() throws IOException {
+	public static void open() {
 		//create and add stocks
 		Stock stock1 = new Stock("BAML", "Bank of America", 5000,0.15f,3482,400);
 		stocks.add(stock1);
@@ -154,7 +154,7 @@ public class Main_1502_Boom {
 
 	}
 
-	public static void main(String args[]) throws IOException {
+	public static void main(String args[]) {
 		open();
 		testExchange();
 	}

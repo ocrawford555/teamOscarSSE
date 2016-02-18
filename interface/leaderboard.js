@@ -4,10 +4,11 @@ let body;
 
 const Leaderboard = {
 	positions: new Map(),
-	countdown: 60, // In seconds
-	live: false,
+	countdown: 60 * 5, // In seconds
+	halted: null,
 	object: Ω(`div.leaderboard`).append(Ω(`div.heading`).append(Ω(`div.position`).withText("Position")).append(Ω(`div.name`).withText("Name")).append(Ω(`div.score`).withText("Score"))).append(`div.entries`),
 	animated: false,
+	updates: 0,
 	update (timestamp, entries) {
 		let position = 0;
 		entries.sort((a, b) => b.score - a.score).forEach(entry => entry.position = position ++);
@@ -17,6 +18,7 @@ const Leaderboard = {
 					position: entry.position,
 					name: entry.name,
 					score: entry.score,
+					accumulatedProfit: 0,
 					object: null
 				});
 				Leaderboard.addElementForEntry(entry.ID, entry.position);
@@ -32,16 +34,20 @@ const Leaderboard = {
 					existingEntry.object.querySelector(`.name`).replaceText(entry.name);
 				}
 				if (entry.score !== existingEntry.score) {
-					const difference = entry.score - existingEntry.score;
+					existingEntry.accumulatedProfit += entry.score - existingEntry.score;
 					existingEntry.score = entry.score;
 					existingEntry.object.querySelector(`.score`).replaceText(Leaderboard.formatScore(entry.score)).removeClass("red");
 					if (entry.score < 0) {
 						existingEntry.object.querySelector(`.score`).addClass("red");
 					}
-					const differenceObject = Ω(`span.difference.${difference > 0 ? "gain" : "loss"}`).withText(`${difference > 0 ? "+" : "-"}${Leaderboard.formatScore(Math.abs(difference))}`).withStyle({
-						top: existingEntry.object.rect.top + window.scrollY,
-						left: existingEntry.object.rect.right - existingEntry.object.querySelector(`.score`).rect.width / 2 + window.scrollX
-					}).appendedTo(body);
+					const updatesPerDifferenceNotification = 4;
+					if (Leaderboard.updates % updatesPerDifferenceNotification === 0) {
+						const differenceObject = Ω(`span.difference.${existingEntry.accumulatedProfit > 0 ? "gain" : "loss"}`).withText(`${existingEntry.accumulatedProfit > 0 ? "+" : "-"}${Leaderboard.formatScore(Math.abs(existingEntry.accumulatedProfit))}`).withStyle({
+							top: existingEntry.object.rect.top + window.scrollY,
+							left: existingEntry.object.rect.right - existingEntry.object.querySelector(`.score`).rect.width / 2 + window.scrollX
+						}).appendedTo(body);
+						existingEntry.accumulatedProfit = 0;
+					}
 					window.setTimeout(() => {
 						differenceObject.remove();
 					}, 1.2 * 1000);
@@ -51,6 +57,7 @@ const Leaderboard = {
 			++ position;
 		}
 		Graph.draw();
+		++ Leaderboard.updates;
 	},
 	addElementForEntry (ID, position) {
 		const entry = Leaderboard.positions.get(ID);
@@ -105,15 +112,64 @@ const Graph = {
 		const history = Graph.histories.get(ID);
 		if (typeof history !== "undefined") {
 			history.set(timestamp, value);
+			const proportionalLimit = 0.1; // The vertical padding on the graph — when the lines reach this proportion from the top/bottom of the graph, the graph bounds will be resized
+			const proportionalBounds = 0.005; // How much to resize the bounds by, proportional to the new max/min, each time the graph bounds are resized
+			const Yrange = Graph.maxY - Graph.minY;
+			if (Graph.minY === null || value < Graph.minY + Yrange * proportionalLimit) {
+				Graph.minY = value * (1 - proportionalBounds);
+			}
+			if (Graph.maxY === null || value > Graph.maxY - Yrange * proportionalLimit) {
+				Graph.maxY = value * (1 + proportionalBounds);
+			}
+		}
+	},
+	minY: null,
+	maxY: null,
+	drawnBounds: {
+		minY: null,
+		maxY: null,
+		framesPerTransition: 4,
+		speed: {
+			minY: null,
+			maxY: null
+		},
+		update () {
+			if (Graph.minY === null || Graph.maxY === null) {
+				return;
+			}
+			if (Graph.drawnBounds.minY === null) {
+				Graph.drawnBounds.minY = Graph.minY;
+			} else if (Graph.drawnBounds.minY !== Graph.minY) {
+				if (Graph.drawnBounds.speed.minY === null) {
+					Graph.drawnBounds.speed.minY = (Graph.minY - Graph.drawnBounds.minY) / Graph.drawnBounds.framesPerTransition;
+				}
+				Graph.drawnBounds.minY += Graph.drawnBounds.speed.minY;
+				if (Graph.drawnBounds.minY <= Graph.minY) {
+					Graph.drawnBounds.minY = Graph.minY;
+					Graph.drawnBounds.speed.minY = null;
+				}
+			}
+			if (Graph.drawnBounds.maxY === null) {
+				Graph.drawnBounds.maxY = Graph.maxY;
+			} else if (Graph.drawnBounds.maxY !== Graph.maxY) {
+				if (Graph.drawnBounds.speed.maxY === null) {
+					Graph.drawnBounds.speed.maxY = (Graph.maxY - Graph.drawnBounds.maxY) / Graph.drawnBounds.framesPerTransition;
+				}
+				Graph.drawnBounds.maxY += Graph.drawnBounds.speed.maxY;
+				if (Graph.drawnBounds.maxY >= Graph.maxY) {
+					Graph.drawnBounds.maxY = Graph.maxY;
+					Graph.drawnBounds.speed.maxY = null;
+				}
+			}
 		}
 	},
 	draw () {
 		const canvas = Graph.temporary;
 		let context = canvas.getContext("2d");
-		const now = performance.now();
+		const now = Leaderboard.halted === null ? performance.now() : Leaderboard.halted;
 		const duration = 1000 * 30;
-		const minY = 10000000 - 1000000 * 5;
-		const maxY = 10000000 + 1000000 * 5;
+		// Update the graph bounds
+		Graph.drawnBounds.update();
 		// Clear the canvas
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -133,7 +189,7 @@ const Graph = {
 			const removal = [];
 			for (const pair of history) {
 				const x = (1 + (pair[0] - now) / duration) * canvas.width;
-				const y = canvas.height * (1 - (pair[1] - minY) / (maxY - minY));
+				const y = canvas.height * (1 - (pair[1] - Graph.drawnBounds.minY) / (Graph.drawnBounds.maxY - Graph.drawnBounds.minY));
 				if (x < 0) {
 					removal.push(pair[0]);
 				}
@@ -142,7 +198,7 @@ const Graph = {
 				}
 				if (max === null || x > max) {
 					max = x;
-					currentScore = (pair[1] - minY) / (maxY - minY);
+					currentScore = (pair[1] - Graph.drawnBounds.minY) / (Graph.drawnBounds.maxY - Graph.drawnBounds.minY);
 				}
 				[strokePath, fillPath].forEach(path => path[first ? "moveTo" : "lineTo"](x, y));
 				if (history.size === 1) {
@@ -265,7 +321,7 @@ window.addEventListener("DOMContentLoaded", () => {
 		}
 		formatTime();
 	};
-	updateTime(true, Leaderboard.countdown);
+	updateTime(false, Leaderboard.countdown);
 	
 	// Initialise the graph
 	const width = Leaderboard.object.rect.width;
@@ -303,8 +359,16 @@ window.addEventListener("DOMContentLoaded", () => {
 					const elapsedTime = data["elapsed time"] + begun;
 					const remainingTime = data["remaining time"];
 					const players = data["players"];
+					const halted = !data["open"];
+					if (Leaderboard.halted !== null) {
+						if (!halted) {
+							Leaderboard.halted = null;
+						}
+					} else if (halted) {
+						Leaderboard.halted = performance.now();
+					}
 					Leaderboard.update(elapsedTime, players);
-					updateTime(true, Math.ceil(remainingTime / 1000));
+					updateTime(!halted, Math.ceil(Math.abs(remainingTime) / 1000));
 				} catch (error) {
 					console.warn("The response received from the server was malformed.", data, error);
 				}
@@ -312,9 +376,13 @@ window.addEventListener("DOMContentLoaded", () => {
 		} else {
 			throw new Error("The network response was not okay.");
 		}
-	}).catch(error => {});
+	}).catch(error => {
+		if (Leaderboard.halted === null) {
+			Leaderboard.halted = performance.now();
+		}
+	});
 	fetchLeaderboard();
-	const frequency = 1; // In seconds
+	const frequency = 0.5; // In seconds
 	const fps = 24;
 	setInterval(fetchLeaderboard, 1000 * frequency);
 	setInterval(Graph.draw, 1000 / fps);
