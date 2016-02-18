@@ -57,8 +57,8 @@ public class Exchange {
 		open = false;
 		lastRoundUptime = 0;
 		
-		int roundLength = 5; // How many seconds the round will last
-		int timeBetweenRounds = 3;
+		int roundLength = 30; // How many seconds the round will last
+		int timeBetweenRounds = 30;
 		startTime = System.currentTimeMillis();
 		endTime = System.currentTimeMillis() + 1000 * roundLength;
 		String dateFormatted = getFormattedTime(startTime);

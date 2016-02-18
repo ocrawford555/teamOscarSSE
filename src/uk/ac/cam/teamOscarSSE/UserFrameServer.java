@@ -65,7 +65,7 @@ public class UserFrameServer implements Runnable {
 		return null;
 	}
 
-	public UserFrameServer(Stock s) throws IOException {
+	public UserFrameServer(Stock s) {
 		stock = s;
 		String register = 
 				networkCom("register/","{\"name\": \"Oliver\", \"email\": \"Awesome\"}\n");
