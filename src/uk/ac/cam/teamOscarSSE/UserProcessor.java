@@ -176,9 +176,7 @@ public class UserProcessor {
 			data.put("pointAvg", stock.getPointAvg());
 			data.put("overallAvg", stock.getOverallAverage());
 			data.put("transactionAvg", stock.getTransactionAvg());
-			//JSONArray rateOfChange = new JSONArray(stock.getRateOfChange());
-			//System.out.println("HERE" + stock.getRateOfChange());
-			//data.put("rateOfChange", rateOfChange);
+			data.put("rateOfChange", stock.getRateOfChange());
 		}
 		return convertMapToJSONString(data);
 	}

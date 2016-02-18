@@ -41,7 +41,8 @@ public class UserFrameServer implements Runnable {
 	private long cash;
 	private int maxBuy;
 	private int maxSell;
-
+	
+	
 	/**
 	 * Initialise player to the game, and set the stock variable.
 	 * Token obtained when constructor is called.
@@ -128,13 +129,23 @@ public class UserFrameServer implements Runnable {
 		return rand.nextInt(100) + 5;
 	}
 	
+	
+	
 	public long priceToBuy() {
 		int addExtraToBuy = 1;
 		if (cash > 10500000)
 			addExtraToBuy = 5;
 		return stockPrice + addExtraToBuy;
 	}
+	
+	public long priceToSell() {
+		int subExtraToSell = 1;
+		if (cash < 9500000)
+			subExtraToSell = 5;
+		return stockPrice - subExtraToSell;
+	}
 
+	
 
 	public boolean Sell(){
 		return false;
@@ -144,12 +155,6 @@ public class UserFrameServer implements Runnable {
 		return rand.nextInt(100) + 5;
 	}
 	
-	public long priceToSell() {
-		int subExtraToSell = 1;
-		if (cash < 9500000)
-			subExtraToSell = 5;
-		return stockPrice - subExtraToSell;
-	}
 
 	//TODO
 	public void submitBuyOrder() {
@@ -227,21 +232,27 @@ public class UserFrameServer implements Runnable {
 		for (int i = 0; i < transactionArray.length(); ++i) {
 			transactionAvg.add(transactionArray.getLong(i));
 		}
-
-		// rateOfChange = stock.getRateOfChange();
+		
+		pointAvg.clear();
+		JSONArray pointAvgArray = (JSONArray) reJ.get("pointAvg");
+		for (int i = 0; i < pointAvgArray.length(); ++i) {
+			pointAvg.add(pointAvgArray.getLong(i));
+		}
+		
+		rateOfChange.clear();
+		JSONArray rateChangeArray = (JSONArray) reJ.get("rateOfChange");
+		for (int i = 0; i < rateChangeArray.length(); ++i) {
+			rateOfChange.add((float) rateChangeArray.getDouble(i));
+		}
 
 		return true;
 	}
 
 	public void update() {
 		getMoneratyMetrics();
-		update(stockSym);
+		updateStock(stockSym);
 	}
 
-	public void update(String stockSymbol) {
-		updateStock(stockSymbol);
-	}
-	
 	
 	/**
 	 * Obtain order book from the exchange. Updates two lists
@@ -262,7 +273,7 @@ public class UserFrameServer implements Runnable {
 		}
 		
 		JSONArray sells = new JSONArray();
-		sells = obj.getJSONArray("buy");
+		sells = obj.getJSONArray("sell");
 		List<JSONObject> listSells = new ArrayList<JSONObject>();
 		
 		for(int i=0;i < sells.length();i++){
@@ -271,6 +282,8 @@ public class UserFrameServer implements Runnable {
 		
 		orderBuys = listBuys;
 		orderSells = listSells;
+		
+		
 	}
 
 	@Override
