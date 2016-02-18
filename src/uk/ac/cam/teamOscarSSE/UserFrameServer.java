@@ -1,23 +1,39 @@
 package uk.ac.cam.teamOscarSSE;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.TreeSet;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class UserFrameServer implements Runnable {
 
-	private Stock stock;
 	private String token;
 	private String stockSym;
 	private long stockPrice;
 	private List<Long> pointAvg = new LinkedList<Long>();
 	private long overallAvg;
+	
+	//random generator for testing purposes only
+	//keep in until all methods have been implements
+	private Random rand = new Random();
+	
+	//keep store of the order book
+	private List<JSONObject> orderBuys;
+	private List<JSONObject> orderSells;
+	
+	//keep local copy of orders sent to the exchange
+	private TreeSet<Integer> buyOrders = new TreeSet<Integer>();
+	private TreeSet<Integer> sellOrders = new TreeSet<Integer>();
 
 	//Change these to reflect HTTP Server format and all the get methods
 	private List<Long> transactionAvg = new LinkedList<Long>();
@@ -26,10 +42,14 @@ public class UserFrameServer implements Runnable {
 	private int maxBuy;
 	private int maxSell;
 
-	public UserFrameServer(Stock s) throws IOException {
-		stock = s;
+	/**
+	 * Initialise player to the game, and set the stock variable.
+	 * Token obtained when constructor is called.
+	 * @param s
+	 */
+	public UserFrameServer(String name){
 		String register =
-				networkCom("register/", "{\"name\": \"Oliver\", \"email\": \"Awesome\"}\n");
+				networkCom("register/", "{\"name\": \"" + name + "\", \"email\": \"Awesome\"}\n", "POST");
 		JSONObject reJ = new JSONObject(register);
 		token = (String) reJ.get("user-token");
 	}
@@ -40,18 +60,26 @@ public class UserFrameServer implements Runnable {
 	 * @param urlType
 	 * @return
 	 */
-	public String sendURLWithToken(String urlType) {
-		return networkCom(urlType, "{\"user-token\": " + token + "}\n");
+	public String sendURLWithToken(String urlType, String type) {
+		return networkCom(urlType, "{\"user-token\": " + token + "}\n",type);
 	}
 
-	public String networkCom(String urlType, String urlParameters) {
+	/**
+	 * Method for sending request and receiving response from server.
+	 * Type indicates whether request is GET or POST.
+	 * @param urlType
+	 * @param urlParameters
+	 * @param type
+	 * @return
+	 */
+	public String networkCom(String urlType, String urlParameters, String type) {
 		URL url;
 		HttpURLConnection connection = null;
 
 		try {
 			url = new URL("http://localhost:8080/" + urlType);
 			connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("POST");
+			connection.setRequestMethod(type);
 			connection.setRequestProperty("Content-Type",
 					"application/x-www-form-urlencoded");
 
@@ -97,37 +125,56 @@ public class UserFrameServer implements Runnable {
 	}
 
 	public int volumeToBuy() {
-		return 0;
+		return rand.nextInt(100) + 5;
 	}
+	
+	public long priceToBuy() {
+		int addExtraToBuy = 1;
+		if (cash > 10500000)
+			addExtraToBuy = 5;
+		return stockPrice + addExtraToBuy;
+	}
+
 
 	public boolean Sell(){
 		return false;
 	}
 
 	public int volumeToSell() {
-		return 0;
+		return rand.nextInt(100) + 5;
+	}
+	
+	public long priceToSell() {
+		int subExtraToSell = 1;
+		if (cash < 9500000)
+			subExtraToSell = 5;
+		return stockPrice - subExtraToSell;
 	}
 
 	//TODO
 	public void submitBuyOrder() {
-		String url = "buy/BAML/"+Integer.toString(volumeToBuy())+"/" + (stockPrice);
+		String url = "buy/BAML/"+Integer.toString(volumeToBuy())+"/" + Long.toString(priceToBuy());
 		String ob = networkCom(url,
-				"{\"user-token\": " + token + "}\n");
-		System.out.println(ob);
+				"{\"user-token\": " + token + "}\n", "POST");
+		JSONObject obj = new JSONObject(ob);
+		if(obj.getBoolean("success") == true)
+			buyOrders.add(obj.getInt("orderID"));
 	}
 
 	//TODO
 	public void submitSellOrder() {
-		String url = "sell/BAML/"+Integer.toString(volumeToSell())+"/" + (stockPrice);
+		String url = "sell/BAML/"+Integer.toString(volumeToSell())+"/" + Long.toString(priceToSell());
 		String ob = networkCom(url,
-				"{\"user-token\": " + token + "}\n");
-		System.out.println(ob);
+				"{\"user-token\": " + token + "}\n", "POST");
+		JSONObject obj = new JSONObject(ob);
+		if(obj.getBoolean("success") == true)
+			sellOrders.add(obj.getInt("orderID"));
 	}
 
 	public void getMoneratyMetrics(){
 		String url = "cash/BAML";
 		String ob = networkCom(url,
-				"{\"user-token\": " + token + "}\n");
+				"{\"user-token\": " + token + "}\n", "GET");
 		//ob contains return String in JSON format
 		JSONObject obj = new JSONObject(ob);
 		cash = obj.getLong("cash");
@@ -142,7 +189,7 @@ public class UserFrameServer implements Runnable {
 	 */
 	public List<String> getStocks() {
 		String url = "stocks";
-		String ob = networkCom(url, "{\"user-token\": " + token + "}\n");
+		String ob = networkCom(url, "{\"user-token\": " + token + "}\n", "GET");
 		JSONObject reJ = new JSONObject(ob);
 		JSONArray stockArray = (JSONArray) reJ.get("stocks");
 		List<String> stocks = new ArrayList<String>();
@@ -164,7 +211,7 @@ public class UserFrameServer implements Runnable {
 	 */
 	public boolean updateStock(String symbol) {
 		String url = "stock/" + symbol;
-		String ob = sendURLWithToken(url);
+		String ob = sendURLWithToken(url, "GET");
 		// if (ob == null) return false;
 		JSONObject reJ = new JSONObject(ob);
 		System.out.println(reJ);
@@ -194,6 +241,37 @@ public class UserFrameServer implements Runnable {
 	public void update(String stockSymbol) {
 		updateStock(stockSymbol);
 	}
+	
+	
+	/**
+	 * Obtain order book from the exchange. Updates two lists
+	 * which player can then interpret in their own way.
+	 */
+	private void obtainOrderBook() {
+		String orderBook = networkCom("orderbook/BAML",
+				"{}\n", "GET");
+				
+		JSONObject obj = new JSONObject(orderBook);
+		
+		JSONArray buys = new JSONArray();
+		buys = obj.getJSONArray("buy");
+		List<JSONObject> listBuys = new ArrayList<JSONObject>();
+		
+		for(int i=0;i < buys.length();i++){
+			listBuys.add(buys.getJSONObject(i));
+		}
+		
+		JSONArray sells = new JSONArray();
+		sells = obj.getJSONArray("buy");
+		List<JSONObject> listSells = new ArrayList<JSONObject>();
+		
+		for(int i=0;i < sells.length();i++){
+			listSells.add(sells.getJSONObject(i));
+		}
+		
+		orderBuys = listBuys;
+		orderSells = listSells;
+	}
 
 	@Override
 	public void run() {
@@ -222,14 +300,11 @@ public class UserFrameServer implements Runnable {
 			update();
 			submitBuyOrder();
 			submitSellOrder();
-			//obtainOrderBook();
+			obtainOrderBook();
+			System.out.println(buyOrders.size());
+			System.out.println(sellOrders.size());
 		}
 	}
 
-	private void obtainOrderBook() {
-		String ob = networkCom("orderbook/BAML",
-				"{}\n");
-		System.out.println(ob);
-		//TODO do something with order book returned.
-	}
+	
 }

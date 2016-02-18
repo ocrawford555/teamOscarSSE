@@ -34,12 +34,9 @@ public class Main_1502_Boom {
 		//Making a decent profit would be lucky, but is possible.
 		Player Bob = new Player("Bob", "B");
 		players.add(Bob);
-		
+
 		Player Cath = new Player("Cath", "C");
 		players.add(Cath);
-		
-		Player Dan = new Player("Dan", "C");
-		players.add(Dan);
 
 		//create the leader board
 		lb = new LeaderBoard(players);
@@ -55,26 +52,37 @@ public class Main_1502_Boom {
 			e.printStackTrace();
 			return;
 		}
-	
-		UserFrameServer user = new UserFrameServer(stocks.get(0));
-		
+
+
+		UserFrameServer[] users = new UserFrameServer[6];
+		users[0] = new UserFrameServer("Oliver");
+//		users[1] = new UserFrameServer("Stella");
+//		users[2] = new UserFrameServer("Liam");
+//		users[3] = new UserFrameServer("Akkash");
+//		users[4] = new UserFrameServer("Nathanael");
+//		users[5] = new UserFrameServer("Adam");
+
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		//add the players to the exchange
 		for (Player player : players) {
 			exchange.addPlayer(player);
 		}
 
+		Thread[] threads = new Thread[6];
+		for(int i = 0; i<users.length; i++){
+			threads[i] = new Thread(users[i]);
+			threads[i].start();
+		}
+
 		// Open the exchange
 		exchange.setOpen(true);
-		
-		Thread haha = new Thread(user);
-		haha.start();
+
 	}
 
 	public static void testExchange() {
@@ -83,12 +91,11 @@ public class Main_1502_Boom {
 		//for the eventual user of the competition
 		PennyingAlgo penny = new PennyingAlgo(exchange,stocks,players);
 		Thread user1 = new Thread(penny);
-		Thread userb = new Thread(penny);
 		RandomTrading random = new RandomTrading(exchange,stocks,players);
 		Thread user2 = new Thread(random);
 		FairPriceGuess fpg = new FairPriceGuess(exchange,stocks,players);
 		Thread user3 = new Thread(fpg);
-	
+
 
 		//include a non-aggressive market maker to just set up some orders, and then
 		//add some orders to the order book occasionally - not in the game for
@@ -114,7 +121,6 @@ public class Main_1502_Boom {
 		user1.start();
 		user2.start();
 		user3.start();
-		userb.start();
 		marketM.start();
 		//generalBot.start();
 		priceMover.start();
@@ -132,26 +138,7 @@ public class Main_1502_Boom {
 		}
 
 		exchange.setOpen(false);
-
 		lb.update();
-
-		System.out.println("");
-		System.out.println("");
-		System.out.println("--- ROUND OVER ---");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("Final Portfolio Contents");
-
-		for(Player px:players) {
-			System.out.println(px.getName() + " ");
-			px.getPortfolio().contents();
-		}
-
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		lb.get();
-
 	}
 
 	public static void main(String args[]) {

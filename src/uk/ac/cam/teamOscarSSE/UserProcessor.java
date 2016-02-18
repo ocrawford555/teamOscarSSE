@@ -103,7 +103,10 @@ public class UserProcessor {
 	 */
 	private static String cancel(Exchange exchange, Player user,
 											long orderID) {
-		return null;
+		Map<String, Object> data =
+				new HashMap<String, Object>();
+		data.put("success", exchange.removeOrder(orderID));
+		return convertMapToJSONString(data);
 	}
 
 	/**
@@ -334,7 +337,7 @@ public class UserProcessor {
 					if (user == null) {
 						return null;
 					}
-					long orderID = Long.parseLong(components[3]);
+					long orderID = Long.parseLong(components[2]);
 					return cancel(exchange, user, orderID);
 				}
 				case "stocks":
