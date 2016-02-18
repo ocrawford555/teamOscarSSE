@@ -118,6 +118,26 @@ public abstract class Trader {
 	public synchronized final Map<Long, Order> getPendingOrders() {
 		return pending_orders;
 	}
+	
+	/**
+	 * Updates the user's cash by adding cashChange to their owned cash.
+	 * <p>
+	 * This method can both increase and decrease the amount of cash owned based
+	 * on the sign of cashChange.
+	 *
+	 * @param cashChange
+	 */
+	public final void updateCash(long cashChange) {
+		this.cash += cashChange;
+	}
+	
+	/**
+	 * Returns the remaining cash Trader has
+	 * @return
+	 */
+	public final long returnCash() {
+		return cash;
+	}
 
 	/**
 	 * @param orderNum
@@ -206,16 +226,6 @@ public abstract class Trader {
 		}
 	}
 
-	/**
-	 * Updates the user's cash by adding cashChange to their owned cash.
-	 * <p>
-	 * This method can both increase and decrease the amount of cash owned based
-	 * on the sign of cashChange.
-	 *
-	 * @param cashChange
-	 */
-	public final void updateCash(long cashChange) {
-		this.cash += cashChange;
-	}
+
 }
 
