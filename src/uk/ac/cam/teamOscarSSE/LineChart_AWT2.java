@@ -92,12 +92,7 @@ public class LineChart_AWT2 extends ApplicationFrame
 			e.printStackTrace();
 		}
 		
-		try {
-			Main_1502_Boom.main(null);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Main_1502_Boom.main(null);
 
 		i = 0;
 
@@ -126,7 +121,7 @@ public class LineChart_AWT2 extends ApplicationFrame
 			}
 		}
 		
-		try {	
+		try {
 			Thread.sleep(3000);
 			System.out.println("");
 			System.out.println("");

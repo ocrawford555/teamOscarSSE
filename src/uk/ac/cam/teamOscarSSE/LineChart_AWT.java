@@ -92,12 +92,7 @@ public class LineChart_AWT extends ApplicationFrame
 			e.printStackTrace();
 		}
 		
-		try {
-			Main_1502_Boom.main(null);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Main_1502_Boom.main(null);
 
 		i = 0;
 
