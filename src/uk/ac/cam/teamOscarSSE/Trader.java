@@ -42,7 +42,19 @@ public abstract class Trader {
 		this.pending_pf = new Portfolio();
 		this.cash = 0;
 		this.cashBlocked = 0;
-		//this.cashLeft = 10000000;
+	}
+
+	/**
+	 * Reset the trader's cash and portfolio.
+	 * <p>
+	 * This should be called when a new round is started.
+	 */
+	public void reset() {
+		this.pf = new Portfolio();
+		this.pending_orders = new HashMap<>();
+		this.pending_pf = new Portfolio();
+		this.cash = 0;
+		this.cashBlocked = 0;
 	}
 
 	/**
@@ -225,7 +237,5 @@ public abstract class Trader {
 			System.err.println("Unimplemented order type");
 		}
 	}
-
-
 }
 

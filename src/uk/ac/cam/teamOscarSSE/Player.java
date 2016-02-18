@@ -52,4 +52,10 @@ public class Player extends Trader {
 	public int maxCanSell(Stock stock) {
 		return pf.getAmountOwned(stock) - pending_pf.getAmountOwned(stock) + SHORT_LIMIT;
 	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		updateCash(INITIAL_CASH);
+	}
 }
