@@ -8,6 +8,7 @@ const Leaderboard = {
 	halted: null,
 	object: Ω(`div.leaderboard`).append(Ω(`div.heading`).append(Ω(`div.position`).withText("Position")).append(Ω(`div.name`).withText("Name")).append(Ω(`div.score`).withText("Score"))).append(`div.entries`),
 	animated: false,
+	updates: 0,
 	update (timestamp, entries) {
 		let position = 0;
 		entries.sort((a, b) => b.score - a.score).forEach(entry => entry.position = position ++);
@@ -17,6 +18,7 @@ const Leaderboard = {
 					position: entry.position,
 					name: entry.name,
 					score: entry.score,
+					accumulatedProfit: 0,
 					object: null
 				});
 				Leaderboard.addElementForEntry(entry.ID, entry.position);
@@ -32,16 +34,20 @@ const Leaderboard = {
 					existingEntry.object.querySelector(`.name`).replaceText(entry.name);
 				}
 				if (entry.score !== existingEntry.score) {
-					const difference = entry.score - existingEntry.score;
+					existingEntry.accumulatedProfit += entry.score - existingEntry.score;
 					existingEntry.score = entry.score;
 					existingEntry.object.querySelector(`.score`).replaceText(Leaderboard.formatScore(entry.score)).removeClass("red");
 					if (entry.score < 0) {
 						existingEntry.object.querySelector(`.score`).addClass("red");
 					}
-					const differenceObject = Ω(`span.difference.${difference > 0 ? "gain" : "loss"}`).withText(`${difference > 0 ? "+" : "-"}${Leaderboard.formatScore(Math.abs(difference))}`).withStyle({
-						top: existingEntry.object.rect.top + window.scrollY,
-						left: existingEntry.object.rect.right - existingEntry.object.querySelector(`.score`).rect.width / 2 + window.scrollX
-					}).appendedTo(body);
+					const updatesPerDifferenceNotification = 4;
+					if (Leaderboard.updates % updatesPerDifferenceNotification === 0) {
+						const differenceObject = Ω(`span.difference.${existingEntry.accumulatedProfit > 0 ? "gain" : "loss"}`).withText(`${existingEntry.accumulatedProfit > 0 ? "+" : "-"}${Leaderboard.formatScore(Math.abs(existingEntry.accumulatedProfit))}`).withStyle({
+							top: existingEntry.object.rect.top + window.scrollY,
+							left: existingEntry.object.rect.right - existingEntry.object.querySelector(`.score`).rect.width / 2 + window.scrollX
+						}).appendedTo(body);
+						existingEntry.accumulatedProfit = 0;
+					}
 					window.setTimeout(() => {
 						differenceObject.remove();
 					}, 1.2 * 1000);
@@ -51,6 +57,7 @@ const Leaderboard = {
 			++ position;
 		}
 		Graph.draw();
+		++ Leaderboard.updates;
 	},
 	addElementForEntry (ID, position) {
 		const entry = Leaderboard.positions.get(ID);
