@@ -42,5 +42,6 @@ public class RandomTrading implements Runnable {
 				exchange.addOrder(new SellOrder(s,players.get(1),amount,pennySell-delta));
 			}
 		}
+		return;
 	}
 }

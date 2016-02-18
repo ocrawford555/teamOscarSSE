@@ -65,5 +65,6 @@ public class FairPriceGuess implements Runnable {
 				//flip = (flip==1) ? 0 : 1;
 			}		
 		}
+		return;
 	}
 }

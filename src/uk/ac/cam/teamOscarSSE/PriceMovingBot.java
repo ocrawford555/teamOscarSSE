@@ -21,6 +21,7 @@ public class PriceMovingBot extends Bot implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		return;
 	}
 
 	@Override

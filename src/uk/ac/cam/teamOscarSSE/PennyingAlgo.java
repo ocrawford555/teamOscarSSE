@@ -42,5 +42,6 @@ public class PennyingAlgo implements Runnable{
 				exchange.addOrder(new SellOrder(s,players.get(0),amount,pennySell-1));
 			}		
 		}
+		return;
 	}
 }

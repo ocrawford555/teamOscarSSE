@@ -67,5 +67,6 @@ public class GeneralBot extends Bot implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		return;
 	}
 }
