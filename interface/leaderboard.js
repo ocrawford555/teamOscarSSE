@@ -303,9 +303,16 @@ window.addEventListener("DOMContentLoaded", () => {
 					const elapsedTime = data["elapsed time"] + begun;
 					const remainingTime = data["remaining time"];
 					const players = data["players"];
-					Leaderboard.halted = null;
+					const halted = !data["open"];
+					if (Leaderboard.halted !== null) {
+						if (!halted) {
+							Leaderboard.halted = null;
+						}
+					} else if (halted) {
+						Leaderboard.halted = performance.now();
+					}
 					Leaderboard.update(elapsedTime, players);
-					updateTime(remainingTime >= 0, Math.ceil(Math.abs(remainingTime) / 1000));
+					updateTime(!halted, Math.ceil(Math.abs(remainingTime) / 1000));
 				} catch (error) {
 					console.warn("The response received from the server was malformed.", data, error);
 				}

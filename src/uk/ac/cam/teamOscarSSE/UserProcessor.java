@@ -212,6 +212,7 @@ public class UserProcessor {
 				new HashMap<String, Object>();
 		data.put("elapsed time", exchange.getUptime());
 		data.put("remaining time", exchange.getRemainingTime());
+		data.put("open", exchange.isOpen());
 		data.put("players", players);
 		return convertMapToJSONString(data);
 	}
