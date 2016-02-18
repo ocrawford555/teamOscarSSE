@@ -81,6 +81,8 @@ public class UserFrameServer implements Runnable {
 	private List<Long> transactionAvg = new LinkedList<Long>();
 	private List<Float> rateOfChange = new LinkedList<Float>();
 	private long cash;
+	private int maxBuy;
+	private int maxSell;
 
 
 	public boolean Buy(){
@@ -114,19 +116,28 @@ public class UserFrameServer implements Runnable {
 				"{\"user-token\": " + token + "}\n");
 		System.out.println(ob);
 	}
+	
+	public void getMoneratyMetrics(){
+		String url = "cash/BAML";
+		String ob = networkCom(url,
+				"{\"user-token\": " + token + "}\n");
+		//ob contains return String in JSON format
+		JSONObject obj = new JSONObject(ob);
+		cash = obj.getLong("cash");
+		maxBuy = obj.getInt("max-can-buy");
+		maxSell = obj.getInt("max-can-sell");
+	}
 
 	public void update() {
 		stockPrice = stock.getStockPrice();
-
 		pointAvg = stock.getPointAvg();
-
 		overallAvg = stock.getOverallAverage();
-
 		transactionAvg = stock.getTransactionAvg();
-
 		rateOfChange = stock.getRateOfChange();
+		
+		getMoneratyMetrics();
 
-		//cash = stock.getCash();
+		
 	}
 
 	@Override
