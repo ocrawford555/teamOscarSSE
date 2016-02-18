@@ -189,7 +189,6 @@ public class UserFrameServer implements Runnable {
 	public void update() {
 		getMoneratyMetrics();
 		update(stockSym);
-		getMoneratyMetrics();
 	}
 
 	public void update(String stockSymbol) {
