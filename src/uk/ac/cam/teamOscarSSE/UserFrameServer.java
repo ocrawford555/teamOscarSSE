@@ -23,6 +23,8 @@ public class UserFrameServer implements Runnable {
 	private List<Long> transactionAvg = new LinkedList<Long>();
 	private List<Float> rateOfChange = new LinkedList<Float>();
 	private long cash;
+	private int maxBuy;
+	private int maxSell;
 
 	public UserFrameServer(Stock s) throws IOException {
 		stock = s;
@@ -187,6 +189,7 @@ public class UserFrameServer implements Runnable {
 	public void update() {
 		getMoneratyMetrics();
 		update(stockSym);
+		getMoneratyMetrics();
 	}
 
 	public void update(String stockSymbol) {
