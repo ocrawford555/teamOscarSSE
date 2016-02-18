@@ -21,7 +21,15 @@ public class UserFrameServer implements Runnable {
 	private String stockSym;
 	private long stockPrice;
 	private List<Long> pointAvg = new LinkedList<Long>();
+	public long getPointAvg(int i) {
+		if (i>49 || i<0) return 0;
+		else return pointAvg.get(i);
+	}
+	
 	private long overallAvg;
+	public long getOverallAvg() {
+		return overallAvg;
+	}
 	
 	//random generator for testing purposes only
 	//keep in until all methods have been implements
@@ -37,10 +45,27 @@ public class UserFrameServer implements Runnable {
 
 	//Change these to reflect HTTP Server format and all the get methods
 	private List<Long> transactionAvg = new LinkedList<Long>();
+	public long getTransactionAvg(int i) {
+		if (i>49 || i<0) return 0;
+		else return transactionAvg.get(i);
+	}
 	private List<Float> rateOfChange = new LinkedList<Float>();
+	public float getRateOfChange(int i) {
+		if (i>49 || i<0) return 0;
+		else return rateOfChange.get(i);
+	}
 	private long cash;
+	public long getCash() {
+		return cash;
+	}
 	private int maxBuy;
+	public int getMaxBuy() {
+		return maxBuy;
+	}
 	private int maxSell;
+	public int getMaxSell() {
+		return maxSell;
+	}
 	
 	
 	/**
@@ -132,17 +157,23 @@ public class UserFrameServer implements Runnable {
 	
 	
 	public long priceToBuy() {
+		/*
 		int addExtraToBuy = 1;
 		if (cash > 10500000)
 			addExtraToBuy = 5;
 		return stockPrice + addExtraToBuy;
+		*/
+		return stockPrice;
 	}
 	
 	public long priceToSell() {
+		/*
 		int subExtraToSell = 1;
 		if (cash < 9500000)
 			subExtraToSell = 5;
 		return stockPrice - subExtraToSell;
+		*/
+		return stockPrice;
 	}
 
 	
@@ -290,6 +321,7 @@ public class UserFrameServer implements Runnable {
 	public void run() {
 		//have an initial wait period until the server has
 		//started and running.
+		long startTime = System.currentTimeMillis();
 		try {
 			Thread.sleep(200);
 		} catch (InterruptedException e1) {
@@ -305,6 +337,7 @@ public class UserFrameServer implements Runnable {
 
 
 		while(true){
+			if (System.currentTimeMillis() - startTime > 31000) return;
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {
