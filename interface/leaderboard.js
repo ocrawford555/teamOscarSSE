@@ -105,6 +105,55 @@ const Graph = {
 		const history = Graph.histories.get(ID);
 		if (typeof history !== "undefined") {
 			history.set(timestamp, value);
+			const proportionalLimit = 0.1; // The vertical padding on the graph — when the lines reach this proportion from the top/bottom of the graph, the graph bounds will be resized
+			const proportionalBounds = 0.005; // How much to resize the bounds by, proportional to the new max/min, each time the graph bounds are resized
+			const Yrange = Graph.maxY - Graph.minY;
+			if (Graph.minY === null || value < Graph.minY + Yrange * proportionalLimit) {
+				Graph.minY = value * (1 - proportionalBounds);
+			}
+			if (Graph.maxY === null || value > Graph.maxY - Yrange * proportionalLimit) {
+				Graph.maxY = value * (1 + proportionalBounds);
+			}
+		}
+	},
+	minY: null,
+	maxY: null,
+	drawnBounds: {
+		minY: null,
+		maxY: null,
+		framesPerTransition: 4,
+		speed: {
+			minY: null,
+			maxY: null
+		},
+		update () {
+			if (Graph.minY === null || Graph.maxY === null) {
+				return;
+			}
+			if (Graph.drawnBounds.minY === null) {
+				Graph.drawnBounds.minY = Graph.minY;
+			} else if (Graph.drawnBounds.minY !== Graph.minY) {
+				if (Graph.drawnBounds.speed.minY === null) {
+					Graph.drawnBounds.speed.minY = (Graph.minY - Graph.drawnBounds.minY) / Graph.drawnBounds.framesPerTransition;
+				}
+				Graph.drawnBounds.minY += Graph.drawnBounds.speed.minY;
+				if (Graph.drawnBounds.minY <= Graph.minY) {
+					Graph.drawnBounds.minY = Graph.minY;
+					Graph.drawnBounds.speed.minY = null;
+				}
+			}
+			if (Graph.drawnBounds.maxY === null) {
+				Graph.drawnBounds.maxY = Graph.maxY;
+			} else if (Graph.drawnBounds.maxY !== Graph.maxY) {
+				if (Graph.drawnBounds.speed.maxY === null) {
+					Graph.drawnBounds.speed.maxY = (Graph.maxY - Graph.drawnBounds.maxY) / Graph.drawnBounds.framesPerTransition;
+				}
+				Graph.drawnBounds.maxY += Graph.drawnBounds.speed.maxY;
+				if (Graph.drawnBounds.maxY >= Graph.maxY) {
+					Graph.drawnBounds.maxY = Graph.maxY;
+					Graph.drawnBounds.speed.maxY = null;
+				}
+			}
 		}
 	},
 	draw () {
@@ -112,8 +161,8 @@ const Graph = {
 		let context = canvas.getContext("2d");
 		const now = Leaderboard.halted === null ? performance.now() : Leaderboard.halted;
 		const duration = 1000 * 30;
-		const minY = 10000000 - 1000000 * 5;
-		const maxY = 10000000 + 1000000 * 5;
+		// Update the graph bounds
+		Graph.drawnBounds.update();
 		// Clear the canvas
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -133,7 +182,7 @@ const Graph = {
 			const removal = [];
 			for (const pair of history) {
 				const x = (1 + (pair[0] - now) / duration) * canvas.width;
-				const y = canvas.height * (1 - (pair[1] - minY) / (maxY - minY));
+				const y = canvas.height * (1 - (pair[1] - Graph.drawnBounds.minY) / (Graph.drawnBounds.maxY - Graph.drawnBounds.minY));
 				if (x < 0) {
 					removal.push(pair[0]);
 				}
@@ -142,7 +191,7 @@ const Graph = {
 				}
 				if (max === null || x > max) {
 					max = x;
-					currentScore = (pair[1] - minY) / (maxY - minY);
+					currentScore = (pair[1] - Graph.drawnBounds.minY) / (Graph.drawnBounds.maxY - Graph.drawnBounds.minY);
 				}
 				[strokePath, fillPath].forEach(path => path[first ? "moveTo" : "lineTo"](x, y));
 				if (history.size === 1) {
