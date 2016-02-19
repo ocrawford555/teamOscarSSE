@@ -5,19 +5,27 @@ package uk.ac.cam.teamOscarSSE;
  */
 public class GodBot extends Bot implements Runnable {
 	private static final String botName = "GodBot";
-
-	private final double FLIP_PROBABILITY = 0.25;
-	private final double liquidity_factor = 0.001;
 	int flip_ctr = 0;
+	private double FLIP_PROBABILITY = 0.25;
+	private double liquidity_factor = 0.001;
+	private double volatility = 0.0;
 	private long price;
 	private boolean priceUp;
 	private double rate;
 
 	public GodBot(Exchange exchange, Stock stock) {
+		this(exchange, stock, 0.25, 0.001, 1.0 / 500.0);
+	}
+
+	public GodBot(Exchange exchange, Stock stock,
+				  double flip_probability, double liquidity_factor, double volatility) {
 		super(exchange, stock, botName);
+		this.FLIP_PROBABILITY = flip_probability;
+		this.liquidity_factor = liquidity_factor;
+		this.volatility = volatility;
 		price = stock.getStockPrice();
 		priceUp = rand.nextBoolean();
-		rate = rand.nextDouble() / 500.0;
+		rate = rand.nextDouble() * volatility;
 	}
 
 	@Override
@@ -59,7 +67,7 @@ public class GodBot extends Bot implements Runnable {
 		if (rand.nextDouble() < FLIP_PROBABILITY) {
 			priceUp = !priceUp;
 			++flip_ctr;
-			rate = rand.nextDouble() / 500.0;
+			rate = rand.nextDouble() * volatility;
 		}
 
 		price += (priceUp ? 1 : -1) * rate * price;
