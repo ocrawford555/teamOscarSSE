@@ -31,12 +31,13 @@ public class UserProcessor {
 		Stock stock = exchange.getStockForSymbol(symbol);
 		Map<String, Object> data =
 				new HashMap<String, Object>();
-		data.put("success", stock != null);
+		boolean success = stock != null;
 		if (stock != null) {
 			Order order = new BuyOrder(stock, user, qty, price);
-			exchange.addOrder(order);
+			success = exchange.addOrder(order);
 			data.put("orderID", order.getOrderNum());
 		}
+		data.put("success", success);
 		return convertMapToJSONString(data);
 	}
 
@@ -57,12 +58,14 @@ public class UserProcessor {
 		Stock stock = exchange.getStockForSymbol(symbol);
 		Map<String, Object> data =
 				new HashMap<String, Object>();
+		boolean success = stock != null;
 		data.put("success", stock != null);
 		if (stock != null) {
 			Order order = new SellOrder(stock, user, qty, price);
-			exchange.addOrder(order);
+			success = exchange.addOrder(order);
 			data.put("orderID", order.getOrderNum());
 		}
+		data.put("success", success);
 		return convertMapToJSONString(data);
 	}
 
@@ -229,8 +232,6 @@ public class UserProcessor {
 	 * Register a new player on the exchange.
 	 *
 	 * @param exchange
-	 * @param name
-	 * @param email
 	 * @return A HTTPReturnMessage with the user-id in the data
 	 */
 	private static String registerUser(Exchange exchange, JSONObject requestData) {
@@ -271,7 +272,7 @@ public class UserProcessor {
 	 * exchange
 	 *
 	 * @param exchange
-	 * @param request
+	 * @param requestData
 	 * @return
 	 */
 	private static Player determinePlayer(Exchange exchange,
