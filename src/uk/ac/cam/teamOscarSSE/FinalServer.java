@@ -2,8 +2,6 @@ package uk.ac.cam.teamOscarSSE;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public class FinalServer {
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
@@ -17,7 +15,7 @@ public class FinalServer {
 	public static void open() {
 		//create and add stocks
 		stocks.clear();
-		Stock stock1 = new Stock("BAML", "Bank of America", 5000,0.15f,3482,400);
+		Stock stock1 = new Stock("BAML", "Bank of America", 5000,0.35f,3482,400);
 		stocks.add(stock1);
 
 		//create the leader board
@@ -50,25 +48,26 @@ public class FinalServer {
 		// Open the exchange
 		exchange.setOpen(true);
 
+
 	}
 
-	public static void testExchange() {
+	public static void testExchange(int scenario) {
 		//create fake two user algorithms
 		//both algorithms in theory could be ported to provide framework
 		//for the eventual user of the competition
-		PennyingAlgo penny = new PennyingAlgo(exchange,stocks,players);
-		Thread user1 = new Thread(penny);
-		RandomTrading random = new RandomTrading(exchange,stocks,players);
-		Thread user2 = new Thread(random);
-		FairPriceGuess fpg = new FairPriceGuess(exchange,stocks,players);
-		Thread user3 = new Thread(fpg);
+		//		PennyingAlgo penny = new PennyingAlgo(exchange,stocks,players);
+		//		Thread user1 = new Thread(penny);
+		//		RandomTrading random = new RandomTrading(exchange,stocks,players);
+		//		Thread user2 = new Thread(random);
+		//		FairPriceGuess fpg = new FairPriceGuess(exchange,stocks,players);
+		//		Thread user3 = new Thread(fpg);
 
 
 		//include a non-aggressive market maker to just set up some orders, and then
 		//add some orders to the order book occasionally - not in the game for
 		//profit -> this bot is simulating normal consumers looking to buy and 
 		//sell stocks.
-		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),50,50,200);
+		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),40,40,200);
 
 		//general bot in play for simplification only
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
@@ -76,22 +75,35 @@ public class FinalServer {
 		//price moving bot
 		PriceMovingBot pmb = new PriceMovingBot(exchange,stocks.get(0));
 
-		//boom bot
-		BoomBot bb = new BoomBot(exchange,stocks.get(0));
+		//scenario bot - changes depending on the type of market that is being
+		//simulated
+		Bot scenarioBot;
+
+		switch(scenario){
+		case 1:
+			scenarioBot = new GeneralBot(exchange, stocks.get(0));
+			break;
+		case 2:
+			scenarioBot = new BoomBot(exchange, stocks.get(0));
+			break;
+		case 3:
+			scenarioBot = new RecessionBot(exchange, stocks.get(0));
+			break;
+		default:
+			scenarioBot = new BoomBot(exchange, stocks.get(0));
+			break;
+		}
 
 		Thread marketM = new Thread(mm);
 		Thread generalBot = new Thread(gb);
 		Thread priceMover = new Thread(pmb);
-		Thread boomBot = new Thread(bb);
+		Thread scBot = new Thread(scenarioBot);
 
 		//start the trading
-		user1.start();
-		user2.start();
-		user3.start();
 		marketM.start();
 		generalBot.start();
 		priceMover.start();
-		boomBot.start();
+		scBot.start();
 
 		for(int j=0; j< NUM_SIM_STEPS; j++){
 			try {
@@ -105,12 +117,29 @@ public class FinalServer {
 		lb.update();
 	}
 
-	public static void main(String args[]) throws InterruptedException {
+	public static void main(String args[]) throws InterruptedException, IOException {
 		while (true) {
+			//off for debugging, useful for demo day and want to run
+			//different scenarios maybe??
+			//could automate this if we have time
+			boolean choice = true;
+			
+			//default scenario is boom
+			int roundToPlay = 2;
+			
+			if(choice){
+				System.out.println("Team Oscar -- Simulated Stock Exchange");
+				System.out.println("Options for round:");
+				System.out.println("1.\t Normal");
+				System.out.println("2.\t Boom");
+				System.out.println("3.\t Bust");
+
+				roundToPlay = System.in.read();
+			}
+
 			open();
-			testExchange();
+			testExchange(roundToPlay);
 			Thread.sleep(30000);
 		}
-		
 	}
 }

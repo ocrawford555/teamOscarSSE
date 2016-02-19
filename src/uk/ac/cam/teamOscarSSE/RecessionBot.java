@@ -18,11 +18,11 @@ public class RecessionBot extends Bot implements Runnable {
 		int volume2 = rand.nextInt(TMAX);
 		long stockP = stock.getStockPrice();
 
-		long buyPrice1 = stockP + 40 + rand.nextInt(15);
+		long buyPrice1 = stockP + 10 + rand.nextInt(15);
 
 		Order buyOrder1 = new BuyOrder(stock, this, volume1, buyPrice1);
 
-		long sellPrice1 = stockP - 70;
+		long sellPrice1 = stockP - 270;
 		long sellPrice2 = stockP - 100 - rand.nextInt(15);
 
 		Order sellOrder1 = new SellOrder(stock, this, volume1, sellPrice1);
@@ -39,7 +39,7 @@ public class RecessionBot extends Bot implements Runnable {
 		Random rand = new Random();
 		while (super.exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(150) + 25;
+				int nextWait = rand.nextInt(100) + 25;
 				Thread.sleep(nextWait);
 				this.sendOrders();
 			} catch (InterruptedException e) {

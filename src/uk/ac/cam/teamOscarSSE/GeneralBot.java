@@ -25,17 +25,17 @@ public class GeneralBot extends Bot implements Runnable {
 		int volume3 = rand.nextInt(TMAX);
 		long stockP = stock.getStockPrice();
 
-		long buyPrice1 = stockP - rand.nextInt(30);        //Buy High, loses money
-		long buyPrice2 = stockP + rand.nextInt(60);
-		long buyPrice3 = stockP - 20;
+		long buyPrice1 = stockP - 20 + rand.nextInt(40);        //Buy High, loses money
+		long buyPrice2 = stockP + 40 - rand.nextInt(20);
+		long buyPrice3 = stockP - 15;
 
 		Order buyOrder1 = new BuyOrder(stock, this, volume1, buyPrice1);
 		Order buyOrder2 = new BuyOrder(stock, this, volume2, buyPrice2);
 		Order buyOrder3 = new BuyOrder(stock, this, volume3, buyPrice3);
 
 		long sellPrice1 = stockP + rand.nextInt(30);
-		long sellPrice2 = stockP - rand.nextInt(60);
-		long sellPrice3 = stockP + 20;
+		long sellPrice2 = stockP - 10 - rand.nextInt(60);
+		long sellPrice3 = stockP + 30;
 
 		Order sellOrder1 = new SellOrder(stock, this, volume1, sellPrice1);
 		Order sellOrder2 = new SellOrder(stock, this, volume2, sellPrice2);
@@ -60,7 +60,7 @@ public class GeneralBot extends Bot implements Runnable {
 		Random rand = new Random();
 		while (super.exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(150) + 25;
+				int nextWait = rand.nextInt(75) + 25;
 				Thread.sleep(nextWait);
 				this.sendOrders();
 			} catch (InterruptedException e) {

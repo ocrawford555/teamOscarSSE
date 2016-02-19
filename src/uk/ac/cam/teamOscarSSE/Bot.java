@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * A bot running on an exchange.
  */
-public abstract class Bot extends Trader {
+public abstract class Bot extends Trader implements Runnable {
 
 	// The stock traded by the bot.
 	protected Stock stock;

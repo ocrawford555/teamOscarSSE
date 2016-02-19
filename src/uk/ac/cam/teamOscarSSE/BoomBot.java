@@ -42,24 +42,24 @@ public class BoomBot extends Bot implements Runnable {
 		long stockP = stock.getStockPrice();
 
 		long buyPrice1 = stockP + 125 + rand.nextInt(5);
-		long buyPrice2 = stockP + 150 + rand.nextInt(10);
-		long buyPrice3 = stockP + 40;
+		long buyPrice2 = stockP + 170 + rand.nextInt(15);
+		long buyPrice3 = stockP + 50;
 
 		Order buyOrder1 = new BuyOrder(stock, this, volume1, buyPrice1);
 		Order buyOrder2 = new BuyOrder(stock, this, volume2, buyPrice2);
 		Order buyOrder3 = new BuyOrder(stock, this, volume3, buyPrice3);
 
-		long sellPrice1 = stockP + 60 + rand.nextInt(10);
-		long sellPrice2 = stockP + 50;
+		long sellPrice1 = stockP + 40 + rand.nextInt(5);
+		long sellPrice2 = stockP + 20;
 
-		Order sellOrder1 = new SellOrder(stock, this, volume1, sellPrice1);
-		Order sellOrder2 = new SellOrder(stock, this, volume2, sellPrice2);
+		Order sellOrder1 = new SellOrder(stock, this, volume1/2, sellPrice1);
+		Order sellOrder2 = new SellOrder(stock, this, volume2/2, sellPrice2);
 
 		super.submitOrder(buyOrder1);
 		super.submitOrder(buyOrder2);
 		super.submitOrder(buyOrder3);
 		super.submitOrder(sellOrder1);
-		super.submitOrder(sellOrder2);
+		submitOrder(sellOrder2);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class BoomBot extends Bot implements Runnable {
 		Random rand = new Random();
 		while (super.exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(150) + 25;
+				int nextWait = rand.nextInt(100) + 25;
 				Thread.sleep(nextWait);
 				this.sendOrders();
 			} catch (InterruptedException e) {
