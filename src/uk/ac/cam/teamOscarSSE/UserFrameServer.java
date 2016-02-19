@@ -1,19 +1,15 @@
 package uk.ac.cam.teamOscarSSE;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.TreeSet;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import java.util.*;
 
 public class UserFrameServer implements Runnable {
 
@@ -21,63 +17,63 @@ public class UserFrameServer implements Runnable {
 	private String stockSym;
 	private long stockPrice;
 	private List<Long> pointAvg = new LinkedList<Long>();
-	public long getPointAvg(int i) {
-		if (i>49 || i<0) return 0;
-		else return pointAvg.get(i);
-	}
-	
 	private long overallAvg;
-	public long getOverallAvg() {
-		return overallAvg;
-	}
-	
 	//random generator for testing purposes only
 	//keep in until all methods have been implements
 	private Random rand = new Random();
-	
 	//keep store of the order book
 	private List<JSONObject> orderBuys;
 	private List<JSONObject> orderSells;
-	
 	//keep local copy of orders sent to the exchange
 	private TreeSet<Integer> buyOrders = new TreeSet<Integer>();
 	private TreeSet<Integer> sellOrders = new TreeSet<Integer>();
-
 	//Change these to reflect HTTP Server format and all the get methods
 	private List<Long> transactionAvg = new LinkedList<Long>();
-	public long getTransactionAvg(int i) {
-		if (i>49 || i<0) return 0;
-		else return transactionAvg.get(i);
-	}
 	private List<Float> rateOfChange = new LinkedList<Float>();
-	public float getRateOfChange(int i) {
-		if (i>49 || i<0) return 0;
-		else return rateOfChange.get(i);
-	}
 	private long cash;
-	public long getCash() {
-		return cash;
-	}
 	private int maxBuy;
-	public int getMaxBuy() {
-		return maxBuy;
-	}
 	private int maxSell;
-	public int getMaxSell() {
-		return maxSell;
-	}
-	
-	
+
 	/**
 	 * Initialise player to the game, and set the stock variable.
 	 * Token obtained when constructor is called.
-	 * @param s
 	 */
-	public UserFrameServer(String name){
+	public UserFrameServer(String name) {
 		String register =
 				networkCom("register/", "{\"name\": \"" + name + "\", \"email\": \"Awesome\"}\n", "POST");
 		JSONObject reJ = new JSONObject(register);
 		token = (String) reJ.get("user-token");
+	}
+
+	public long getPointAvg(int i) {
+		if (i > 49 || i < 0) return 0;
+		else return pointAvg.get(i);
+	}
+
+	public long getOverallAvg() {
+		return overallAvg;
+	}
+
+	public long getTransactionAvg(int i) {
+		if (i>49 || i<0) return 0;
+		else return transactionAvg.get(i);
+	}
+
+	public float getRateOfChange(int i) {
+		if (i>49 || i<0) return 0;
+		else return rateOfChange.get(i);
+	}
+
+	public long getCash() {
+		return cash;
+	}
+
+	public int getMaxBuy() {
+		return maxBuy;
+	}
+	
+	public int getMaxSell() {
+		return maxSell;
 	}
 
 	/**
@@ -189,9 +185,8 @@ public class UserFrameServer implements Runnable {
 
 	//TODO
 	public void submitBuyOrder() {
-		String url = "buy/BAML/"+Integer.toString(volumeToBuy())+"/" + Long.toString(priceToBuy());
-		String ob = networkCom(url,
-				"{\"user-token\": " + token + "}\n", "POST");
+		String url = String.join("/", "buy", stockSym, Integer.toString(volumeToBuy()), Long.toString(priceToBuy()));
+		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
 		if(obj.getBoolean("success") == true)
 			buyOrders.add(obj.getInt("orderID"));
@@ -199,15 +194,15 @@ public class UserFrameServer implements Runnable {
 
 	//TODO
 	public void submitSellOrder() {
-		String url = "sell/BAML/"+Integer.toString(volumeToSell())+"/" + Long.toString(priceToSell());
-		String ob = networkCom(url,
-				"{\"user-token\": " + token + "}\n", "POST");
+		String url = String.join("/", "sell", stockSym, Integer.toString(volumeToSell()), Long.toString(priceToSell()));
+		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
-		if(obj.getBoolean("success") == true)
+		if (obj.getBoolean("success") == true) {
 			sellOrders.add(obj.getInt("orderID"));
+		}
 	}
 
-	public void getMoneratyMetrics(){
+	public void getMonetaryMetrics(){
 		String url = "cash/BAML";
 		String ob = networkCom(url,
 				"{\"user-token\": " + token + "}\n", "GET");
@@ -225,7 +220,7 @@ public class UserFrameServer implements Runnable {
 	 */
 	public List<String> getStocks() {
 		String url = "stocks";
-		String ob = networkCom(url, "{\"user-token\": " + token + "}\n", "GET");
+		String ob = sendURLWithToken(url, "GET");
 		JSONObject reJ = new JSONObject(ob);
 		JSONArray stockArray = (JSONArray) reJ.get("stocks");
 		List<String> stocks = new ArrayList<String>();
@@ -241,7 +236,7 @@ public class UserFrameServer implements Runnable {
 	}
 
 	/**
-	 * Updates stock and metrics for the symbol.
+	 * Updates stock and metrics for the stock symbol.
 	 *
 	 * @return
 	 */
@@ -280,7 +275,7 @@ public class UserFrameServer implements Runnable {
 	}
 
 	public void update() {
-		getMoneratyMetrics();
+		getMonetaryMetrics();
 		updateStock(stockSym);
 	}
 
@@ -294,17 +289,15 @@ public class UserFrameServer implements Runnable {
 				"{}\n", "GET");
 				
 		JSONObject obj = new JSONObject(orderBook);
-		
-		JSONArray buys = new JSONArray();
-		buys = obj.getJSONArray("buy");
+
+		JSONArray buys = obj.getJSONArray("buy");
 		List<JSONObject> listBuys = new ArrayList<JSONObject>();
 		
 		for(int i=0;i < buys.length();i++){
 			listBuys.add(buys.getJSONObject(i));
 		}
-		
-		JSONArray sells = new JSONArray();
-		sells = obj.getJSONArray("sell");
+
+		JSONArray sells = obj.getJSONArray("sell");
 		List<JSONObject> listSells = new ArrayList<JSONObject>();
 		
 		for(int i=0;i < sells.length();i++){
@@ -331,6 +324,11 @@ public class UserFrameServer implements Runnable {
 		// Get the stocks available on the exchange.
 		List<String> stocks = getStocks();
 		while (stocks.size() == 0) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			stocks = getStocks();
 		}
 		stockSym = stocks.get(0);
