@@ -27,10 +27,9 @@ public class RandomTrading implements Runnable {
 			}
 			
 			for (Stock s : stocks) {
-				long delta = rand.nextInt(10);
+				long delta = rand.nextInt(21) - 10;
 				int amount = rand.nextInt(150) + 20;
-				int direction = Math.round((float)Math.random() + 1f);
-				if(direction==1) delta*=-1;
+				
 				long pennyBuy = s.getBestBid();
 				long pennySell = s.getBestOffer();
 				
