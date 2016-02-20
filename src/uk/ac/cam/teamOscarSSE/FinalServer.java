@@ -132,6 +132,11 @@ public class FinalServer {
 				e.printStackTrace();
 			}
 			close();
+			try {
+				Thread.sleep(timeBetweenRounds * 1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
