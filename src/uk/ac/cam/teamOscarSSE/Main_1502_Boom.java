@@ -6,14 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Main_1502_Boom {
+	static public List<Long> prices = new LinkedList<Long>();
+	static public List<Long> balA = new LinkedList<Long>();
+	static public List<Long> balB = new LinkedList<Long>();
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
 	static Exchange exchange;
 	static LeaderBoard lb;
-	static public List<Long> prices = new LinkedList<Long>();
-	static public List<Long> balA = new LinkedList<Long>();
-	static public List<Long> balB = new LinkedList<Long>();
-
 	// The number of simulation steps.
 	private static int NUM_SIM_STEPS = 600;
 
@@ -42,7 +41,7 @@ public class Main_1502_Boom {
 		lb = new LeaderBoard(players);
 
 		//create the exchange
-		exchange = new Exchange(stocks);
+		exchange = new Exchange();
 
 		// TODO: temporary modification
 		try {
@@ -81,7 +80,7 @@ public class Main_1502_Boom {
 		}
 
 		// Open the exchange
-		exchange.setOpen(true);
+		exchange.startRound(stocks);
 
 	}
 
@@ -137,7 +136,7 @@ public class Main_1502_Boom {
 			}
 		}
 
-		exchange.setOpen(false);
+		exchange.endRound();
 		lb.update();
 	}
 

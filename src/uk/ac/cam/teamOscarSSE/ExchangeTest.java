@@ -12,13 +12,13 @@ public class ExchangeTest {
 		players.add(new Player("Alice", "AA"));
 		players.add(new Player("Bob", "BB"));
 		LeaderBoard lb = new LeaderBoard(players);
-		Exchange exchange = new Exchange(stocks);
+		Exchange exchange = new Exchange();
 
 		for (Player player : players) {
 			exchange.addPlayer(player);
 		}
 		lb.get();
-		exchange.setOpen(true);
+		exchange.startRound(stocks);
 		try {
 			Thread.sleep(5000);
 		} catch (Exception e) {
@@ -26,7 +26,7 @@ public class ExchangeTest {
 		}
 		System.out.println(exchange.getUptimeFormatted());
 
-		exchange.setOpen(false);
+		exchange.endRound();
 		for (Stock stock : stocks) {
 			System.out.println(stock.getSymbol() + " " + stock.getStockPrice());
 		}
@@ -41,13 +41,13 @@ public class ExchangeTest {
 		players.add(new Player("Alice", "AA"));
 		players.add(new Player("Bob", "BB"));
 		LeaderBoard lb = new LeaderBoard(players);
-		Exchange exchange = new Exchange(stocks);
+		Exchange exchange = new Exchange();
 
 		for (Player player : players) {
 			exchange.addPlayer(player);
 		}
 		lb.get();
-		exchange.setOpen(true);
+		exchange.startRound(stocks);
 
 		exchange.addOrder(new BuyOrder(stocks.get(0), players.get(0), 75, 900));
 		exchange.printOrderBooks();
@@ -56,7 +56,7 @@ public class ExchangeTest {
 		exchange.printOrderBooks();
 
 
-		exchange.setOpen(false);
+		exchange.startRound(stocks);
 		for (Player px : players) {
 			System.out.println(px.getName() + " ");
 			px.getPortfolio().contents();
@@ -78,7 +78,7 @@ public class ExchangeTest {
 		players.add(new Player("Alice", "AA"));
 		players.add(new Player("Bob", "BB"));
 		LeaderBoard lb = new LeaderBoard(players);
-		Exchange exchange = new Exchange(stocks);
+		Exchange exchange = new Exchange();
 
 		for (Player player : players) {
 			exchange.addPlayer(player);

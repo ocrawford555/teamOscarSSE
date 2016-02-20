@@ -4,16 +4,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class FinalServer {
+	static final Exchange exchange = new Exchange();
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
-	static Exchange exchange;
 	static LeaderBoard lb;
 
 	// The number of simulation steps.
 	private static int NUM_SIM_STEPS = 600;
+	private static int roundLength = 30;
+	private static int timeBetweenRounds = 30;
 
 	public static void open() {
-		//create and add stocks
 		stocks.clear();
 		Stock stock1 = new Stock("BAML", "Bank of America", 5000,0.35f,3482,400);
 		stocks.add(stock1);
@@ -21,34 +22,13 @@ public class FinalServer {
 		//create the leader board
 		lb = new LeaderBoard(players);
 
-		//create the exchange
-		exchange = new Exchange(stocks);
-
-		// TODO: temporary modification
-		try {
-			NewServer.start(8080, exchange);
-		} catch (IOException e) {
-			System.out.println("Failed to start the server.");
-			e.printStackTrace();
-			return;
-		}
-
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		//add the players to the exchange
 		for (Player player : players) {
 			exchange.addPlayer(player);
 		}
 
 		// Open the exchange
-		exchange.setOpen(true);
-
-
+		exchange.startRound(stocks);
 	}
 
 	public static void testExchange(int scenario) {
@@ -104,20 +84,22 @@ public class FinalServer {
 		generalBot.start();
 		priceMover.start();
 		scBot.start();
+	}
 
-		for(int j=0; j< NUM_SIM_STEPS; j++){
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-
-		exchange.setOpen(false);	//Stops all the background threads 
+	public static void close() {
+		exchange.endRound();
 		lb.update();
 	}
 
-	public static void main(String args[]) throws InterruptedException, IOException {
+	public static void main(String args[]) {
+		try {
+			NewServer.start(8080, exchange);
+		} catch (IOException e) {
+			System.out.println("Failed to start the server.");
+			e.printStackTrace();
+			return;
+		}
+
 		while (true) {
 			//off for debugging, useful for demo day and want to run
 			//different scenarios maybe??
@@ -133,13 +115,23 @@ public class FinalServer {
 				System.out.println("1.\t Normal");
 				System.out.println("2.\t Boom");
 				System.out.println("3.\t Bust");
-
-				roundToPlay = System.in.read();
+				try {
+					roundToPlay = System.in.read();
+				} catch (IOException e) {
+					System.err.println(
+							"Failed to read roundToPlay. Continuing with option 2 (boom).");
+					e.printStackTrace();
+				}
 			}
 
 			open();
 			testExchange(roundToPlay);
-			Thread.sleep(30000);
+			try {
+				Thread.sleep(roundLength * 1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			close();
 		}
 	}
 }

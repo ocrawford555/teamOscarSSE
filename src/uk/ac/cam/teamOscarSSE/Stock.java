@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Stock {
+	long[] tempRateChange = new long[49];
 	private String symbol;
 	private String name;
 	private long lastTransactionPrice;
@@ -11,11 +12,50 @@ public class Stock {
 	private int stockQty;
 	private long bestBid;
 	private long bestOffer;
-	
 	private long stockPrice;
 	private int TMAX;
 	private float unc;
-	
+	//Variables used to provide users with metrics
+	//Moving point averages of stock price
+	private long[] priceBuf = new long[50];
+	private int pointAvgPtr = -1;
+	private List<Long> pointAvg = new ArrayList<Long>();
+	//Overall price of stock since beginning of Exchange
+	private long overallAvg;
+	private long cumulativePrices;
+	private long noOfTrades;
+	//Moving point averages of transaction price
+	private long[] transactionBuf = new long[50];
+	private int transactionPtr = -1;
+	private List<Long> transactionAvg = new ArrayList<Long>();
+	//Change in stock price, so e.g. rateOfChange.get(20) returns the average of rate of change between 20 stock prices, i.e. aveage of 19 rates
+	private List<Float> rateOfChange = new ArrayList<Float>();
+
+	public Stock(String sym, String nameCompany, int quantity, float uncertainty, long price, int TMAX) {
+		this.symbol = sym;
+		this.name = nameCompany;
+		this.setStockQty(quantity);
+		this.setUnc(uncertainty);
+		this.stockPrice = price;
+		this.volumeTraded = 0;
+		this.lastTransactionPrice = price;
+		this.TMAX = TMAX;
+		
+		//Initialise pointAvgBuf and other metrics
+		for (int i=0; i<50; i++) {
+			priceBuf[i] = price;
+			transactionBuf[i] = price;
+		}
+		overallAvg = price;
+		cumulativePrices = 0;
+		noOfTrades = 0;
+		for (int i=0; i<=50; i++) {
+			pointAvg.add(price);
+			transactionAvg.add(price);
+			rateOfChange.add(0F);
+		}
+	}
+
 	public int getTMAX() {
 		return TMAX;
 	}
@@ -60,58 +100,25 @@ public class Stock {
 		this.stockQty += amountToAdd;
 	}
 
-	public void addStockQty(int amountToAdd) {
-		this.stockQty += amountToAdd;
-	}
-
-	public void removeStockQty(int amountToRemove) {
-		this.stockQty -= amountToRemove;
-	}
-
-	public Stock(String sym, String nameCompany, int quantity, float uncertainty, long price, int TMAX) {
-		this.symbol = sym;
-		this.name = nameCompany;
-		this.setStockQty(quantity);
-		this.setUnc(uncertainty);
-		this.stockPrice = price;
-		this.volumeTraded = 0;
-		this.lastTransactionPrice = price;
-		this.TMAX = TMAX;
-		
-		//Initialise pointAvgBuf and other metrics
-		for (int i=0; i<50; i++) {
-			priceBuf[i] = price;
-			transactionBuf[i] = price;
-		}
-		overallAvg = price;
-		cumulativePrices = 0;
-		noOfTrades = 0;
-		for (int i=0; i<=50; i++) {
-			pointAvg.add(price);
-			transactionAvg.add(price);
-			rateOfChange.add(0F);
-		}
-	}
-	
 	//Calculates new Stock price given volume of stock traded and trading price
 	public void newPrice() {
 		long tradePrice = getLastTransactionPrice();
 		long price = getStockPrice();
 		float sigmaS = getUnc();
 		float temp;
-		if(getVolumeTraded()!=0)
-			temp = TMAX/getVolumeTraded() - 1;
+		if (getVolumeTraded() != 0)
+			temp = TMAX / getVolumeTraded() - 1;
 		else
 			temp = 1;
-		float sigmaE = sigmaS*temp;
-		float k = (sigmaS*sigmaS)/((sigmaS*sigmaS)+(sigmaE*sigmaE));
-		price = (long) (price + (k*(tradePrice - price)));
+		float sigmaE = sigmaS * temp;
+		float k = (sigmaS * sigmaS) / ((sigmaS * sigmaS) + (sigmaE * sigmaE));
+		price = (long) (price + (k * (tradePrice - price)));
 		setStockPrice((long) price);
-		float temp2 = 1 - (k*sigmaS);
-		setUnc((float) Math.sqrt(temp2)); 	//New uncertainty
+		float temp2 = 1 - (k * sigmaS);
+		setUnc((float) Math.sqrt(temp2));    //New uncertainty
 		updateMetrics();
 	}
-	
+
 	public long getStockPrice() {
 		return stockPrice;
 	}
@@ -135,27 +142,6 @@ public class Stock {
 	public void addVolume(long volumeTraded) {
 		this.volumeTraded += volumeTraded;
 	}
-
-
-	//Variables used to provide users with metrics
-	//Moving point averages of stock price
-	private long[] priceBuf = new long[50];
-	private int pointAvgPtr = -1;
-	private List<Long> pointAvg = new ArrayList<Long>();
-	
-	//Overall price of stock since beginning of Exchange
-	private long overallAvg;
-	private long cumulativePrices;
-	private long noOfTrades;
-
-	//Moving point averages of transaction price
-	private long[] transactionBuf = new long[50];
-	private int transactionPtr = -1;
-	private List<Long> transactionAvg = new ArrayList<Long>();
-
-	//Change in stock price, so e.g. rateOfChange.get(20) returns the average of rate of change between 20 stock prices, i.e. aveage of 19 rates
-	private List<Float> rateOfChange = new ArrayList<Float>();
-	long[] tempRateChange = new long[49];
 	
 	//Getter methods for user metrics
 	public List<Long> getPointAvg() {
@@ -263,35 +249,4 @@ public class Stock {
 		System.out.println("Rate-Of-Change-20: "+rateOfChange.get(20));
 		System.out.println("Rate-Of-Change-50: "+rateOfChange.get(50));
 	}
-	
-	/*
-	public static void main(String[] args) {
-		Stock s = new Stock("BAML", "BoA", 2000, 0.2F, 120, 2000);
-		Random r = new Random();	
-		System.out.println("---Before---");
-		s.printMetrics();
-		for (int i=150; i<200; i++) {
-			s.setLastTransactionPrice(r.nextInt(500));
-			s.newPrice();
-		}
-		System.out.println("---After---");
-		s.printMetrics();
-		
-		//System.out.println("0th from list "+s.transactionAvg.get(0));
-		//System.out.println("5th from list "+s.rateOfChange.get(5));
-		//System.out.println("20th from list "+s.rateOfChange.get(20));
-		System.out.println("List "+s.rateOfChange.toString());
-		System.out.println("Change "+Arrays.toString(s.tempRateChange));
-		System.out.println("List Ptr"+s.pointAvgPtr);
-		System.out.println("Prices "+Arrays.toString(s.priceBuf));
-		
-		int t = 0;
-		for (int i=s.pointAvgPtr; i>s.pointAvgPtr-50+1; i--) {
-			t+= (s.priceBuf[i]-s.priceBuf[i-1]);
-			System.out.println("Change value: "+t);
-		}
-		System.out.println("Last 5: "+(float)t/49);
-	}
-	*/
-	
 }

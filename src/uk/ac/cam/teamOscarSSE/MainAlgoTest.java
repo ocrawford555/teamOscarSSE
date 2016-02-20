@@ -43,7 +43,7 @@ public class MainAlgoTest {
 				
 		try {
 			Thread.sleep(7000);
-			exchange.setOpen(false);
+			exchange.endRound();
 
 			lb.update();
 
@@ -92,7 +92,7 @@ public class MainAlgoTest {
 		lb = new LeaderBoard(players);
 
 		//create the exchange
-		exchange = new Exchange(stocks);
+		exchange = new Exchange();
 
 		//add the players to the exchange
 		for (Player player : players) {
@@ -100,7 +100,7 @@ public class MainAlgoTest {
 		}
 
 		// Open the exchange
-		exchange.setOpen(true);
+		exchange.startRound(stocks);
 
 		//add some orders to the order book to initiate trading
 		exchange.addOrder(new BuyOrder(stock1, Alice, 50, 12344));

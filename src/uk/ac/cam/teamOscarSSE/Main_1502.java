@@ -5,14 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Main_1502 {
+	static public List<Long> prices = new LinkedList<Long>();
+	static public List<Long> balA = new LinkedList<Long>();
+	static public List<Long> balB = new LinkedList<Long>();
 	//have these as static -- only need one copy
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
 	static Exchange exchange;
 	static LeaderBoard lb;
-	static public List<Long> prices = new LinkedList<Long>();
-	static public List<Long> balA = new LinkedList<Long>();
-	static public List<Long> balB = new LinkedList<Long>();
 
 	public static void open() {
 		//create and add stocks
@@ -36,7 +36,7 @@ public class Main_1502 {
 		lb = new LeaderBoard(players);
 
 		//create the exchange
-		exchange = new Exchange(stocks);
+		exchange = new Exchange();
 
 		//add the players to the exchange
 		for (Player player : players) {
@@ -44,7 +44,7 @@ public class Main_1502 {
 		}
 
 		// Open the exchange
-		exchange.setOpen(true);
+		exchange.startRound(stocks);
 	}
 
 	public static void testExchange() {
@@ -106,8 +106,8 @@ public class Main_1502 {
 			}
 		}
 
-		exchange.setOpen(false);
 
+		exchange.endRound();
 		lb.update();
 
 		System.out.println("");

@@ -243,9 +243,9 @@ public class UserFrameServer implements Runnable {
 	public boolean updateStock(String symbol) {
 		String url = "stock/" + symbol;
 		String ob = sendURLWithToken(url, "GET");
-		// if (ob == null) return false;
+		if (ob == null) return false;
 		JSONObject reJ = new JSONObject(ob);
-		System.out.println(reJ);
+		//System.out.println(reJ);
 		if (!reJ.getBoolean("success")) {
 			return false;
 		}
@@ -335,7 +335,7 @@ public class UserFrameServer implements Runnable {
 
 
 		while(true){
-			if (System.currentTimeMillis() - startTime > 31000) return;
+			//if (System.currentTimeMillis() - startTime > 31000) return;
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {
@@ -345,8 +345,6 @@ public class UserFrameServer implements Runnable {
 			submitBuyOrder();
 			submitSellOrder();
 			obtainOrderBook();
-			System.out.println(buyOrders.size());
-			System.out.println(sellOrders.size());
 		}
 	}
 

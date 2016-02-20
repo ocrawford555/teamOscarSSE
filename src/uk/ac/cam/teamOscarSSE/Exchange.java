@@ -10,7 +10,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class Exchange {
 	//DEBUG variable for outputting information to the console.
-	private final boolean DEBUG = false;
+	private final boolean DEBUG = true;
+
+	// DEBUG verbosity. A higher verbosity means more is printed.
+	private final int DEBUG_LEVEL = 2;
 
 	// The maximum price at which a user can buy/sell a stock.
 	private final long MAX_STOCK_PRICE = 1000000;
@@ -44,44 +47,16 @@ public class Exchange {
 	// The round's uptime. This is frozen when the exchange is closed until it is reopen.
 	private long lastRoundUptime;
 
-	public Exchange(List<Stock> stocks) {
-		if (stocks == null) {
-			System.err.println("Tried to create an exchange with no stocks.");
-			stocks = new ArrayList<>();
-		}
-		
+	public Exchange() {
 		orderBooks = new HashMap<>();
 		traders = new HashMap<>();
 		orders = new HashMap<>();
 		players = new HashMap<>();
 		open = false;
 		lastRoundUptime = 0;
-		
-		int roundLength = 30; // How many seconds the round will last
-		final int timeBetweenRounds = 30;
+
 		startTime = System.currentTimeMillis();
-		endTime = System.currentTimeMillis() + 1000 * roundLength;
-		String dateFormatted = getFormattedTime(startTime);
-		
-		// Close the exchange automatically after a set period of time
-		Timer endTimer = new Timer();
-		Date endDate = new Date();
-		endDate.setTime(endDate.getTime() + 1000 * roundLength);
-		endTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				setOpen(false);
-				endTime = System.currentTimeMillis() + 1000 * timeBetweenRounds;
-			}
-		}, endDate);
-
-		String debugString = "";
-
-		for (Stock stock : stocks) {
-			orderBooks.put(stock.getSymbol(), new OrderBook(stock));
-			debugString += stock.getSymbol() + " ";
-		}
-		System.out.println("Exchanged created at " + dateFormatted + "." + " --  Available stocks: " + debugString);
+		endTime = System.currentTimeMillis();
 	}
 
 	/**
@@ -138,18 +113,100 @@ public class Exchange {
 	}
 
 	/**
-	 * Changes the open/closed state of the exchange.
+	 * Starts a round with the input stocks.
 	 *
-	 * @param open
+	 * The round has indefinite length and will continue until endRound is called.
+	 * @param stocks
+	 * @return
 	 */
-	public synchronized void setOpen(boolean open) {
-		if (open && !this.open) {
-			startTime = System.currentTimeMillis();
-			System.out.println("Exchanged started at " + getFormattedTime(startTime) + ".");
-		} else if (this.open && !open) {
-			lastRoundUptime = System.currentTimeMillis() - startTime;
+	public synchronized boolean startRound(List<Stock> stocks) {
+		return startRound(stocks, -1);
+	}
+
+	/**
+	 * Starts a round with the input stocks and sets a timer to stop the round after
+	 * roundLength seconds.
+	 *
+	 * @param stocks
+	 * @param roundLength
+	 * @return
+	 */
+	public synchronized boolean startRound(List<Stock> stocks, int roundLength) {
+		if (open) {
+			System.err.println("Failed to start round: a round is already in progress.");
+			return false;
 		}
-		this.open = open;
+
+		if (stocks == null || stocks.size() == 0) {
+			System.err.println("Failed to start round: tried to start a round with no stocks.");
+			return false;
+		}
+		// Clear orders and orderbooks.
+		orderBooks.clear();
+		orders.clear();
+		// TODO: traders isn't cleared properly.
+		// TODO: players isn't cleared properly, all players in the lifetime of the program are kept.
+		// We could either require all players to register each round, or track if they submitted an
+		// order the previous round.
+
+		// Reset the portfolio/cash of all traders.
+		traders.values().forEach(trader -> trader.reset());
+
+		// Add new orderbooks.
+		String stockString = "";
+		for (Stock stock : stocks) {
+			orderBooks.put(stock.getSymbol(), new OrderBook(stock));
+			stockString += stock.getSymbol() + " ";
+		}
+
+		startTime = System.currentTimeMillis();
+		endTime = System.currentTimeMillis();
+
+		// Set timer to stop the round if roundLength is greater than 0.
+		if (roundLength > 0) {
+			endTime = startTime + 1000 * roundLength;
+
+			Timer endTimer = new Timer();
+			Date endDate = new Date();
+			endDate.setTime(endDate.getTime() + 1000 * roundLength);
+			endTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					endRound();
+				}
+			}, endDate);
+		}
+
+		// Set the status of the exchange to open.
+		open = true;
+
+		System.out.format(
+				"Exchange started at %s.\n" +
+						"Available stocks: %s\n" +
+						"Round length: %s seconds\n",
+				getFormattedTime(startTime), stockString, roundLength > 0 ? roundLength : "unknown");
+		return true;
+	}
+
+	/**
+	 * Ends a round in the exchange.
+	 * If the exchange already has a timer set to automatically end the round, returns false.
+	 *
+	 * @return
+	 */
+	public synchronized boolean endRound() {
+		if (!open) {
+			System.err.println("Failed to end round: no round is in progress.");
+			return false;
+		} else if (endTime > System.currentTimeMillis()) {
+			// TODO: More informative output on endtime.
+			System.err.println("Failed to end round: round will automatically end.");
+			return false;
+		}
+		lastRoundUptime = System.currentTimeMillis() - startTime;
+		System.out.println("Round ended.");
+		open = false;
+		return true;
 	}
 
 	/**
@@ -193,15 +250,12 @@ public class Exchange {
 	 */
 	public synchronized boolean addOrder(Order order) {
 		if (!isOpen()) {
-			if (DEBUG) {
-				System.err.println("Can't add order. The exchange is closed.");
-			}
+			debugPrint("Can't add order. The exchange is closed.", 3);
 			return false;
 		}
-		// TODO: should return exception with a message, discuss.
 		if (!validateOrder(order)) {
-			System.err.println("Invalid order " + " - " + traders.get(order.getId()).getName() +
-					" - "  + order);
+			debugErrPrint("Invalid order " + " - " + traders.get(order.getId()).getName() +
+					" - "  + order, 2);
 			return false;
 		}
 		OrderBook ob = orderBooks.get(order.getStock().getSymbol());
@@ -210,25 +264,27 @@ public class Exchange {
 		if (order instanceof BuyOrder) {
 			BuyOrder bo = (BuyOrder) order;
 			if (bo.getShares() > trader.maxCanBuy(order.getStock(), order.getPrice())) {
-				if (DEBUG) {
-					System.err.format("%s does not have enough cash to buy %s\n", trader.getName(), order);
-				}
+				debugErrPrint(String.format(
+						"%s does not have enough cash to buy %s",
+						trader.getName(), order));
 				return false;
 			}
 			orders.put(order.getOrderNum(), order);
 			trader.addPendingOrder(bo);
 			ob.addOrder(bo);
+			debugPrint("Added order: " + order, 5);
 		} else if (order instanceof SellOrder) {
 			SellOrder so = (SellOrder) order;
 			if (so.getShares() > trader.maxCanSell(order.getStock())) {
-				if (DEBUG) {
-					System.err.format("%s does not have enough shares to sell %s\n", trader.getName(), order);
-				}
+				debugErrPrint(String.format(
+						"%s does not have enough shares to sell %s",
+							trader.getName(), order));
 				return false;
 			}
 			orders.put(order.getOrderNum(), order);
 			trader.addPendingOrder(so);
 			ob.addOrder(so);
+			debugPrint("Added order : " + order, 5);
 		} else {
 			System.err.println("Unimplemented order type: " + order.getClass());
 			return false;
@@ -337,7 +393,7 @@ public class Exchange {
 			int sizeFilled = Math.min(bo.getShares(), so.getShares());
 			long price = bo.getTime() < so.getTime() ? bo.getPrice() : so.getPrice();
 
-			//System.out.println("Matched orders: " + bo + " " + so);
+			debugPrint("Matched orders: " + bo + " " + so, 5);
 
 			bo.getStock().addVolume(sizeFilled);
 			bo.getStock().setLastTransactionPrice(price);
@@ -522,5 +578,25 @@ public class Exchange {
 	 */
 	public synchronized OrderBook getOrderBook(String symbol) {
 		return orderBooks.get(symbol);
+	}
+
+	private void debugPrint(String s) {
+		debugPrint(s, 1);
+	}
+
+	private void debugPrint(String s, int level) {
+		if (DEBUG && DEBUG_LEVEL >= level) {
+			System.out.println(s);
+		}
+	}
+
+	private void debugErrPrint(String s) {
+		debugErrPrint(s, 1);
+	}
+
+	private void debugErrPrint(String s, int level) {
+		if (DEBUG && DEBUG_LEVEL >= level) {
+			System.err.println(s);
+		}
 	}
 }

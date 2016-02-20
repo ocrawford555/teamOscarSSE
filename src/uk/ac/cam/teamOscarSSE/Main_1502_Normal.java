@@ -39,7 +39,7 @@ public class Main_1502_Normal {
 		lb = new LeaderBoard(players);
 
 		//create the exchange
-		exchange = new Exchange(stocks);
+		exchange = new Exchange();
 
 		// TODO: temporary modification
 		try {
@@ -57,7 +57,7 @@ public class Main_1502_Normal {
 		}
 
 		// Open the exchange
-		exchange.setOpen(true);
+		exchange.startRound(stocks);
 	}
 
 	public static void testExchange() {
@@ -108,7 +108,7 @@ public class Main_1502_Normal {
 			}
 		}
 
-		exchange.setOpen(false);
+		exchange.endRound();
 
 		lb.update();
 
