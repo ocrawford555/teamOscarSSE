@@ -1,5 +1,11 @@
 package uk.ac.cam.teamOscarSSE;
 
+import uk.ac.cam.teamOscarSSE.server.*;
+import uk.ac.cam.teamOscarSSE.server.bots.GeneralBot;
+import uk.ac.cam.teamOscarSSE.server.bots.GodBot;
+import uk.ac.cam.teamOscarSSE.server.bots.MarketMaker;
+import uk.ac.cam.teamOscarSSE.server.bots.PriceMovingBot;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;

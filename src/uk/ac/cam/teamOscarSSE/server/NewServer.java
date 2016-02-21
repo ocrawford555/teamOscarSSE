@@ -1,4 +1,9 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
+
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,11 +12,6 @@ import java.net.InetSocketAddress;
 import java.nio.charset.MalformedInputException;
 import java.util.List;
 import java.util.Map;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
 public class NewServer {
 	

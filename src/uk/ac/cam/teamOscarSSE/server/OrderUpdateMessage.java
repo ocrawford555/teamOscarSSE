@@ -1,6 +1,5 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
 
-// TODO (stella): rename class
 public class OrderUpdateMessage extends OrderChangeMessage {
 	int size;
 	long price;

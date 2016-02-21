@@ -1,4 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
 
 import java.util.ArrayList;
 import java.util.List;

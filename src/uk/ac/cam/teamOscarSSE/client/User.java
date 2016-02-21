@@ -1,4 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.client;
 
 // Make users write their code to buy and at what volume in Main method and initialise and call user class to run code 
 public class User {

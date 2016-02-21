@@ -1,12 +1,12 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class OrderBook {
-	final List<BuyOrder> buys = new ArrayList<>();
-	final List<SellOrder> sells = new ArrayList<>();
+	private final List<BuyOrder> buys = new ArrayList<>();
+	private final List<SellOrder> sells = new ArrayList<>();
 	private Stock s;
 	public OrderBook(Stock s) {
 		this.s = s;
@@ -86,6 +86,14 @@ public class OrderBook {
 					} else break;
 				}
 			}
+	}
+
+	public List<BuyOrder> getBuys() {
+		return buys;
+	}
+
+	public List<SellOrder> getSells() {
+		return sells;
 	}
 
 }

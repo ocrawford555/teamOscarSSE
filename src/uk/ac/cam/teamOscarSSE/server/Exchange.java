@@ -1,4 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -381,14 +381,14 @@ public class Exchange {
 	 * @param ob
 	 */
 	private synchronized void matchOrders(OrderBook ob) {
-		if (ob.buys.size() == 0 || ob.sells.size() == 0) {
+		if (ob.getBuys().size() == 0 || ob.getSells().size() == 0) {
 			// Not possible to match.
 			return;
 		}
 
-		BuyOrder bo = ob.buys.get(0);
-		SellOrder so = ob.sells.get(0);
-		while (ob.buys.size() > 0 && ob.sells.size() > 0 && bo.getPrice() >= so.getPrice()) {
+		BuyOrder bo = ob.getBuys().get(0);
+		SellOrder so = ob.getSells().get(0);
+		while (ob.getBuys().size() > 0 && ob.getSells().size() > 0 && bo.getPrice() >= so.getPrice()) {
 			// Match order
 			int sizeFilled = Math.min(bo.getShares(), so.getShares());
 			long price = bo.getTime() < so.getTime() ? bo.getPrice() : so.getPrice();
@@ -412,8 +412,8 @@ public class Exchange {
 				// Order filled, remove from order book.
 				ob.removeOrder(bo);
 				orders.remove(bo.getOrderNum());
-				if (ob.buys.size() > 0) {
-					bo = ob.buys.get(0);
+				if (ob.getBuys().size() > 0) {
+					bo = ob.getBuys().get(0);
 				}
 			}
 
@@ -421,8 +421,8 @@ public class Exchange {
 				// Order filled, remove from order book.
 				ob.removeOrder(so);
 				orders.remove(so.getOrderNum());
-				if (ob.sells.size() > 0) {
-					so = ob.sells.get(0);
+				if (ob.getSells().size() > 0) {
+					so = ob.getSells().get(0);
 				}
 			}
 		}

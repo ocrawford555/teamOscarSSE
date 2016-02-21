@@ -1,8 +1,8 @@
 package uk.ac.cam.teamOscarSSE.testing;
 
-import uk.ac.cam.teamOscarSSE.Exchange;
-import uk.ac.cam.teamOscarSSE.NewServer;
-import uk.ac.cam.teamOscarSSE.Stock;
+import uk.ac.cam.teamOscarSSE.server.Exchange;
+import uk.ac.cam.teamOscarSSE.server.NewServer;
+import uk.ac.cam.teamOscarSSE.server.Stock;
 
 import java.io.IOException;
 import java.util.ArrayList;

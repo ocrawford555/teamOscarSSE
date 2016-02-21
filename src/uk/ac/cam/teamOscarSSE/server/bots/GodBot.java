@@ -1,4 +1,6 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server.bots;
+
+import uk.ac.cam.teamOscarSSE.server.*;
 
 /**
  * GodBot is all knowing and all powerful and controls the world.
@@ -33,7 +35,7 @@ public class GodBot extends Bot implements Runnable {
 		computeNewPrice();
 		OrderBook ob = exchange.getOrderBook(stock.getSymbol());
 		int numToSell = 0;
-		for (BuyOrder bo : ob.buys) {
+		for (BuyOrder bo : ob.getBuys()) {
 			if (bo.getPrice() > price * (1.0 + liquidity_factor)) {
 				numToSell += bo.getShares();
 			} else {
@@ -49,7 +51,7 @@ public class GodBot extends Bot implements Runnable {
 		submitOrder(new SellOrder(stock, this, stock.getStockQty() / 4, price));
 
 		int numToBuy = 0;
-		for (SellOrder so : ob.sells) {
+		for (SellOrder so : ob.getSells()) {
 			if (so.getPrice() < price * (1 - liquidity_factor)) {
 				numToBuy += so.getShares();
 			} else {

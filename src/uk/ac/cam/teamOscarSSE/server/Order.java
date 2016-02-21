@@ -1,4 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
 
 public abstract class Order {
 	//stock whose order book this object will belong to
@@ -9,18 +9,14 @@ public abstract class Order {
 
 	//identifying party who placed order
 	private final String id;
-
-	//number of shares
-	private int shares;
-
-	//price that buyer/seller asking for
-	private long price;
-
 	//unique order number
 	private final long orderNum;
-
 	//time of order
 	private final long time;
+	//number of shares
+	private int shares;
+	//price that buyer/seller asking for
+	private long price;
 
 	Order(OrderType type, String playerToken, Stock stock, int size, long price) {
 		this.orderType = type;
@@ -48,6 +44,10 @@ public abstract class Order {
 		return price;
 	}
 
+	public void setPrice(long price) {
+		this.price = price;
+	}
+
 	public long getOrderNum() {
 		return orderNum;
 	}
@@ -62,10 +62,6 @@ public abstract class Order {
 
 	public OrderType getOrderType() {
 		return orderType;
-	}
-
-	public void setPrice(long price) {
-		this.price = price;
 	}
 
 	public String toString() {

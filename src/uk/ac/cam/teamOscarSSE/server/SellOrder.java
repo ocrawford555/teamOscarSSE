@@ -1,4 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
 
 public class SellOrder extends Order implements Comparable<SellOrder> {
 	public SellOrder(Stock s, Trader p, int numShares, long price) {

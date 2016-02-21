@@ -1,4 +1,6 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
+
+import uk.ac.cam.teamOscarSSE.server.bots.*;
 
 import java.io.IOException;
 import java.util.ArrayList;

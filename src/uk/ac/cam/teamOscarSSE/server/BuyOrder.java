@@ -1,19 +1,19 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
 
-public class BuyToCoverOrder extends Order implements Comparable<BuyToCoverOrder> {
-	public BuyToCoverOrder(Stock s, Trader p, int numShares, long price) {
-		super(OrderType.BUY_TO_COVER, p.getToken(), s, numShares, price);
+public class BuyOrder extends Order implements Comparable<BuyOrder> {
+	public BuyOrder(Stock s, Trader p, int numShares, long price) {
+		super(OrderType.BUY, p.getToken(), s, numShares, price);
 	}
 
 	@Override
 	/**
-	 * Compare method makes sure that all buy to cover orders
+	 * Compare method makes sure that all buy orders
 	 * that are added to the order book are in the correct
 	 * order - i.e. the buys with the highest price are
 	 * at the top of the order book, with ties broken
 	 * on which order arrived first.
 	 */
-	public int compareTo(BuyToCoverOrder buyO) {
+	public int compareTo(BuyOrder buyO) {
 		if (this.getPrice() < buyO.getPrice()) return 1;
 		else if (this.getPrice() > buyO.getPrice()) return -1;
 		else {

@@ -1,4 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.client;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

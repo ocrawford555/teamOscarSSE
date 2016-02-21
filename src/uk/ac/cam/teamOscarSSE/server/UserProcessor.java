@@ -1,4 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.server;
 
 import com.sun.net.httpserver.Headers;
 import org.json.JSONArray;
@@ -135,8 +135,8 @@ public class UserProcessor {
 	private static String orderbook(Exchange exchange,
 											   String symbol) {
 		OrderBook orderbook = exchange.getOrderBook(symbol);
-		List<BuyOrder> buys = orderbook.buys;
-		List<SellOrder> sells = orderbook.sells;
+		List<BuyOrder> buys = orderbook.getBuys();
+		List<SellOrder> sells = orderbook.getSells();
 		List<JSONObject> buyjson = new ArrayList<JSONObject>();
 		List<JSONObject> selljson = new ArrayList<JSONObject>();
 		for (BuyOrder order : buys) {
