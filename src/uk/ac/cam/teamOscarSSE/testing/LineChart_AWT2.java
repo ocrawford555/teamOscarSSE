@@ -1,6 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
-
-import java.util.List;
+package uk.ac.cam.teamOscarSSE.testing;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -11,6 +9,8 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
+
+import java.util.List;
 
 /**
  *  Display on a line graph the balances of the players
@@ -42,11 +42,21 @@ public class LineChart_AWT2 extends ApplicationFrame
 		setContentPane( chartPanel );
 	}
 
+	public static void main(String[] args) {
+		LineChart_AWT2 chart = new LineChart_AWT2(
+				"stock_Prices",
+				"Balance of Players at end of round.");
+
+		chart.pack();
+		RefineryUtilities.centerFrameOnScreen(chart);
+		chart.setVisible(true);
+	}
+
 	private DefaultCategoryDataset createDataset( )
 	{
 		long PL1 = 0;
 		long PL2 = 0;
-		
+
 		Main_1502_Normal.main(null);
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset( );
 
@@ -76,22 +86,22 @@ public class LineChart_AWT2 extends ApplicationFrame
 				dataset.addValue(valueNew, "Bob/Nor", String.valueOf(i));
 			}
 		}
-		
-		try {	
+
+		try {
 			Thread.sleep(3000);
 			System.out.println("");
 			System.out.println("");
 			System.out.println("STATS FROM ROUND 1 (Normal):");
 			System.out.println("Final Stock Price: " + Main_1502_Normal.stocks.get(0).getStockPrice());
-			PL1 += Main_1502_Normal.players.get(0).getBalance() - 
+			PL1 += Main_1502_Normal.players.get(0).getBalance() -
 					Main_1502_Normal.players.get(0).getStartingCash();
-			PL2 += Main_1502_Normal.players.get(1).getBalance() - 
+			PL2 += Main_1502_Normal.players.get(1).getBalance() -
 					Main_1502_Normal.players.get(1).getStartingCash();
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		Main_1502_Boom.main(null);
 
 		i = 0;
@@ -120,16 +130,16 @@ public class LineChart_AWT2 extends ApplicationFrame
 				dataset.addValue(valueNew, "Bob/Boom", String.valueOf(i));
 			}
 		}
-		
+
 		try {
 			Thread.sleep(3000);
 			System.out.println("");
 			System.out.println("");
 			System.out.println("STATS FROM ROUND 2 (Boom):");
 			System.out.println("Final Stock Price: " + Main_1502_Boom.stocks.get(0).getStockPrice());
-			PL1 += Main_1502_Boom.players.get(0).getBalance() - 
+			PL1 += Main_1502_Boom.players.get(0).getBalance() -
 					Main_1502_Boom.players.get(0).getStartingCash();
-			PL2 += Main_1502_Boom.players.get(1).getBalance() - 
+			PL2 += Main_1502_Boom.players.get(1).getBalance() -
 					Main_1502_Boom.players.get(1).getStartingCash();
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
@@ -164,16 +174,16 @@ public class LineChart_AWT2 extends ApplicationFrame
 				dataset.addValue(valueNew, "Bob/Rec", String.valueOf(i));
 			}
 		}
-		
-		try {	
+
+		try {
 			Thread.sleep(3000);
 			System.out.println("");
 			System.out.println("");
 			System.out.println("STATS FROM ROUND 3 (Recession):");
 			System.out.println("Final Stock Price: " + Main_1502_Recession.stocks.get(0).getStockPrice());
-			PL1 += Main_1502_Recession.players.get(0).getBalance() - 
+			PL1 += Main_1502_Recession.players.get(0).getBalance() -
 					Main_1502_Recession.players.get(0).getStartingCash();
-			PL2 += Main_1502_Recession.players.get(1).getBalance() - 
+			PL2 += Main_1502_Recession.players.get(1).getBalance() -
 					Main_1502_Recession.players.get(1).getStartingCash();
 			System.out.println("");
 			System.out.println("");
@@ -187,16 +197,5 @@ public class LineChart_AWT2 extends ApplicationFrame
 
 
 		return dataset;
-	}
-
-	public static void main( String[ ] args ) 
-	{
-		LineChart_AWT2 chart = new LineChart_AWT2(
-				"stock_Prices" ,
-				"Balance of Players at end of round.");
-
-		chart.pack( );
-		RefineryUtilities.centerFrameOnScreen( chart );
-		chart.setVisible( true );
 	}
 }

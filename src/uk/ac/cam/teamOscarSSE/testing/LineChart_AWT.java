@@ -1,7 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
-
-import java.awt.Color;
-import java.util.List;
+package uk.ac.cam.teamOscarSSE.testing;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -12,6 +9,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
+
+import java.awt.*;
+import java.util.List;
 
 /**
  *  Display on a line graph the price of the stock
@@ -43,6 +43,16 @@ public class LineChart_AWT extends ApplicationFrame
 		setContentPane( chartPanel );
 	}
 
+	public static void main(String[] args) {
+		LineChart_AWT chart = new LineChart_AWT(
+				"stock_Prices",
+				"Stock Movement of BAML.");
+
+		chart.pack();
+		RefineryUtilities.centerFrameOnScreen(chart);
+		chart.setVisible(true);
+	}
+
 	private DefaultCategoryDataset createDataset( )
 	{
 		Main_1502_Recession.main(null);
@@ -61,7 +71,7 @@ public class LineChart_AWT extends ApplicationFrame
 				dataset.addValue(valueNew, "Recession", String.valueOf(i));
 			}
 		}
-		
+
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -91,7 +101,7 @@ public class LineChart_AWT extends ApplicationFrame
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		Main_1502_Boom.main(null);
 
 		i = 0;
@@ -108,16 +118,5 @@ public class LineChart_AWT extends ApplicationFrame
 			}
 		}
 		return dataset;
-	}
-
-	public static void main( String[ ] args ) 
-	{
-		LineChart_AWT chart = new LineChart_AWT(
-				"stock_Prices" ,
-				"Stock Movement of BAML.");
-
-		chart.pack( );
-		RefineryUtilities.centerFrameOnScreen( chart );
-		chart.setVisible( true );
 	}
 }

@@ -1,8 +1,5 @@
 package uk.ac.cam.teamOscarSSE.testing;
 
-import uk.ac.cam.teamOscarSSE.FairPriceGuess;
-import uk.ac.cam.teamOscarSSE.PennyingAlgo;
-import uk.ac.cam.teamOscarSSE.RandomTrading;
 import uk.ac.cam.teamOscarSSE.client.UserFrameServer;
 import uk.ac.cam.teamOscarSSE.server.*;
 import uk.ac.cam.teamOscarSSE.server.bots.BoomBot;
