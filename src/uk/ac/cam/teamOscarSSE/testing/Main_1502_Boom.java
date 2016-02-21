@@ -1,27 +1,30 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.testing;
 
-import uk.ac.cam.teamOscarSSE.server.Exchange;
-import uk.ac.cam.teamOscarSSE.server.LeaderBoard;
-import uk.ac.cam.teamOscarSSE.server.Player;
-import uk.ac.cam.teamOscarSSE.server.Stock;
+import uk.ac.cam.teamOscarSSE.FairPriceGuess;
+import uk.ac.cam.teamOscarSSE.PennyingAlgo;
+import uk.ac.cam.teamOscarSSE.RandomTrading;
+import uk.ac.cam.teamOscarSSE.client.UserFrameServer;
+import uk.ac.cam.teamOscarSSE.server.*;
+import uk.ac.cam.teamOscarSSE.server.bots.BoomBot;
 import uk.ac.cam.teamOscarSSE.server.bots.GeneralBot;
 import uk.ac.cam.teamOscarSSE.server.bots.MarketMaker;
 import uk.ac.cam.teamOscarSSE.server.bots.PriceMovingBot;
-import uk.ac.cam.teamOscarSSE.server.bots.RecessionBot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Main_1502_Recession {
+public class Main_1502_Boom {
 	static public List<Long> prices = new LinkedList<Long>();
 	static public List<Long> balA = new LinkedList<Long>();
 	static public List<Long> balB = new LinkedList<Long>();
-	//have these as static -- only need one copy
 	static ArrayList<Stock> stocks = new ArrayList<Stock>();
 	static ArrayList<Player> players = new ArrayList<Player>();
 	static Exchange exchange;
 	static LeaderBoard lb;
+	// The number of simulation steps.
+	private static int NUM_SIM_STEPS = 600;
 
 	public static void open() {
 		//create and add stocks
@@ -41,19 +44,54 @@ public class Main_1502_Recession {
 		Player Bob = new Player("Bob", "B");
 		players.add(Bob);
 
+		Player Cath = new Player("Cath", "C");
+		players.add(Cath);
+
 		//create the leader board
 		lb = new LeaderBoard(players);
 
 		//create the exchange
 		exchange = new Exchange();
 
+		// TODO: temporary modification
+		try {
+			NewServer.start(8080, exchange);
+		} catch (IOException e) {
+			System.out.println("Failed to start the server.");
+			e.printStackTrace();
+			return;
+		}
+
+
+		UserFrameServer[] users = new UserFrameServer[6];
+		users[0] = new UserFrameServer("Oliver");
+//		users[1] = new UserFrameServer("Stella");
+//		users[2] = new UserFrameServer("Liam");
+//		users[3] = new UserFrameServer("Akkash");
+//		users[4] = new UserFrameServer("Nathanael");
+//		users[5] = new UserFrameServer("Adam");
+
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		//add the players to the exchange
 		for (Player player : players) {
 			exchange.addPlayer(player);
 		}
 
+		Thread[] threads = new Thread[6];
+		for(int i = 0; i<users.length; i++){
+			threads[i] = new Thread(users[i]);
+			threads[i].start();
+		}
+
 		// Open the exchange
 		exchange.startRound(stocks);
+
 	}
 
 	public static void testExchange() {
@@ -64,6 +102,9 @@ public class Main_1502_Recession {
 		Thread user1 = new Thread(penny);
 		RandomTrading random = new RandomTrading(exchange,stocks,players);
 		Thread user2 = new Thread(random);
+		FairPriceGuess fpg = new FairPriceGuess(exchange,stocks,players);
+		Thread user3 = new Thread(fpg);
+
 
 		//include a non-aggressive market maker to just set up some orders, and then
 		//add some orders to the order book occasionally - not in the game for
@@ -77,25 +118,26 @@ public class Main_1502_Recession {
 		//price moving bot
 		PriceMovingBot pmb = new PriceMovingBot(exchange,stocks.get(0));
 
-		//recession bot
-		RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
+		//boom bot
+		BoomBot bb = new BoomBot(exchange,stocks.get(0));
 
 		Thread marketM = new Thread(mm);
 		Thread generalBot = new Thread(gb);
 		Thread priceMover = new Thread(pmb);
-		Thread recession = new Thread(rb);
+		Thread boomBot = new Thread(bb);
 
 		//start the trading
 		user1.start();
 		user2.start();
+		user3.start();
 		marketM.start();
 		//generalBot.start();
-		recession.start();
 		priceMover.start();
+		boomBot.start();
 
-		for(int j=0; j<120; j++){
+		for(int j=0; j< NUM_SIM_STEPS; j++){
 			try {
-				Thread.sleep(75);
+				Thread.sleep(50);
 				prices.add(stocks.get(0).getPointAvg().get(20));
 				balA.add(players.get(0).getBalance());
 				balB.add(players.get(1).getBalance());
@@ -105,26 +147,7 @@ public class Main_1502_Recession {
 		}
 
 		exchange.endRound();
-
 		lb.update();
-
-		System.out.println("");
-		System.out.println("");
-		System.out.println("--- ROUND OVER ---");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("Final Portfolio Contents");
-		
-		for(Player px:players) {
-			System.out.println(px.getName() + " ");
-			px.getPortfolio().contents();
-		}
-		
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		lb.get();
-
 	}
 
 	public static void main(String args[]) {

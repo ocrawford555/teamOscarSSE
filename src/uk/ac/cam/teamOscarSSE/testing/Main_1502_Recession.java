@@ -1,16 +1,21 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.testing;
 
+import uk.ac.cam.teamOscarSSE.PennyingAlgo;
+import uk.ac.cam.teamOscarSSE.RandomTrading;
 import uk.ac.cam.teamOscarSSE.server.Exchange;
 import uk.ac.cam.teamOscarSSE.server.LeaderBoard;
 import uk.ac.cam.teamOscarSSE.server.Player;
 import uk.ac.cam.teamOscarSSE.server.Stock;
-import uk.ac.cam.teamOscarSSE.server.bots.*;
+import uk.ac.cam.teamOscarSSE.server.bots.GeneralBot;
+import uk.ac.cam.teamOscarSSE.server.bots.MarketMaker;
+import uk.ac.cam.teamOscarSSE.server.bots.PriceMovingBot;
+import uk.ac.cam.teamOscarSSE.server.bots.RecessionBot;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Main_1502 {
+public class Main_1502_Recession {
 	static public List<Long> prices = new LinkedList<Long>();
 	static public List<Long> balA = new LinkedList<Long>();
 	static public List<Long> balB = new LinkedList<Long>();
@@ -66,7 +71,7 @@ public class Main_1502 {
 		//add some orders to the order book occasionally - not in the game for
 		//profit -> this bot is simulating normal consumers looking to buy and 
 		//sell stocks.
-		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),100,100,200);
+		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),50,50,200);
 
 		//general bot in play for simplification only
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
@@ -74,36 +79,25 @@ public class Main_1502 {
 		//price moving bot
 		PriceMovingBot pmb = new PriceMovingBot(exchange,stocks.get(0));
 
-		//boom bot
-		BoomBot bb = new BoomBot(exchange,stocks.get(0));
-
 		//recession bot
 		RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
-
-		//add God bot
-		GodBot god = new GodBot(exchange,stocks.get(0));
 
 		Thread marketM = new Thread(mm);
 		Thread generalBot = new Thread(gb);
 		Thread priceMover = new Thread(pmb);
-		//Thread boomBot = new Thread(bb);
 		Thread recession = new Thread(rb);
-		Thread godly = new Thread(god);
-
 
 		//start the trading
 		user1.start();
 		user2.start();
 		marketM.start();
-		generalBot.start();
-		//recession.start();
+		//generalBot.start();
+		recession.start();
 		priceMover.start();
 
-		godly.start();
-
-		for(int j=0; j<100; j++){
+		for(int j=0; j<120; j++){
 			try {
-				Thread.sleep(100);
+				Thread.sleep(75);
 				prices.add(stocks.get(0).getPointAvg().get(20));
 				balA.add(players.get(0).getBalance());
 				balB.add(players.get(1).getBalance());
@@ -112,8 +106,8 @@ public class Main_1502 {
 			}
 		}
 
-
 		exchange.endRound();
+
 		lb.update();
 
 		System.out.println("");

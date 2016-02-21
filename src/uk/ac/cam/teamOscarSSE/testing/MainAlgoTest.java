@@ -1,4 +1,4 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.testing;
 
 import uk.ac.cam.teamOscarSSE.server.*;
 import uk.ac.cam.teamOscarSSE.server.bots.*;

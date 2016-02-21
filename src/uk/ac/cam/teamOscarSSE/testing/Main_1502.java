@@ -1,17 +1,18 @@
-package uk.ac.cam.teamOscarSSE;
+package uk.ac.cam.teamOscarSSE.testing;
 
-import uk.ac.cam.teamOscarSSE.server.*;
-import uk.ac.cam.teamOscarSSE.server.bots.GeneralBot;
-import uk.ac.cam.teamOscarSSE.server.bots.GodBot;
-import uk.ac.cam.teamOscarSSE.server.bots.MarketMaker;
-import uk.ac.cam.teamOscarSSE.server.bots.PriceMovingBot;
+import uk.ac.cam.teamOscarSSE.PennyingAlgo;
+import uk.ac.cam.teamOscarSSE.RandomTrading;
+import uk.ac.cam.teamOscarSSE.server.Exchange;
+import uk.ac.cam.teamOscarSSE.server.LeaderBoard;
+import uk.ac.cam.teamOscarSSE.server.Player;
+import uk.ac.cam.teamOscarSSE.server.Stock;
+import uk.ac.cam.teamOscarSSE.server.bots.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Main_1502_Normal {
+public class Main_1502 {
 	static public List<Long> prices = new LinkedList<Long>();
 	static public List<Long> balA = new LinkedList<Long>();
 	static public List<Long> balB = new LinkedList<Long>();
@@ -20,8 +21,6 @@ public class Main_1502_Normal {
 	static ArrayList<Player> players = new ArrayList<Player>();
 	static Exchange exchange;
 	static LeaderBoard lb;
-	// The number of simulation steps.
-	private static int NUM_SIM_STEPS = 100000;
 
 	public static void open() {
 		//create and add stocks
@@ -47,16 +46,6 @@ public class Main_1502_Normal {
 		//create the exchange
 		exchange = new Exchange();
 
-		// TODO: temporary modification
-		try {
-			NewServer.start(8080, exchange);
-		} catch (IOException e) {
-			System.out.println("Failed to start the server.");
-			e.printStackTrace();
-			return;
-		}
-
-
 		//add the players to the exchange
 		for (Player player : players) {
 			exchange.addPlayer(player);
@@ -79,7 +68,7 @@ public class Main_1502_Normal {
 		//add some orders to the order book occasionally - not in the game for
 		//profit -> this bot is simulating normal consumers looking to buy and 
 		//sell stocks.
-		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),50,50,200);
+		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),100,100,200);
 
 		//general bot in play for simplification only
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
@@ -87,25 +76,36 @@ public class Main_1502_Normal {
 		//price moving bot
 		PriceMovingBot pmb = new PriceMovingBot(exchange,stocks.get(0));
 
+		//boom bot
+		BoomBot bb = new BoomBot(exchange,stocks.get(0));
+
+		//recession bot
+		RecessionBot rb = new RecessionBot(exchange,stocks.get(0));
+
 		//add God bot
 		GodBot god = new GodBot(exchange,stocks.get(0));
 
 		Thread marketM = new Thread(mm);
 		Thread generalBot = new Thread(gb);
 		Thread priceMover = new Thread(pmb);
+		//Thread boomBot = new Thread(bb);
+		Thread recession = new Thread(rb);
 		Thread godly = new Thread(god);
+
 
 		//start the trading
 		user1.start();
 		user2.start();
 		marketM.start();
 		generalBot.start();
+		//recession.start();
 		priceMover.start();
+
 		godly.start();
 
-		for (int j = 0; j < NUM_SIM_STEPS; j++) {
+		for(int j=0; j<100; j++){
 			try {
-				Thread.sleep(75);
+				Thread.sleep(100);
 				prices.add(stocks.get(0).getPointAvg().get(20));
 				balA.add(players.get(0).getBalance());
 				balB.add(players.get(1).getBalance());
@@ -114,8 +114,8 @@ public class Main_1502_Normal {
 			}
 		}
 
-		exchange.endRound();
 
+		exchange.endRound();
 		lb.update();
 
 		System.out.println("");
@@ -134,7 +134,7 @@ public class Main_1502_Normal {
 		System.out.println("");
 		System.out.println("");
 		lb.get();
-		
+
 	}
 
 	public static void main(String args[]) {
