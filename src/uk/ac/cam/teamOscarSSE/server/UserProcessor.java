@@ -38,6 +38,7 @@ public class UserProcessor {
 			data.put("orderID", order.getOrderNum());
 		}
 		data.put("success", success);
+		data.put("roundStart", exchange.getRoundStart());
 		return convertMapToJSONString(data);
 	}
 
@@ -60,6 +61,7 @@ public class UserProcessor {
 				new HashMap<String, Object>();
 		boolean success = stock != null;
 		data.put("success", stock != null);
+		data.put("roundStart", exchange.getRoundStart());
 		if (stock != null) {
 			Order order = new SellOrder(stock, user, qty, price);
 			success = exchange.addOrder(order);
@@ -109,6 +111,7 @@ public class UserProcessor {
 		Map<String, Object> data =
 				new HashMap<String, Object>();
 		data.put("success", exchange.removeOrder(orderID));
+		data.put("roundStart", exchange.getRoundStart());
 		return convertMapToJSONString(data);
 	}
 
@@ -119,9 +122,10 @@ public class UserProcessor {
 	 * @return A HTTPReturnMessage with a list of available stock symbols in the data
 	 */
 	private static String stocks(Exchange exchange) {
-		Map<String, JSONArray> data =
-				new HashMap<String, JSONArray>();
+		Map<String, Object> data =
+				new HashMap<String, Object>();
 		data.put("stocks", new JSONArray(exchange.getStockSymbols()));
+		data.put("roundStart", exchange.getRoundStart());
 		return convertMapToJSONString(data);
 	}
 
@@ -154,6 +158,7 @@ public class UserProcessor {
 
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("success", true);
+		data.put("roundStart", exchange.getRoundStart());
 		data.put("symbol", symbol);
 		data.put("buy", new JSONArray(buyjson));
 		data.put("sell", new JSONArray(selljson));
@@ -172,6 +177,7 @@ public class UserProcessor {
 		Map<String, Object> data =
 				new HashMap<String, Object>();
 		data.put("success", stock != null);
+		data.put("roundStart", exchange.getRoundStart());
 
 		if (stock != null) {
 			data.put("symbol", stock.getSymbol());
@@ -190,7 +196,7 @@ public class UserProcessor {
 	 * @param user
 	 * @return A HTTPReturnMessage with the portfolio details in the data
 	 */
-	private static String portfolio(Player user) {
+	private static String portfolio(Exchange exchange, Player user) {
 		Portfolio pf = user.getPortfolio();
 		long balance = user.getBalance();
 		JSONObject stockOwned = new JSONObject(
@@ -198,6 +204,8 @@ public class UserProcessor {
 		JSONObject stockBorrowed = new JSONObject(
 				new JSONObject(pf.getBorrowedStock()));
 		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("success", true);
+		data.put("roundStart", exchange.getRoundStart());
 		data.put("balance", balance);
 		data.put("stockOwned", stockOwned);
 		data.put("stockBorrowed", stockBorrowed);
@@ -221,6 +229,7 @@ public class UserProcessor {
 		}
 		Map<String, Object> data =
 				new HashMap<String, Object>();
+		data.put("roundStart", exchange.getRoundStart());
 		data.put("elapsed time", exchange.getUptime());
 		data.put("remaining time", exchange.getRemainingTime());
 		data.put("open", exchange.isOpen());
@@ -244,10 +253,11 @@ public class UserProcessor {
 		boolean success = exchange.addPlayer(user);
 
 		if (success) {
-			Map<String, String> data =
-					new HashMap<String, String>();
+			Map<String, Object> data =
+					new HashMap<String, Object>();
 			data.put("response", "User Created");
 			data.put("user-token", user.getToken());
+			data.put("roundStart", exchange.getRoundStart());
 			return convertMapToJSONString(data);
 		} else { //Created user's token already exists.
 			//At the moment the token is random, so should really just
@@ -347,7 +357,7 @@ public class UserProcessor {
 					return stock(exchange, components[2]);
 				case "portfolio": {
 					Player user = determinePlayer(exchange, data);
-					return portfolio(user);
+					return portfolio(exchange, user);
 				}
 				//Leaderboard case not used for now
 				case "leaderboard":

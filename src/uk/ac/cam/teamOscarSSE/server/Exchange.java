@@ -117,6 +117,15 @@ public class Exchange {
 	}
 
 	/**
+	 * Returns the timestamp of the last time a round was started.
+	 * 
+	 * @return
+	 */
+	public synchronized long getRoundStart() {
+		return startTime;
+	}
+	
+	/**
 	 * Starts a round with the input stocks.
 	 * <p>
 	 * The round has indefinite length and will continue until endRound is called.
@@ -345,7 +354,7 @@ public class Exchange {
 		Set<Long> orders = getPendingOrders(traderID).keySet();
 
 		// TODO: temporary
-		Set<Long> orders2 = new TreeSet(orders);
+		Set<Long> orders2 = new TreeSet<Long>(orders);
 
 		for (Long orderNum : orders2) {
 			if (!removeOrder(orderNum)) {
