@@ -27,6 +27,9 @@ public class Exchange {
 	// A map from trader ID to Trader participating in the exchange.
 	private Map<String, Trader> traders;
 
+	// A list of players who have (or attempted to) issue an order in the current/last round.
+	private Map<String, Player> activePlayers;
+
 	// A map from player ID to Player participating in the exchange.
 	// This is a subset of traders and is used to provide a method
 	// to access "human" players.
@@ -40,7 +43,7 @@ public class Exchange {
 
 	// The round's start time: set when the exchange changes state from closed to open.
 	private long startTime;
-	
+
 	// The round's end time: set when the exchange changes state from closed to open.
 	private long endTime;
 
@@ -52,6 +55,7 @@ public class Exchange {
 		traders = new HashMap<>();
 		orders = new HashMap<>();
 		players = new HashMap<>();
+		activePlayers = new HashMap<>();
 		open = false;
 		lastRoundUptime = 0;
 
@@ -114,8 +118,9 @@ public class Exchange {
 
 	/**
 	 * Starts a round with the input stocks.
-	 *
+	 * <p>
 	 * The round has indefinite length and will continue until endRound is called.
+	 *
 	 * @param stocks
 	 * @return
 	 */
@@ -144,6 +149,8 @@ public class Exchange {
 		// Clear orders and orderbooks.
 		orderBooks.clear();
 		orders.clear();
+
+		activePlayers.clear();
 		// TODO: traders isn't cleared properly.
 		// TODO: players isn't cleared properly, all players in the lifetime of the program are kept.
 		// We could either require all players to register each round, or track if they submitted an
@@ -257,11 +264,15 @@ public class Exchange {
 		}
 		if (!validateOrder(order)) {
 			debugErrPrint("Invalid order " + " - " + traders.get(order.getId()).getName() +
-					" - "  + order, 2);
+					" - " + order, 2);
 			return false;
 		}
 		OrderBook ob = orderBooks.get(order.getStock().getSymbol());
 		Trader trader = traders.get(order.getId());
+
+		if (trader instanceof Player && !activePlayers.containsKey(order.getId())) {
+			activePlayers.put(order.getId(), (Player) trader);
+		}
 
 		if (order instanceof BuyOrder) {
 			BuyOrder bo = (BuyOrder) order;
@@ -280,7 +291,7 @@ public class Exchange {
 			if (so.getShares() > trader.maxCanSell(order.getStock())) {
 				debugErrPrint(String.format(
 						"%s does not have enough shares to sell %s",
-							trader.getName(), order));
+						trader.getName(), order));
 				return false;
 			}
 			orders.put(order.getOrderNum(), order);
@@ -496,11 +507,20 @@ public class Exchange {
 	}
 
 	/**
-	 * Returns a collection of "human" players on the exchange.
+	 * Returns a collection of "human" players that issued a valid order in the current/last round.
 	 *
 	 * @return
 	 */
 	public synchronized Collection<Player> getPlayers() {
+		return activePlayers.values();
+	}
+
+	/**
+	 * Returns all players that have ever registered on the server.
+	 *
+	 * @return
+	 */
+	public synchronized Collection<Player> getAllPlayers() {
 		return players.values();
 	}
 
@@ -527,7 +547,7 @@ public class Exchange {
 			return lastRoundUptime;
 		}
 	}
-	
+
 	/**
 	 * Gets the remaining number of milliseconds for which the exchange will be running
 	 * If the exchange is closed, returns the 0.
