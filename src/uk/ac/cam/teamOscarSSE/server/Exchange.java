@@ -150,7 +150,9 @@ public class Exchange {
 		// order the previous round.
 
 		// Reset the portfolio/cash of all traders.
-		traders.values().forEach(trader -> trader.reset());
+		for (Trader trader : traders.values()) {
+			trader.reset();
+		}
 
 		// Add new orderbooks.
 		String stockString = "";
