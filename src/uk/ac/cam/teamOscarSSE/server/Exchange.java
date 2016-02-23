@@ -184,6 +184,8 @@ public class Exchange {
 			entry.getValue().reset();
 		}
 
+		activePlayers.clear();
+
 		// Add new orderbooks.
 		String stockString = "";
 		for (Stock stock : stocks) {
@@ -302,7 +304,7 @@ public class Exchange {
 		Trader trader = traders.get(order.getId());
 
 		if (trader instanceof Player && !activePlayers.containsKey(order.getId())) {
-			activePlayers.put(order.getId(), (Player) trader);
+			activePlayers.put(trader.getToken(), (Player) trader);
 		}
 
 		OrderChangeMessage ret = null;
