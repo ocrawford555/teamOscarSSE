@@ -141,6 +141,9 @@ public class Exchange {
 	 * Starts a round with the input stocks and sets a timer to stop the round after
 	 * roundLength seconds.
 	 *
+	 * This method removes all inactive players from the previous round from the
+	 * exchange.
+	 *
 	 * @param stocks
 	 * @param roundLength
 	 * @return
@@ -158,16 +161,14 @@ public class Exchange {
 		// Clear orders and orderbooks.
 		orderBooks.clear();
 		orders.clear();
+		traders.clear();
+		players.clear();
 
-		activePlayers.clear();
-		// TODO: traders isn't cleared properly.
-		// TODO: players isn't cleared properly, all players in the lifetime of the program are kept.
-		// We could either require all players to register each round, or track if they submitted an
-		// order the previous round.
-
-		// Reset the portfolio/cash of all traders.
-		for (Trader trader : traders.values()) {
-			trader.reset();
+		// Only add activePlayers from the previous round to the new round.
+		for (Map.Entry<String, Player> entry : activePlayers.entrySet()) {
+			traders.put(entry.getKey(), entry.getValue());
+			players.put(entry.getKey(), entry.getValue());
+			entry.getValue().reset();
 		}
 
 		// Add new orderbooks.
@@ -469,6 +470,7 @@ public class Exchange {
 		traders.put(trader.getToken(), trader);
 		if (trader instanceof Player) {
 			players.put(trader.getToken(), (Player) trader);
+			activePlayers.put(trader.getToken(), (Player) trader);
 		}
 		System.out.format("Welcome %s!\n", trader.getName());
 		return true;

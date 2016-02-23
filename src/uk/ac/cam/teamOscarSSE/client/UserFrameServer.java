@@ -181,25 +181,33 @@ public class UserFrameServer implements Runnable {
 	public int volumeToSell() {
 		return rand.nextInt(100) + 5;
 	}
-	
 
-	//TODO
-	public void submitBuyOrder() {
+
+	public boolean submitBuyOrder() {
 		String url = String.join("/", "buy", stockSym, Integer.toString(volumeToBuy()), Long.toString(priceToBuy()));
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
-		if(obj.getBoolean("success") == true)
+		if (obj.getBoolean("success") == true) {
 			buyOrders.add(obj.getInt("orderID"));
+			System.out.format("Order submitted: BUY %d of %s at %d\n", volumeToBuy(), stockSym, priceToBuy());
+			return true;
+		}
+		System.out.format("Failed to submit order\n");
+		return false;
+
 	}
 
-	//TODO
-	public void submitSellOrder() {
+	public boolean submitSellOrder() {
 		String url = String.join("/", "sell", stockSym, Integer.toString(volumeToSell()), Long.toString(priceToSell()));
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
 		if (obj.getBoolean("success") == true) {
 			sellOrders.add(obj.getInt("orderID"));
+			System.out.format("Order submitted: SELL %d of %s at %d\n", volumeToBuy(), stockSym, priceToBuy());
+			return true;
 		}
+		System.out.format("Failed to submit order\n");
+		return false;
 	}
 
 	public void getMonetaryMetrics(){
