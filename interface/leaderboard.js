@@ -115,7 +115,7 @@ const Graph = {
 		Graph.maxY = Graph.drawnBounds.maxY = Graph.drawnBounds.speed.maxY = null;
 		Graph.minY = Graph.drawnBounds.minY = Graph.drawnBounds.speed.minY = null;
 		for (const ID of Graph.histories.keys()) {
-			Ω(`span.identifier.hidden#label-${ID}`).remove();
+			body.querySelector(`#label-${ID}`).remove();
 		}
 		Graph.histories = new Map();
 		Graph.draw();
