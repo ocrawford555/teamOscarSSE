@@ -30,7 +30,7 @@ public class FinalServer {
 		}
 
 		// Open the exchange
-		exchange.startRound(stocks);
+		exchange.startRound(stocks, roundLength, timeBetweenRounds);
 	}
 
 	public static void testExchange(int scenario) {
@@ -106,7 +106,7 @@ public class FinalServer {
 			//off for debugging, useful for demo day and want to run
 			//different scenarios maybe??
 			//could automate this if we have time
-			boolean choice = true;
+			boolean choice = false;
 			
 			//default scenario is boom
 			int roundToPlay = 2;

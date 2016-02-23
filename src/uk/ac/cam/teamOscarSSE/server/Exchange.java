@@ -134,9 +134,9 @@ public class Exchange {
 	 * @return
 	 */
 	public synchronized boolean startRound(List<Stock> stocks) {
-		return startRound(stocks, -1);
+		return startRound(stocks, -1, -1);
 	}
-
+	
 	/**
 	 * Starts a round with the input stocks and sets a timer to stop the round after
 	 * roundLength seconds.
@@ -149,6 +149,19 @@ public class Exchange {
 	 * @return
 	 */
 	public synchronized boolean startRound(List<Stock> stocks, int roundLength) {
+		return startRound(stocks, roundLength, -1);
+	}
+
+	/**
+	 * Starts a round with the input stocks and sets a timer to stop the round after
+	 * roundLength seconds. After the round is over a count-down will be set indicating the time the next round will start.
+	 *
+	 * @param stocks
+	 * @param roundLength
+	 * @param timeBetweenRounds
+	 * @return
+	 */
+	public synchronized boolean startRound(List<Stock> stocks, int roundLength, int timeBetweenRounds) {
 		if (open) {
 			System.err.println("Failed to start round: a round is already in progress.");
 			return false;
@@ -192,6 +205,9 @@ public class Exchange {
 				@Override
 				public void run() {
 					endRound();
+					if (timeBetweenRounds >= 0) {
+						endTime = System.currentTimeMillis() + 1000 * timeBetweenRounds;
+					}
 				}
 			}, endDate);
 		}

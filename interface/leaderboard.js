@@ -9,6 +9,13 @@ const Leaderboard = {
 	object: Ω(`div.leaderboard`).append(Ω(`div.heading`).append(Ω(`div.position`).withText("Position")).append(Ω(`div.name`).withText("Name")).append(Ω(`div.score`).withText("Score"))).append(`div.entries`),
 	animated: false,
 	updates: 0,
+	reset () {
+		Leaderboard.updates = 0;
+		for (const entry of Leaderboard.positions.values()) {
+			entry.object.remove();
+		}
+		Leaderboard.positions = new Map();
+	},
 	update (timestamp, entries) {
 		let position = 0;
 		entries.sort((a, b) => b.score - a.score).forEach(entry => entry.position = position ++);
@@ -47,10 +54,10 @@ const Leaderboard = {
 							left: existingEntry.object.rect.right - existingEntry.object.querySelector(`.score`).rect.width / 2 + window.scrollX
 						}).appendedTo(body);
 						existingEntry.accumulatedProfit = 0;
+						window.setTimeout(() => {
+							differenceObject.remove();
+						}, 1.2 * 1000);
 					}
-					window.setTimeout(() => {
-						differenceObject.remove();
-					}, 1.2 * 1000);
 				}
 			}
 			Graph.addPoint(timestamp, entry.ID, entry.score);
@@ -104,6 +111,15 @@ const Graph = {
 	object: Ω(`canvas`),
 	temporary: Ω(`canvas`),
 	histories: new Map(),
+	reset () {
+		Graph.maxY = Graph.drawnBounds.maxY = Graph.drawnBounds.speed.maxY = null;
+		Graph.minY = Graph.drawnBounds.minY = Graph.drawnBounds.speed.minY = null;
+		for (const ID of Graph.histories.keys()) {
+			Ω(`span.identifier.hidden#label-${ID}`).remove();
+		}
+		Graph.histories = new Map();
+		Graph.draw();
+	},
 	addEntry (ID, name) {
 		Graph.histories.set(ID, new Map());
 		Ω(`span.identifier.hidden#label-${ID}`).withText(name).appendedTo(body);
@@ -342,6 +358,7 @@ window.addEventListener("DOMContentLoaded", () => {
 	}, false);
 
 	let begun = null;
+	let roundID = null;
 
 	const fetchLeaderboard = () => fetch("http://localhost:8080/leaderboard").then(response => {
 		if (response.ok) {
@@ -353,8 +370,15 @@ window.addEventListener("DOMContentLoaded", () => {
 			}).then(result => {
 				try {
 					const data = JSON.parse(result);
+					if (data["roundStart"] !== roundID) {
+						begun = null;
+						roundID = data["roundStart"];
+						Leaderboard.reset();
+						Graph.reset();
+					}
 					if (begun === null) {
 						begun = performance.now() - data["elapsed time"];
+						Leaderboard.halted = null;
 					}
 					const elapsedTime = data["elapsed time"] + begun;
 					const remainingTime = data["remaining time"];
@@ -370,7 +394,7 @@ window.addEventListener("DOMContentLoaded", () => {
 					Leaderboard.update(elapsedTime, players);
 					updateTime(!halted, Math.ceil(Math.abs(remainingTime) / 1000));
 				} catch (error) {
-					console.warn("The response received from the server was malformed.", data, error);
+					console.warn("The response received from the server was malformed.", result, error);
 				}
 			});
 		} else {
