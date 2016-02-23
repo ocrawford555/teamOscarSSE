@@ -161,7 +161,7 @@ public class Exchange {
 	 * @param timeBetweenRounds
 	 * @return
 	 */
-	public synchronized boolean startRound(List<Stock> stocks, int roundLength, int timeBetweenRounds) {
+	public synchronized boolean startRound(List<Stock> stocks, int roundLength, final int timeBetweenRounds) {
 		if (open) {
 			System.err.println("Failed to start round: a round is already in progress.");
 			return false;
