@@ -34,7 +34,19 @@ public class UserProcessor {
 		boolean success = stock != null;
 		if (stock != null) {
 			Order order = new BuyOrder(stock, user, qty, price);
-			success = exchange.addOrder(order);
+			OrderChangeMessage msg = exchange.addOrder(order);
+			if (msg.getType() == OrderChangeMessage.ChangeType.ACK) {
+				success = true;
+			} else {
+				success = false;
+			}
+
+			if (msg != null) {
+				data.put("message", msg.getMessage());
+			} else {
+				data.put("message", "");
+			}
+
 			data.put("orderID", order.getOrderNum());
 		}
 		data.put("success", success);
@@ -64,7 +76,18 @@ public class UserProcessor {
 		data.put("roundStart", exchange.getRoundStart());
 		if (stock != null) {
 			Order order = new SellOrder(stock, user, qty, price);
-			success = exchange.addOrder(order);
+			OrderChangeMessage msg = exchange.addOrder(order);
+			if (msg.getType() == OrderChangeMessage.ChangeType.ACK) {
+				success = true;
+			} else {
+				success = false;
+			}
+
+			if (msg != null) {
+				data.put("message", msg.getMessage());
+			} else {
+				data.put("message", "");
+			}
 			data.put("orderID", order.getOrderNum());
 		}
 		data.put("success", success);

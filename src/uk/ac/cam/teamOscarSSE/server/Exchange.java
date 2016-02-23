@@ -265,17 +265,22 @@ public class Exchange {
 	 * traders with insufficient funds/stocks.
 	 *
 	 * @param order
-	 * @return true if successful, false otherwise.
+	 * @return OrderChangeMessage with type set to FAIL if the order did not go
+	 * through, and set to ACK if the order was successfully added to the exechange.
 	 */
-	public synchronized boolean addOrder(Order order) {
+	public synchronized OrderChangeMessage addOrder(Order order) {
 		if (!isOpen()) {
 			debugPrint("Can't add order. The exchange is closed.", 3);
-			return false;
+			return new OrderChangeMessage(
+					OrderChangeMessage.ChangeType.FAIL,
+					order, "The exchange is closed.");
 		}
 		if (!validateOrder(order)) {
 			debugErrPrint("Invalid order " + " - " + traders.get(order.getId()).getName() +
 					" - " + order, 2);
-			return false;
+			return new OrderChangeMessage(
+					OrderChangeMessage.ChangeType.FAIL,
+					order, "The order was invalid.");
 		}
 		OrderBook ob = orderBooks.get(order.getStock().getSymbol());
 		Trader trader = traders.get(order.getId());
@@ -284,37 +289,52 @@ public class Exchange {
 			activePlayers.put(order.getId(), (Player) trader);
 		}
 
+		OrderChangeMessage ret = null;
+
 		if (order instanceof BuyOrder) {
 			BuyOrder bo = (BuyOrder) order;
 			if (bo.getShares() > trader.maxCanBuy(order.getStock(), order.getPrice())) {
 				debugErrPrint(String.format(
 						"%s does not have enough cash to buy %s",
 						trader.getName(), order));
-				return false;
+				return new OrderChangeMessage(
+						OrderChangeMessage.ChangeType.FAIL,
+						order, "Not enough cash to buy.");
 			}
 			orders.put(order.getOrderNum(), order);
 			trader.addPendingOrder(bo);
 			ob.addOrder(bo);
 			debugPrint("Added order: " + order, 5);
+			ret = new OrderChangeMessage(
+					OrderChangeMessage.ChangeType.ACK, order,
+					String.format("BUY %d %s at %d", order.getShares(),
+							order.getStock().getSymbol(), order.getPrice()));
 		} else if (order instanceof SellOrder) {
 			SellOrder so = (SellOrder) order;
 			if (so.getShares() > trader.maxCanSell(order.getStock())) {
 				debugErrPrint(String.format(
 						"%s does not have enough shares to sell %s",
 						trader.getName(), order));
-				return false;
+				return new OrderChangeMessage(
+						OrderChangeMessage.ChangeType.FAIL,
+						order, "Not enough shares to sell.");
 			}
 			orders.put(order.getOrderNum(), order);
 			trader.addPendingOrder(so);
 			ob.addOrder(so);
 			debugPrint("Added order : " + order, 5);
+			ret = new OrderChangeMessage(
+					OrderChangeMessage.ChangeType.ACK, order,
+					String.format("SELL %d %s at %d", order.getShares(),
+							order.getStock().getSymbol(), order.getPrice()));
 		} else {
 			System.err.println("Unimplemented order type: " + order.getClass());
-			return false;
+			return new OrderChangeMessage(
+					OrderChangeMessage.ChangeType.FAIL,
+					order, "The order was invalid.");
 		}
-
 		matchOrders(ob);
-		return true;
+		return ret;
 	}
 
 	/**

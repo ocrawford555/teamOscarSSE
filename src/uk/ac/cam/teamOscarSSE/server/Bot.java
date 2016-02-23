@@ -64,7 +64,11 @@ public abstract class Bot extends Trader implements Runnable {
 	 * @return
 	 */
 	public boolean submitOrder(Order order) {
-		return exchange.addOrder(order);
+		OrderChangeMessage msg = exchange.addOrder(order);
+		if (msg == null || msg.getType() == OrderChangeMessage.ChangeType.FAIL) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

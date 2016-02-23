@@ -5,9 +5,23 @@ public class OrderChangeMessage {
 	protected ChangeType type;
 	protected String debugMessage;
 	protected Order order;
-	OrderChangeMessage(ChangeType type, Order order) {
+
+	OrderChangeMessage(ChangeType type, Order order, String msg) {
 		this.type = type;
 		this.order = order;
+		this.debugMessage = msg;
+	}
+
+	OrderChangeMessage(ChangeType type, Order order) {
+		this(type, order, "");
+	}
+
+	public ChangeType getType() {
+		return type;
+	}
+
+	public String getMessage() {
+		return debugMessage;
 	}
 
 	@Override

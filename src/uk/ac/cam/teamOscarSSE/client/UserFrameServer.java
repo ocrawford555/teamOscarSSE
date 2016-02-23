@@ -187,12 +187,14 @@ public class UserFrameServer implements Runnable {
 		String url = String.join("/", "buy", stockSym, Integer.toString(volumeToBuy()), Long.toString(priceToBuy()));
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
+		String message = obj.getString("message");
 		if (obj.getBoolean("success") == true) {
 			buyOrders.add(obj.getInt("orderID"));
-			System.out.format("Order submitted: BUY %d of %s at %d\n", volumeToBuy(), stockSym, priceToBuy());
+			System.out.println("Order submitted: " + message);
+
 			return true;
 		}
-		System.out.format("Failed to submit order\n");
+		System.out.println("Failed to submit order: " + message);
 		return false;
 
 	}
@@ -201,12 +203,13 @@ public class UserFrameServer implements Runnable {
 		String url = String.join("/", "sell", stockSym, Integer.toString(volumeToSell()), Long.toString(priceToSell()));
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
+		String message = obj.getString("message");
 		if (obj.getBoolean("success") == true) {
 			sellOrders.add(obj.getInt("orderID"));
-			System.out.format("Order submitted: SELL %d of %s at %d\n", volumeToBuy(), stockSym, priceToBuy());
+			System.out.println("Order submitted: " + message);
 			return true;
 		}
-		System.out.format("Failed to submit order\n");
+		System.out.println("Failed to submit order: " + message);
 		return false;
 	}
 
