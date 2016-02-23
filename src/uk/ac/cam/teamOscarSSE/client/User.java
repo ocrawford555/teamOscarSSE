@@ -62,7 +62,5 @@ public class User {
 		
 		Thread user2 = new Thread(b);
 		user2.start();
-		
-		
 	}
 }

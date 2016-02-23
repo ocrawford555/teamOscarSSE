@@ -45,34 +45,34 @@ public class UserFrameServer implements Runnable {
 		token = (String) reJ.get("user-token");
 	}
 
-	public long getPointAvg(int i) {
+	protected final long getPointAvg(int i) {
 		if (i > 49 || i < 0) return 0;
 		else return pointAvg.get(i);
 	}
 
-	public long getOverallAvg() {
+	protected final long getOverallAvg() {
 		return overallAvg;
 	}
 
-	public long getTransactionAvg(int i) {
+	protected final long getTransactionAvg(int i) {
 		if (i>49 || i<0) return 0;
 		else return transactionAvg.get(i);
 	}
 
-	public float getRateOfChange(int i) {
+	protected final float getRateOfChange(int i) {
 		if (i>49 || i<0) return 0;
 		else return rateOfChange.get(i);
 	}
 
-	public long getCash() {
+	protected final long getCash() {
 		return cash;
 	}
 
-	public int getMaxBuy() {
+	protected final int getMaxBuy() {
 		return maxBuy;
 	}
-	
-	public int getMaxSell() {
+
+	protected final int getMaxSell() {
 		return maxSell;
 	}
 
@@ -82,7 +82,7 @@ public class UserFrameServer implements Runnable {
 	 * @param urlType
 	 * @return
 	 */
-	public String sendURLWithToken(String urlType, String type) {
+	private final String sendURLWithToken(String urlType, String type) {
 		return networkCom(urlType, "{\"user-token\": " + token + "}\n",type);
 	}
 
@@ -94,7 +94,7 @@ public class UserFrameServer implements Runnable {
 	 * @param type
 	 * @return
 	 */
-	public String networkCom(String urlType, String urlParameters, String type) {
+	private final String networkCom(String urlType, String urlParameters, String type) {
 		URL url;
 		HttpURLConnection connection = null;
 
@@ -142,17 +142,15 @@ public class UserFrameServer implements Runnable {
 		return null;
 	}
 
-	public boolean Buy(){
+	protected boolean Buy() {
 		return false;
 	}
 
-	public int volumeToBuy() {
+	protected int volumeToBuy() {
 		return rand.nextInt(100) + 5;
 	}
-	
-	
-	
-	public long priceToBuy() {
+
+	protected long priceToBuy() {
 		/*
 		int addExtraToBuy = 1;
 		if (cash > 10500000)
@@ -161,8 +159,8 @@ public class UserFrameServer implements Runnable {
 		*/
 		return stockPrice;
 	}
-	
-	public long priceToSell() {
+
+	protected long priceToSell() {
 		/*
 		int subExtraToSell = 1;
 		if (cash < 9500000)
@@ -172,18 +170,19 @@ public class UserFrameServer implements Runnable {
 		return stockPrice;
 	}
 
-	
-
-	public boolean Sell(){
+	protected boolean Sell() {
 		return false;
 	}
 
-	public int volumeToSell() {
+	protected int volumeToSell() {
 		return rand.nextInt(100) + 5;
 	}
 
 
-	public boolean submitBuyOrder() {
+	private final boolean submitBuyOrder() {
+		if (!Buy()) {
+			return false;
+		}
 		String url = String.join("/", "buy", stockSym, Integer.toString(volumeToBuy()), Long.toString(priceToBuy()));
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
@@ -199,7 +198,10 @@ public class UserFrameServer implements Runnable {
 
 	}
 
-	public boolean submitSellOrder() {
+	private final boolean submitSellOrder() {
+		if (!Sell()) {
+			return false;
+		}
 		String url = String.join("/", "sell", stockSym, Integer.toString(volumeToSell()), Long.toString(priceToSell()));
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
@@ -213,7 +215,7 @@ public class UserFrameServer implements Runnable {
 		return false;
 	}
 
-	public void getMonetaryMetrics(){
+	private final void getMonetaryMetrics() {
 		String url = "cash/BAML";
 		String ob = networkCom(url,
 				"{\"user-token\": " + token + "}\n", "GET");
@@ -229,7 +231,7 @@ public class UserFrameServer implements Runnable {
 	 *
 	 * @return
 	 */
-	public List<String> getStocks() {
+	private final List<String> getStocks() {
 		String url = "stocks";
 		String ob = sendURLWithToken(url, "GET");
 		JSONObject reJ = new JSONObject(ob);
@@ -251,7 +253,7 @@ public class UserFrameServer implements Runnable {
 	 *
 	 * @return
 	 */
-	public boolean updateStock(String symbol) {
+	private final boolean updateStock(String symbol) {
 		String url = "stock/" + symbol;
 		String ob = sendURLWithToken(url, "GET");
 		if (ob == null) return false;
@@ -285,9 +287,24 @@ public class UserFrameServer implements Runnable {
 		return true;
 	}
 
-	public void update() {
+	private final void update() {
 		getMonetaryMetrics();
 		updateStock(stockSym);
+	}
+
+	protected final long getBestBuyPrice() {
+		if (orderBuys == null || orderBuys.size() == 0) {
+			// TODO: Return something else?
+			return stockPrice;
+		}
+		return orderBuys.get(0).getLong("price");
+	}
+
+	protected final long getBestSellPrice() {
+		if (orderSells == null || orderSells.size() == 0) {
+			return stockPrice;
+		}
+		return orderSells.get(0).getLong("price");
 	}
 
 	
@@ -295,7 +312,7 @@ public class UserFrameServer implements Runnable {
 	 * Obtain order book from the exchange. Updates two lists
 	 * which player can then interpret in their own way.
 	 */
-	private void obtainOrderBook() {
+	private final void obtainOrderBook() {
 		String orderBook = networkCom("orderbook/BAML",
 				"{}\n", "GET");
 				
@@ -317,12 +334,10 @@ public class UserFrameServer implements Runnable {
 		
 		orderBuys = listBuys;
 		orderSells = listSells;
-		
-		
 	}
 
 	@Override
-	public void run() {
+	public final void run() {
 		//have an initial wait period until the server has
 		//started and running.
 		long startTime = System.currentTimeMillis();
