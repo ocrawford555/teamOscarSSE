@@ -15,6 +15,15 @@ public class FinalServer {
 	private static int NUM_SIM_STEPS = 600;
 	private static int roundLength = 30;
 	private static int timeBetweenRounds = 30;
+	
+	//Bot & Marketmaker threads
+	static Thread marketM;
+	static Thread generalBot;
+	static Thread recessionBot;
+	static Thread boomBot;
+	static Thread priceMover;
+	static Thread scBot;
+
 
 	public static void open() {
 		stocks.clear();
@@ -53,6 +62,12 @@ public class FinalServer {
 
 		//general bot in play for simplification only
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
+		
+		//BoomBot bot in play for simplification only
+		BoomBot bb = new BoomBot(exchange, stocks.get(0));
+		
+		//Recession bot in play for simplification only
+		RecessionBot rb = new RecessionBot(exchange, stocks.get(0));
 
 		//price moving bot
 		PriceMovingBot pmb = new PriceMovingBot(exchange,stocks.get(0));
@@ -76,16 +91,15 @@ public class FinalServer {
 			break;
 		}
 
-		Thread marketM = new Thread(mm);
-		Thread generalBot = new Thread(gb);
-		Thread priceMover = new Thread(pmb);
-		Thread scBot = new Thread(scenarioBot);
+		marketM = new Thread(mm);
+		generalBot = new Thread(gb);
+		recessionBot = new Thread(rb);
+		boomBot = new Thread(bb);
+		priceMover = new Thread(pmb);
+		scBot = new Thread(scenarioBot);
 
 		//start the trading
 		marketM.start();
-		generalBot.start();
-		priceMover.start();
-		scBot.start();
 	}
 
 	public static void close() {
@@ -107,7 +121,7 @@ public class FinalServer {
 			//different scenarios maybe??
 			//could automate this if we have time
 			boolean choice = false;
-			
+			boolean cycle = true;
 			//default scenario is boom
 			int roundToPlay = 2;
 			
@@ -125,13 +139,34 @@ public class FinalServer {
 					e.printStackTrace();
 				}
 			}
-
+			
 			open();
 			testExchange(roundToPlay);
-			try {
-				Thread.sleep(roundLength * 1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			
+			if (cycle) {
+				try {
+					boomBot.start();
+					Thread.sleep(10*1000);
+					boomBot.interrupt();
+					
+					generalBot.start();
+					Thread.sleep(10*1000);
+					generalBot.interrupt();
+					
+					recessionBot.start();
+					Thread.sleep(10*1000);
+					recessionBot.interrupt();
+					
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			if (!cycle) {
+				try {
+					Thread.sleep(roundLength * 1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 			close();
 			try {

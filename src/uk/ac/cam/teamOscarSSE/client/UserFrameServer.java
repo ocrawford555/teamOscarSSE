@@ -189,11 +189,11 @@ public class UserFrameServer implements Runnable {
 		String message = obj.getString("message");
 		if (obj.getBoolean("success") == true) {
 			buyOrders.add(obj.getInt("orderID"));
-			System.out.println("Order submitted: " + message);
+			//System.out.println("Order submitted: " + message);
 
 			return true;
 		}
-		System.out.println("Failed to submit order: " + message);
+		//System.out.println("Failed to submit order: " + message);
 		return false;
 
 	}
@@ -208,10 +208,10 @@ public class UserFrameServer implements Runnable {
 		String message = obj.getString("message");
 		if (obj.getBoolean("success") == true) {
 			sellOrders.add(obj.getInt("orderID"));
-			System.out.println("Order submitted: " + message);
+			//System.out.println("Order submitted: " + message);
 			return true;
 		}
-		System.out.println("Failed to submit order: " + message);
+		//System.out.println("Failed to submit order: " + message);
 		return false;
 	}
 
@@ -361,7 +361,7 @@ public class UserFrameServer implements Runnable {
 
 
 		while(true){
-			//if (System.currentTimeMillis() - startTime > 31000) return;
+			if (System.currentTimeMillis() - startTime > 31000) return;
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Exchange {
 	//DEBUG variable for outputting information to the console.
-	private final boolean DEBUG = true;
+	private final boolean DEBUG = false;
 
 	// DEBUG verbosity. A higher verbosity means more is printed.
 	private final int DEBUG_LEVEL = 2;

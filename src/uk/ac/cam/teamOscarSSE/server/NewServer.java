@@ -30,7 +30,7 @@ public class NewServer {
 			@Override
 			public void handle(HttpExchange exchange) throws IOException {
 				// Read request
-				System.out.println(exchange.getRequestMethod() + " " + exchange.getRequestURI());
+				//System.out.println(exchange.getRequestMethod() + " " + exchange.getRequestURI());
 				debugPrint("");
 				debugPrint("Headers\n=======");
 				Headers headers = exchange.getRequestHeaders();
