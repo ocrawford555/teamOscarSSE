@@ -121,7 +121,12 @@ public class FinalServer {
 			//different scenarios maybe??
 			//could automate this if we have time
 			boolean choice = false;
+			
+			//Cycle through all three scenarios one by one
 			boolean cycle = true;
+			
+			//Start all scenarios together
+			boolean mixture = false;
 			//default scenario is boom
 			int roundToPlay = 2;
 			
@@ -146,30 +151,50 @@ public class FinalServer {
 			if (cycle) {
 				try {
 					boomBot.start();
+					System.out.println("Boom bot started");
 					Thread.sleep(10*1000);
 					boomBot.interrupt();
+					System.out.println("Boom bot finished");
 					
 					generalBot.start();
+					System.out.println("General bot started");
 					Thread.sleep(10*1000);
 					generalBot.interrupt();
+					System.out.println("General bot finished");
 					
 					recessionBot.start();
+					System.out.println("Recession bot started");
 					Thread.sleep(10*1000);
 					recessionBot.interrupt();
+					System.out.println("Recession bot finished");
 					
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			if (!cycle) {
+			
+			if (mixture) {
+				generalBot.start();
+				recessionBot.start();
+				boomBot.start();
+				priceMover.start();
+				scBot.start();
 				try {
-					Thread.sleep(roundLength * 1000);
+					Thread.sleep(30 * 1000);
+					generalBot.interrupt();
+					recessionBot.interrupt();
+					boomBot.interrupt();
+					priceMover.interrupt();
+					scBot.interrupt();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+				
+				
 			}
 			close();
 			try {
+				marketM.interrupt();
 				Thread.sleep(timeBetweenRounds * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
