@@ -22,8 +22,8 @@ public class UserFrameServer implements Runnable {
 	//keep in until all methods have been implements
 	private Random rand = new Random();
 	//keep store of the order book
-	private List<JSONObject> orderBuys;
-	private List<JSONObject> orderSells;
+	private List<JSONObject> orderBuys = new ArrayList<JSONObject>();
+	private List<JSONObject> orderSells = new ArrayList<JSONObject>();
 	//keep local copy of orders sent to the exchange
 	private TreeSet<Integer> buyOrders = new TreeSet<Integer>();
 	private TreeSet<Integer> sellOrders = new TreeSet<Integer>();
@@ -43,6 +43,10 @@ public class UserFrameServer implements Runnable {
 				networkCom("register/", "{\"name\": \"" + name + "\", \"email\": \"Awesome\"}\n", "POST");
 		JSONObject reJ = new JSONObject(register);
 		token = (String) reJ.get("user-token");
+	}
+
+	protected final long getStockPrice() {
+		return stockPrice;
 	}
 
 	protected final long getPointAvg(int i) {
@@ -74,6 +78,65 @@ public class UserFrameServer implements Runnable {
 
 	protected final int getMaxSell() {
 		return maxSell;
+	}
+
+	protected final long getBestBuyPrice() {
+		if (orderBuys == null || orderBuys.size() == 0) {
+			// TODO: Return something else?
+			return stockPrice;
+		}
+		return orderBuys.get(0).getLong("price");
+	}
+
+	protected final long getBestSellPrice() {
+		if (orderSells == null || orderSells.size() == 0) {
+			return stockPrice;
+		}
+		return orderSells.get(0).getLong("price");
+	}
+
+	protected final long[] topBuyPrices() {
+		int min = Math.min(5,orderBuys.size());
+		long[] top = {0,0,0,0,0};
+		if(!orderBuys.isEmpty()){
+			for(int i = 0; i<min; i++){
+				top[i] = orderBuys.get(i).getLong("price");
+			}
+		}
+		return top;
+	}
+
+	protected final long[] topSellPrices() {
+		int min = Math.min(5,orderSells.size());
+		long[] top = {0,0,0,0,0};
+		if(!orderSells.isEmpty()){
+			for(int i = 0; i<min; i++){
+				top[i] = orderSells.get(i).getLong("price");
+			}
+		}
+		return top;
+	}
+
+	protected final int[] topBuyQuant() {
+		int min = Math.min(5,orderBuys.size());
+		int[] top = {0,0,0,0,0};
+		if(!orderBuys.isEmpty()){
+			for(int i = 0; i<min; i++){
+				top[i] = orderBuys.get(i).getInt("qty");
+			}
+		}
+		return top;
+	}
+
+	protected final int[] topSellQuant() {
+		int min = Math.min(5,orderSells.size());
+		int[] top = {0,0,0,0,0};
+		if(!orderSells.isEmpty()){
+			for(int i = 0; i<min; i++){
+				top[i] = orderSells.get(i).getInt("qty");
+			}
+		}
+		return top;
 	}
 
 	/**
@@ -147,26 +210,14 @@ public class UserFrameServer implements Runnable {
 	}
 
 	protected int volumeToBuy() {
-		return rand.nextInt(100) + 5;
+		return rand.nextInt(400) + 5;
 	}
 
 	protected long priceToBuy() {
-		/*
-		int addExtraToBuy = 1;
-		if (cash > 10500000)
-			addExtraToBuy = 5;
-		return stockPrice + addExtraToBuy;
-		*/
 		return stockPrice;
 	}
 
 	protected long priceToSell() {
-		/*
-		int subExtraToSell = 1;
-		if (cash < 9500000)
-			subExtraToSell = 5;
-		return stockPrice - subExtraToSell;
-		*/
 		return stockPrice;
 	}
 
@@ -175,7 +226,7 @@ public class UserFrameServer implements Runnable {
 	}
 
 	protected int volumeToSell() {
-		return rand.nextInt(100) + 5;
+		return rand.nextInt(400) + 5;
 	}
 
 
@@ -271,13 +322,13 @@ public class UserFrameServer implements Runnable {
 		for (int i = 0; i < transactionArray.length(); ++i) {
 			transactionAvg.add(transactionArray.getLong(i));
 		}
-		
+
 		pointAvg.clear();
 		JSONArray pointAvgArray = (JSONArray) reJ.get("pointAvg");
 		for (int i = 0; i < pointAvgArray.length(); ++i) {
 			pointAvg.add(pointAvgArray.getLong(i));
 		}
-		
+
 		rateOfChange.clear();
 		JSONArray rateChangeArray = (JSONArray) reJ.get("rateOfChange");
 		for (int i = 0; i < rateChangeArray.length(); ++i) {
@@ -292,22 +343,7 @@ public class UserFrameServer implements Runnable {
 		updateStock(stockSym);
 	}
 
-	protected final long getBestBuyPrice() {
-		if (orderBuys == null || orderBuys.size() == 0) {
-			// TODO: Return something else?
-			return stockPrice;
-		}
-		return orderBuys.get(0).getLong("price");
-	}
 
-	protected final long getBestSellPrice() {
-		if (orderSells == null || orderSells.size() == 0) {
-			return stockPrice;
-		}
-		return orderSells.get(0).getLong("price");
-	}
-
-	
 	/**
 	 * Obtain order book from the exchange. Updates two lists
 	 * which player can then interpret in their own way.
@@ -315,37 +351,30 @@ public class UserFrameServer implements Runnable {
 	private final void obtainOrderBook() {
 		String orderBook = networkCom("orderbook/BAML",
 				"{}\n", "GET");
-				
+
 		JSONObject obj = new JSONObject(orderBook);
 
 		JSONArray buys = obj.getJSONArray("buy");
 		List<JSONObject> listBuys = new ArrayList<JSONObject>();
-		
+
 		for(int i=0;i < buys.length();i++){
 			listBuys.add(buys.getJSONObject(i));
 		}
 
 		JSONArray sells = obj.getJSONArray("sell");
 		List<JSONObject> listSells = new ArrayList<JSONObject>();
-		
+
 		for(int i=0;i < sells.length();i++){
 			listSells.add(sells.getJSONObject(i));
 		}
-		
+
 		orderBuys = listBuys;
 		orderSells = listSells;
 	}
 
 	@Override
 	public final void run() {
-		//have an initial wait period until the server has
-		//started and running.
-		long startTime = System.currentTimeMillis();
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
+		//long startTime = System.currentTimeMillis();
 
 		// Get the stocks available on the exchange.
 		List<String> stocks = getStocks();
@@ -361,7 +390,7 @@ public class UserFrameServer implements Runnable {
 
 
 		while(true){
-			if (System.currentTimeMillis() - startTime > 31000) return;
+			//if (System.currentTimeMillis() - startTime > 31000) return;
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {
@@ -373,6 +402,4 @@ public class UserFrameServer implements Runnable {
 			obtainOrderBook();
 		}
 	}
-
-	
 }
