@@ -59,7 +59,7 @@ public class FinalServer {
 		//add some orders to the order book occasionally - not in the game for
 		//profit -> this bot is simulating normal consumers looking to buy and 
 		//sell stocks.
-		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),40,45,200);
+		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),40,50,250);
 
 		//general bot in play for simplification only
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
