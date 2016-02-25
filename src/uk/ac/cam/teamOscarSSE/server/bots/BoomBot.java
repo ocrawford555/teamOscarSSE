@@ -44,25 +44,17 @@ public class BoomBot extends Bot implements Runnable {
 		long stockP = stock.getStockPrice();
 
 		long buyPrice1 = stockP + 300 + rand.nextInt(200);
-		long buyPrice2 = stockP + 700 + rand.nextInt(150);
+		long buyPrice2 = stockP + 700 + rand.nextInt(300);
 		long buyPrice3 = stockP + 100;
-//		
-//		long buyPrice1 = stockP + 30;
-//		long buyPrice2 = stockP + 70;
-//		long buyPrice3 = stockP + 10;
 
 		Order buyOrder1 = new BuyOrder(stock, this, volume1, buyPrice1);
 		Order buyOrder2 = new BuyOrder(stock, this, volume2, buyPrice2);
 		Order buyOrder3 = new BuyOrder(stock, this, volume3, buyPrice3);
 
-		long sellPrice1 = stockP + 500 + rand.nextInt(100);
+		long sellPrice1 = stockP + 500  + rand.nextInt(100);
 		long sellPrice2 = stockP + 650;
 		long sellPrice3 = stockP + 200;
 		
-//		long sellPrice1 = stockP + 50;
-//		long sellPrice2 = stockP + 65;
-//		long sellPrice3 = stockP + 20;
-
 		Order sellOrder1 = new SellOrder(stock, this, volume1/2, sellPrice1);
 		Order sellOrder2 = new SellOrder(stock, this, volume2/2, sellPrice2);
 		Order sellOrder3 = new SellOrder(stock, this, volume3/2, sellPrice3);

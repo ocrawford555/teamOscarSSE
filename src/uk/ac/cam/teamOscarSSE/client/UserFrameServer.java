@@ -23,14 +23,14 @@ public class UserFrameServer implements Runnable {
 	private long stockPrice;
 
 	// A list of moving averages of the stock.
-	private List<Long> pointAvg = new LinkedList();
+	private List<Long> pointAvg = new LinkedList<Long>();
 
 	// The average price of the stock.
 	private long overallAvg;
 
 	// The average price of the transactions of the stock.
-	private List<Long> transactionAvg = new LinkedList();
-	private List<Float> rateOfChange = new LinkedList();
+	private List<Long> transactionAvg = new LinkedList<Long>();
+	private List<Float> rateOfChange = new LinkedList<Float>();
 
 	// The cash owned by the user.
 	private long cash;
@@ -141,7 +141,6 @@ public class UserFrameServer implements Runnable {
 			return stockPrice;
 		}
 		return orderBuys.get(0).getLong("price");
-
 	}
 
 	/**

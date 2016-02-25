@@ -12,7 +12,7 @@ public class GeneralBot extends Bot implements Runnable {
 
 	//Name of this bot.
 	private static final String botName = "GenBot";
-
+	
 	public GeneralBot(Exchange e, Stock s) {
 		super(e, s, botName);
 	}
@@ -22,31 +22,33 @@ public class GeneralBot extends Bot implements Runnable {
 	 * Sends orders to the exchange.
 	 */
 	public void sendOrders() {
+		
 		int volume1 = rand.nextInt(TMAX);
 		int volume2 = rand.nextInt(TMAX);
 		int volume3 = rand.nextInt(TMAX);
 		long stockP = stock.getStockPrice();
 
-//		long buyPrice1 = stockP - 20 + rand.nextInt(40);        //Buy High, loses money
-//		long buyPrice2 = stockP + 40 - rand.nextInt(20);
-//		long buyPrice3 = stockP - 15;
-//		
-		long buyPrice1 = stockP - 300;        //Buy High, loses money
-		long buyPrice2 = stockP + 600;
-		long buyPrice3 = stockP - 200;
-
+		long buyPrice1;
+		long buyPrice2;
+		long buyPrice3;
+		
+		long sellPrice1;
+		long sellPrice2;
+		long sellPrice3;
+		
+		buyPrice1 = stockP - 300;        //Buy High, loses money
+		buyPrice2 = stockP + 600;
+		buyPrice3 = stockP - 200;
+		
+		sellPrice1 = stockP + 300;
+		sellPrice2 = stockP - 600;
+		sellPrice3 = stockP + 200;
 
 		Order buyOrder1 = new BuyOrder(stock, this, volume1, buyPrice1);
 		Order buyOrder2 = new BuyOrder(stock, this, volume2, buyPrice2);
 		Order buyOrder3 = new BuyOrder(stock, this, volume3, buyPrice3);
 
-//		long sellPrice1 = stockP + rand.nextInt(30);
-//		long sellPrice2 = stockP - 10 - rand.nextInt(60);
-//		long sellPrice3 = stockP + 30;
-		
-		long sellPrice1 = stockP + 300;
-		long sellPrice2 = stockP - 600;
-		long sellPrice3 = stockP + 200;
+
 
 		Order sellOrder1 = new SellOrder(stock, this, volume1, sellPrice1);
 		Order sellOrder2 = new SellOrder(stock, this, volume2, sellPrice2);

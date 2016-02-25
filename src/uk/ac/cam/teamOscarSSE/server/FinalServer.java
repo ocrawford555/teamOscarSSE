@@ -151,7 +151,7 @@ public class FinalServer {
 			
 			if (cycle) {
 				try {
-					
+										
 					generalBot.start();
 					System.out.println("General bot started");
 					Thread.sleep(15*1000);
@@ -167,7 +167,7 @@ public class FinalServer {
 					System.out.println("Recession bot finished");
 					
 					exchange.removeAllOrders();
-					
+
 					boomBot.start();
 					System.out.println("Boom bot started");
 					Thread.sleep(15*1000);
@@ -175,6 +175,8 @@ public class FinalServer {
 					System.out.println("Boom bot finished");
 					
 					exchange.removeAllOrders();
+					
+					
 					
 				} catch (InterruptedException e) {
 					e.printStackTrace();
