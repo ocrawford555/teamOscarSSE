@@ -81,6 +81,5 @@ public class BoomBot extends Bot implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		return;
 	}
 }

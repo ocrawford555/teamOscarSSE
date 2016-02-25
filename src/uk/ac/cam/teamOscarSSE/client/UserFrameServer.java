@@ -238,7 +238,7 @@ public class UserFrameServer implements Runnable {
 	 * @param type GET or POST
 	 * @return the response from the server
 	 */
-	private final String sendURLWithToken(String url, String type) {
+	private String sendURLWithToken(String url, String type) {
 		return networkCom(url, "{\"user-token\": " + token + "}\n",type);
 	}
 
@@ -251,7 +251,7 @@ public class UserFrameServer implements Runnable {
 	 * @param type GET or POST
 	 * @return the response from the server
 	 */
-	private final String networkCom(String urlType, String urlParameters, String type) {
+	private String networkCom(String urlType, String urlParameters, String type) {
 		URL url;
 		HttpURLConnection connection = null;
 
@@ -366,7 +366,7 @@ public class UserFrameServer implements Runnable {
 	 *
 	 * @return true if the order was accepted by the exchange
 	 */
-	private final boolean submitBuyOrder() {
+	private boolean submitBuyOrder() {
 		if (!Buy()) {
 			return false;
 		}
@@ -374,7 +374,7 @@ public class UserFrameServer implements Runnable {
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
 		String message = obj.getString("message");
-		if (obj.getBoolean("success") == true) {
+		if (obj.getBoolean("success")) {
 			buyOrders.add(obj.getInt("orderID"));
 			System.out.println("Order submitted: " + message);
 
@@ -390,7 +390,7 @@ public class UserFrameServer implements Runnable {
 	 *
 	 * @return true if the order was accepted by the exchange
 	 */
-	private final boolean submitSellOrder() {
+	private boolean submitSellOrder() {
 		if (!Sell()) {
 			return false;
 		}
@@ -401,7 +401,7 @@ public class UserFrameServer implements Runnable {
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
 		String message = obj.getString("message");
-		if (obj.getBoolean("success") == true) {
+		if (obj.getBoolean("success")) {
 			sellOrders.add(obj.getInt("orderID"));
 			System.out.println("Order submitted: " + message);
 			return true;
@@ -410,7 +410,7 @@ public class UserFrameServer implements Runnable {
 		return false;
 	}
 
-	private final void getMonetaryMetrics() {
+	private void getMonetaryMetrics() {
 		String url = "cash/" + stockSym;
 		String ob = sendURLWithToken(url, "GET");
 
@@ -426,7 +426,7 @@ public class UserFrameServer implements Runnable {
 	 *
 	 * @return
 	 */
-	private final List<String> getStocks() {
+	private List<String> getStocks() {
 		String url = "stocks";
 		String ob = sendURLWithToken(url, "GET");
 		JSONObject reJ = new JSONObject(ob);
@@ -448,7 +448,7 @@ public class UserFrameServer implements Runnable {
 	 *
 	 * @return
 	 */
-	private final boolean updateStock(String symbol) {
+	private boolean updateStock(String symbol) {
 		String url = "stock/" + symbol;
 		String ob = sendURLWithToken(url, "GET");
 		if (ob == null) return false;
@@ -482,7 +482,7 @@ public class UserFrameServer implements Runnable {
 		return true;
 	}
 
-	private final void update() {
+	private void update() {
 		getMonetaryMetrics();
 		updateStock(stockSym);
 	}
@@ -492,7 +492,7 @@ public class UserFrameServer implements Runnable {
 	 * Obtain order book from the exchange. Updates two lists
 	 * which player can then interpret in their own way.
 	 */
-	private final void obtainOrderBook() {
+	private void obtainOrderBook() {
 		String orderBook = networkCom("orderbook/" + stockSym,
 				"{}\n", "GET");
 

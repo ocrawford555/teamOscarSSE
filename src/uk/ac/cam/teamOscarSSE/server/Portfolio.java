@@ -52,11 +52,7 @@ public class Portfolio {
 	public boolean check(Stock s, int amountToTrade) {
 		if (stockOwned.containsKey(s)) {
 			int currentAmount = stockOwned.get(s);
-			if ((currentAmount - amountToTrade) < 0) {
-				return false;
-			} else {
-				return true;
-			}
+			return (currentAmount - amountToTrade) >= 0;
 		} else {
 			return false;
 		}

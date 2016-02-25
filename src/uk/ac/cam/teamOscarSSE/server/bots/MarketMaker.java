@@ -73,6 +73,5 @@ public class MarketMaker extends Bot implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		return;
 	}
 }

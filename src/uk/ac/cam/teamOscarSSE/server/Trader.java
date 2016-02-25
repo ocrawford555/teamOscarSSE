@@ -62,7 +62,7 @@ public abstract class Trader {
 	 *
 	 * @return
 	 */
-	private final String generateRandomID() {
+	private String generateRandomID() {
 		return UUID.randomUUID().toString().replaceAll("-", "");
 	}
 

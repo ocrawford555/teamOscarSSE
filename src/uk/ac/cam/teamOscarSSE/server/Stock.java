@@ -113,7 +113,7 @@ public class Stock {
 		float sigmaE = sigmaS * temp;
 		float k = (sigmaS * sigmaS) / ((sigmaS * sigmaS) + (sigmaE * sigmaE));
 		price = (long) (price + (k * (tradePrice - price)));
-		setStockPrice((long) price);
+		setStockPrice(price);
 		float temp2 = 1 - (k * sigmaS);
 		setUnc((float) Math.sqrt(temp2));    //New uncertainty
 		updateMetrics();

@@ -29,7 +29,7 @@ public class OrderChangeMessage {
 		return String.format("{'id':%d,'type':'%s'} %s", order.getOrderNum(), type, order);
 	}
 
-	public static enum ChangeType {
+	public enum ChangeType {
 		CANCEL,     /* Order removed from exchange */
 		ACK,        /* Order acknowledged and added to exchange */
 		FAIL,       /* Failed to add order to exchange */

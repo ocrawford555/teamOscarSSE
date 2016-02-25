@@ -35,11 +35,7 @@ public class UserProcessor {
 		if (stock != null) {
 			Order order = new BuyOrder(stock, user, qty, price);
 			OrderChangeMessage msg = exchange.addOrder(order);
-			if (msg.getType() == OrderChangeMessage.ChangeType.ACK) {
-				success = true;
-			} else {
-				success = false;
-			}
+			success = msg.getType() == OrderChangeMessage.ChangeType.ACK;
 
 			if (msg != null) {
 				data.put("message", msg.getMessage());
@@ -77,11 +73,7 @@ public class UserProcessor {
 		if (stock != null) {
 			Order order = new SellOrder(stock, user, qty, price);
 			OrderChangeMessage msg = exchange.addOrder(order);
-			if (msg.getType() == OrderChangeMessage.ChangeType.ACK) {
-				success = true;
-			} else {
-				success = false;
-			}
+			success = msg.getType() == OrderChangeMessage.ChangeType.ACK;
 
 			if (msg != null) {
 				data.put("message", msg.getMessage());
