@@ -13,7 +13,7 @@ public class FinalServer {
 
 	// The number of simulation steps.
 	private static int NUM_SIM_STEPS = 600;
-	private static int roundLength = 30;
+	private static int roundLength = 40;
 	private static int timeBetweenRounds = 30;
 	
 	//Bot & Marketmaker threads
@@ -150,21 +150,21 @@ public class FinalServer {
 			
 			if (cycle) {
 				try {
-					boomBot.start();
-					System.out.println("Boom bot started");
-					Thread.sleep(10*1000);
-					boomBot.interrupt();
-					System.out.println("Boom bot finished");
-					
 					generalBot.start();
 					System.out.println("General bot started");
-					Thread.sleep(10*1000);
+					Thread.sleep(15*1000);
 					generalBot.interrupt();
 					System.out.println("General bot finished");
 					
+					boomBot.start();
+					System.out.println("Boom bot started");
+					Thread.sleep(15*1000);
+					boomBot.interrupt();
+					System.out.println("Boom bot finished");
+					
 					recessionBot.start();
 					System.out.println("Recession bot started");
-					Thread.sleep(10*1000);
+					Thread.sleep(15*1000);
 					recessionBot.interrupt();
 					System.out.println("Recession bot finished");
 					
