@@ -133,9 +133,11 @@ const Graph = {
 			const Yrange = Graph.maxY - Graph.minY;
 			if (Graph.minY === null || value < Graph.minY + Yrange * proportionalLimit) {
 				Graph.minY = value * (1 - proportionalBounds);
+				Graph.drawnBounds.speed.minY = null;
 			}
 			if (Graph.maxY === null || value > Graph.maxY - Yrange * proportionalLimit) {
 				Graph.maxY = value * (1 + proportionalBounds);
+				Graph.drawnBounds.speed.maxY = null;
 			}
 		}
 	},
