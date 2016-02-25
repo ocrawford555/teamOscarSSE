@@ -13,6 +13,7 @@ public class FinalServer {
 
 	// The number of simulation steps.
 	private static int roundLength = 45;
+	private static int timeBetweenRounds = 30;
 
 	
 	//Bot & Marketmaker threads
@@ -37,6 +38,7 @@ public class FinalServer {
 			exchange.addPlayer(player);
 		}
 
+		
 		// Open the exchange
 		exchange.startRound(stocks, roundLength, timeBetweenRounds);
 	}
