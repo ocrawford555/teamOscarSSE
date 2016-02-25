@@ -128,16 +128,20 @@ const Graph = {
 		const history = Graph.histories.get(ID);
 		if (typeof history !== "undefined") {
 			history.set(timestamp, value);
-			const proportionalLimit = 0.1; // The vertical padding on the graph — when the lines reach this proportion from the top/bottom of the graph, the graph bounds will be resized
-			const proportionalBounds = 0.005; // How much to resize the bounds by, proportional to the new max/min, each time the graph bounds are resized
-			const Yrange = Graph.maxY - Graph.minY;
-			if (Graph.minY === null || value < Graph.minY + Yrange * proportionalLimit) {
+			const proportionalLimit = 0.15; // The vertical padding on the graph — when the lines reach this proportion from the top/bottom of the graph, the graph bounds will be resized
+			const proportionalBounds = 0.01; // How much to resize the bounds by, proportional to the new max/min, each time the graph bounds are resized
+			if (Graph.minY === null && Graph.maxY === null) {
 				Graph.minY = value * (1 - proportionalBounds);
-				Graph.drawnBounds.speed.minY = null;
-			}
-			if (Graph.maxY === null || value > Graph.maxY - Yrange * proportionalLimit) {
 				Graph.maxY = value * (1 + proportionalBounds);
-				Graph.drawnBounds.speed.maxY = null;
+			} else {
+				if (value < Graph.minY + (Graph.maxY - Graph.minY) * proportionalLimit) {
+					Graph.minY = (value * (1 - proportionalBounds) - Graph.maxY * proportionalLimit) / (1 - proportionalLimit);
+					Graph.drawnBounds.speed.minY = null;
+				}
+				if (value > Graph.maxY - (Graph.maxY - Graph.minY) * proportionalLimit) {
+					Graph.maxY = (value * (1 + proportionalBounds) - Graph.minY * proportionalLimit) / (1 - proportionalLimit);
+					Graph.drawnBounds.speed.maxY = null;
+				}
 			}
 		}
 	},
@@ -195,57 +199,64 @@ const Graph = {
 		let strokePath;
 		const fillPath = new Path2D();
 
+		const maxPlayersOnGraph = 5;
+
 		// Plot the points
 		let totalMin = canvas.width - 1;
+		let i = 0;
 		for (const ID of Array.from(Graph.histories.keys()).sort((a, b) => Leaderboard.positions.get(a).position - Leaderboard.positions.get(b).position)) {
-			const history = Graph.histories.get(ID);
-			strokePath = new Path2D();
-			strokePaths.push(strokePath);
-			let first = true;
-			let min = null, max = null;
-			let currentScore = null;
-			const removal = [];
-			for (const pair of history) {
-				const x = (1 + (pair[0] - now) / duration) * canvas.width;
-				const y = canvas.height * (1 - (pair[1] - Graph.drawnBounds.minY) / (Graph.drawnBounds.maxY - Graph.drawnBounds.minY));
-				if (x < 0) {
-					removal.push(pair[0]);
+			if (++ i <= maxPlayersOnGraph) {
+				const history = Graph.histories.get(ID);
+				strokePath = new Path2D();
+				strokePaths.push(strokePath);
+				let first = true;
+				let min = null, max = null;
+				let currentScore = null;
+				const removal = [];
+				for (const pair of history) {
+					const x = (1 + (pair[0] - now) / duration) * canvas.width;
+					const y = canvas.height * (1 - (pair[1] - Graph.drawnBounds.minY) / (Graph.drawnBounds.maxY - Graph.drawnBounds.minY));
+					if (x < 0) {
+						removal.push(pair[0]);
+					}
+					if (min === null || x < min) {
+						min = x;
+					}
+					if (max === null || x > max) {
+						max = x;
+						currentScore = (pair[1] - Graph.drawnBounds.minY) / (Graph.drawnBounds.maxY - Graph.drawnBounds.minY);
+					}
+					[strokePath, fillPath].forEach(path => path[first ? "moveTo" : "lineTo"](x, y));
+					if (history.size === 1) {
+						strokePath.arc(x, y, 1 * window.devicePixelRatio, 0, Math.PI * 2, false);
+					}
+					first = false;
 				}
-				if (min === null || x < min) {
-					min = x;
+				removal.shift();
+				removal.pop();
+				for (const remove of removal) {
+					history.delete(remove);
 				}
-				if (max === null || x > max) {
-					max = x;
-					currentScore = (pair[1] - Graph.drawnBounds.minY) / (Graph.drawnBounds.maxY - Graph.drawnBounds.minY);
+				if (min !== null && max !== null) {
+					fillPath.lineTo(max, canvas.height);
+					fillPath.lineTo(min, canvas.height);
+					if (min < totalMin) {
+						totalMin = min;
+					}
 				}
-				[strokePath, fillPath].forEach(path => path[first ? "moveTo" : "lineTo"](x, y));
-				if (history.size === 1) {
-					strokePath.arc(x, y, 1 * window.devicePixelRatio, 0, Math.PI * 2, false);
+				if (currentScore !== null) {
+					const rect = Graph.object.rect;
+					currentScore = Math.min(currentScore, 1);
+					if (currentScore >= 0) {
+						body.querySelector(`#label-${ID}`).removeClass("hidden").setStyle({
+							top: rect.bottom + window.scrollY - currentScore * rect.height
+						});
+					} else {
+						body.querySelector(`#label-${ID}`).addClass("hidden");
+					}
 				}
-				first = false;
-			}
-			removal.shift();
-			removal.pop();
-			for (const remove of removal) {
-				history.delete(remove);
-			}
-			if (min !== null && max !== null) {
-				fillPath.lineTo(max, canvas.height);
-				fillPath.lineTo(min, canvas.height);
-				if (min < totalMin) {
-					totalMin = min;
-				}
-			}
-			if (currentScore !== null) {
-				const rect = Graph.object.rect;
-				currentScore = Math.min(currentScore, 1);
-				if (currentScore >= 0) {
-					body.querySelector(`#label-${ID}`).removeClass("hidden").setStyle({
-						top: rect.bottom + window.scrollY - currentScore * rect.height
-					});
-				} else {
-					body.querySelector(`#label-${ID}`).addClass("hidden");
-				}
+			} else {
+				body.querySelector(`#label-${ID}`).addClass("hidden");
 			}
 		}
 		let fadeGradient;
@@ -280,7 +291,7 @@ const Graph = {
 		context.lineWidth = 2 * window.devicePixelRatio;
 		context.shadowBlur = 5 * window.devicePixelRatio;
 		context.shadowColor = "white";
-		let i = 0;
+		i = 0;
 		for (const strokePath of strokePaths) {
 			context.strokeStyle = `hsla(0, 0%, 100%, ${(strokePaths.length - i) / strokePaths.length * 100}%)`;
 			context.globalAlpha = (strokePaths.length - i) / strokePaths.length;
