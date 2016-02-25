@@ -94,5 +94,15 @@ public class OrderBook {
 	public List<SellOrder> getSells() {
 		return sells;
 	}
+	
+	public boolean clearBuys() {
+		buys.clear();
+		return buys.isEmpty();
+	}
+	
+	public boolean clearSells() {
+		sells.clear();
+		return sells.isEmpty();
+	}
 
 }

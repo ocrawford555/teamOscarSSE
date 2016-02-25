@@ -158,11 +158,15 @@ public class FinalServer {
 					generalBot.interrupt();
 					System.out.println("General bot finished");
 					
+					exchange.removeAllOrders();
+					
 					recessionBot.start();
 					System.out.println("Recession bot started");
 					Thread.sleep(15*1000);
 					recessionBot.interrupt();
 					System.out.println("Recession bot finished");
+					
+					exchange.removeAllOrders();
 					
 					boomBot.start();
 					System.out.println("Boom bot started");
@@ -170,8 +174,7 @@ public class FinalServer {
 					boomBot.interrupt();
 					System.out.println("Boom bot finished");
 					
-					
-					
+					exchange.removeAllOrders();
 					
 				} catch (InterruptedException e) {
 					e.printStackTrace();

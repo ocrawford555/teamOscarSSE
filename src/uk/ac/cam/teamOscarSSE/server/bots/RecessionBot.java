@@ -45,7 +45,8 @@ public class RecessionBot extends Bot implements Runnable {
 		Random rand = new Random();
 		while (super.exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(100) + 25;
+				if (Thread.interrupted()) return;
+				int nextWait = rand.nextInt(100);
 				Thread.sleep(nextWait);
 				this.sendOrders();
 			} catch (InterruptedException e) {

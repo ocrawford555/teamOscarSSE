@@ -11,6 +11,23 @@ public class User {
 	 * rateOfChange List
 	 */
 	public static void main(String[] args) {
+		UserFrameServer aa = new UserFrameServer("Stock") {
+			
+			@Override
+			public boolean Buy(){
+				//return getTransactionAvg(5) >= getTransactionAvg(20);
+				return true;
+			}
+			@Override
+			public int volumeToBuy() {
+				//Algorithm how many shares to buy
+				return getMaxBuy();
+			}
+		};
+		Thread user = new Thread(aa);
+		user.start();
+		
+		
 		UserFrameServer a = new UserFrameServer("Akkash") {
 			
 			@Override

@@ -400,6 +400,17 @@ public class Exchange {
 
 		return good;
 	}
+	
+	public synchronized boolean removeAllOrders() {
+		Set<String> stockSyms = getStockSymbols();
+		for (String stock: stockSyms) {
+			OrderBook ob = orderBooks.get(stock);
+			ob.clearBuys();
+			ob.clearSells();
+		}
+		orders.clear();
+		return (orderBooks.isEmpty() && orders.isEmpty());
+	}
 
 	/**
 	 * Remove an order from the orderbook and trader's portfolio.
