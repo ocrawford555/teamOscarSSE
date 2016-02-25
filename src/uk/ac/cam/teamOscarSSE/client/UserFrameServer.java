@@ -13,26 +13,45 @@ import java.util.*;
 
 public class UserFrameServer implements Runnable {
 
+	// The user's unique token assigned by the server.
 	private String token;
+
+	// The symbol of the stock that is available on the exchange.
 	private String stockSym;
+
+	// The last stock price.
 	private long stockPrice;
-	private List<Long> pointAvg = new LinkedList<Long>();
+
+	// A list of moving averages of the stock.
+	private List<Long> pointAvg = new LinkedList();
+
+	// The average price of the stock.
 	private long overallAvg;
+
+	// The average price of the transactions of the stock.
+	private List<Long> transactionAvg = new LinkedList();
+	private List<Float> rateOfChange = new LinkedList();
+
+	// The cash owned by the user.
+	private long cash;
+
+	// The maximum number of stocks the user can buy at stockPrice.
+	private int maxBuy;
+
+	// The maximum number of stocks the user can sell.
+	private int maxSell;
+
 	//random generator for testing purposes only
 	//keep in until all methods have been implements
 	private Random rand = new Random();
+
 	//keep store of the order book
 	private List<JSONObject> orderBuys = new ArrayList<JSONObject>();
 	private List<JSONObject> orderSells = new ArrayList<JSONObject>();
+
 	//keep local copy of orders sent to the exchange
 	private TreeSet<Integer> buyOrders = new TreeSet<Integer>();
 	private TreeSet<Integer> sellOrders = new TreeSet<Integer>();
-	//Change these to reflect HTTP Server format and all the get methods
-	private List<Long> transactionAvg = new LinkedList<Long>();
-	private List<Float> rateOfChange = new LinkedList<Float>();
-	private long cash;
-	private int maxBuy;
-	private int maxSell;
 
 	/**
 	 * Initialise player to the game, and set the stock variable.
@@ -45,6 +64,14 @@ public class UserFrameServer implements Runnable {
 		token = (String) reJ.get("user-token");
 	}
 
+	/**
+	 * Returns the price of the stock.
+	 * <p>
+	 * The price of the stock changes after each matched order in the exchange
+	 * depending on characteristics of the stock as well as volume traded.
+	 *
+	 * @return the price of the stock
+	 */
 	protected final long getStockPrice() {
 		return stockPrice;
 	}
@@ -68,26 +95,62 @@ public class UserFrameServer implements Runnable {
 		else return rateOfChange.get(i);
 	}
 
+	/**
+	 * Get cash owned by the user.
+	 *
+	 * A user is not allowed to submit BUY orders with insufficient cash.
+	 * Some cash may be blocked by outstanding BUY orders, hence not all of the
+	 * cash is available.
+	 *
+	 * @return the cash owned by the user.
+	 */
 	protected final long getCash() {
 		return cash;
 	}
 
+	/**
+	 * Gets the maximum number of stocks the user can buy at the stock price.
+	 *
+	 * @return the maximum number of stocks the user can buy at the stock price.
+	 */
 	protected final int getMaxBuy() {
 		return maxBuy;
 	}
 
+	/**
+	 * Returns the maximum number of stocks the user can sell.
+	 *
+	 * A user is only allowed to short (sell stocks they do not own) up to a
+	 * certain limit.
+	 *
+	 * @return the maximum number of stocks the user can sell
+	 */
 	protected final int getMaxSell() {
 		return maxSell;
 	}
 
+	/**
+	 * Returns the best (highest) buy price on the orderbook.
+	 *
+	 * If no buy order exists, returns the stock price.
+	 *
+	 * @return the highest buy price on the orderbook.
+	 */
 	protected final long getBestBuyPrice() {
 		if (orderBuys == null || orderBuys.size() == 0) {
-			// TODO: Return something else?
 			return stockPrice;
 		}
 		return orderBuys.get(0).getLong("price");
+
 	}
 
+	/**
+	 * Returns the best (lowest) sell price on the orderbook.
+	 *
+	 * If no sell order exists, returns the stock price.
+	 *
+	 * @return the lowest sell price on the orderbook.
+	 */
 	protected final long getBestSellPrice() {
 		if (orderSells == null || orderSells.size() == 0) {
 			return stockPrice;
@@ -95,6 +158,13 @@ public class UserFrameServer implements Runnable {
 		return orderSells.get(0).getLong("price");
 	}
 
+	/**
+	 * Returns up to the top 5 buy prices on the orderbook.
+	 *
+	 * If there are less than 5 orders, then returns 0 for the remaining indices.
+	 *
+	 * @return the top 5 (at most) buy prices on the orderbook.
+	 */
 	protected final long[] topBuyPrices() {
 		int min = Math.min(5,orderBuys.size());
 		long[] top = {0,0,0,0,0};
@@ -106,6 +176,13 @@ public class UserFrameServer implements Runnable {
 		return top;
 	}
 
+	/**
+	 * Returns up to the top 5 sell prices on the orderbook.
+	 *
+	 * If there are less than 5 orders, then returns 0 for the remaining indices.
+	 *
+	 * @return the top 5 (at most) sell prices on the orderbook.
+	 */
 	protected final long[] topSellPrices() {
 		int min = Math.min(5,orderSells.size());
 		long[] top = {0,0,0,0,0};
@@ -117,6 +194,13 @@ public class UserFrameServer implements Runnable {
 		return top;
 	}
 
+	/**
+	 * Returns the size of the top 5 buy orders on the orderbook.
+	 *
+	 * If there are less than 5 buy orders, then returns 0 for the remaining indices.
+	 *
+	 * @return the size of the top 5 buy orders on the orderbook.
+	 */
 	protected final int[] topBuyQuant() {
 		int min = Math.min(5,orderBuys.size());
 		int[] top = {0,0,0,0,0};
@@ -128,6 +212,13 @@ public class UserFrameServer implements Runnable {
 		return top;
 	}
 
+	/**
+	 * Returns the size of the top 5 sell orders on the orderbook.
+	 *
+	 * If there are less than 5 sell orders, then returns 0 for the remaining indices.
+	 *
+	 * @return the size of the top 5 sell orders on the orderbook.
+	 */
 	protected final int[] topSellQuant() {
 		int min = Math.min(5,orderSells.size());
 		int[] top = {0,0,0,0,0};
@@ -140,22 +231,25 @@ public class UserFrameServer implements Runnable {
 	}
 
 	/**
-	 * Sends URL with the user token in the body.
+	 * Sends request to the server with the user token in the body.
+	 * Type indicates whether request is GET or POST.
 	 *
-	 * @param urlType
-	 * @return
+	 * @param url the URL to send
+	 * @param type GET or POST
+	 * @return the response from the server
 	 */
-	private final String sendURLWithToken(String urlType, String type) {
-		return networkCom(urlType, "{\"user-token\": " + token + "}\n",type);
+	private final String sendURLWithToken(String url, String type) {
+		return networkCom(url, "{\"user-token\": " + token + "}\n",type);
 	}
 
 	/**
 	 * Method for sending request and receiving response from server.
 	 * Type indicates whether request is GET or POST.
-	 * @param urlType
-	 * @param urlParameters
-	 * @param type
-	 * @return
+	 *
+	 * @param urlType the URL to second
+	 * @param urlParameters the URL parameters
+	 * @param type GET or POST
+	 * @return the response from the server
 	 */
 	private final String networkCom(String urlType, String urlParameters, String type) {
 		URL url;
@@ -205,31 +299,73 @@ public class UserFrameServer implements Runnable {
 		return null;
 	}
 
+	/**
+	 * This method is called when determining whether to submit a buy order.
+	 *
+	 * If it returns true, then a buy order is submitted to the exchange.
+	 *
+	 * @return true if the user wants to submit a buy order to the exchange
+	 */
 	protected boolean Buy() {
 		return false;
 	}
 
+	/**
+	 * This method is called when submitting a buy order to the exchange.
+	 * It determines the size of the buy order.
+	 *
+	 * @return the size of the buy order to be submitted to the exchange
+	 */
 	protected int volumeToBuy() {
 		return rand.nextInt(400) + 5;
 	}
 
+	/**
+	 * This method is called when submitting a buy order to the exchange.
+	 * It specifies the price of the buy order.
+	 *
+	 * @return the price of the buy order to be submitted to the exchange
+	 */
 	protected long priceToBuy() {
 		return stockPrice;
 	}
 
+	/**
+	 * This method is called when submitting a sell order to the exchange.
+	 * It specifies the price of the sell order.
+	 *
+	 * @return the price of the sell order to be submitted to the exchange
+	 */
 	protected long priceToSell() {
 		return stockPrice;
 	}
 
+	/**
+	 * This method is called when determining whether to submit a sell order.
+	 *
+	 * If it returns true, then a sell order is submitted to the exchange.
+	 *
+	 * @return true if the user wants to submit a sell order to the exchange
+	 */
 	protected boolean Sell() {
 		return false;
 	}
 
+	/**
+	 * This method is called when submitting a sell order to the exchange.
+	 * It determines the size of the sell order.
+	 *
+	 * @return the size of the sell order to be submitted to the exchange
+	 */
 	protected int volumeToSell() {
 		return rand.nextInt(400) + 5;
 	}
 
-
+	/**
+	 * This method submits a buy order to the exchange.
+	 *
+	 * @return true if the order was accepted by the exchange
+	 */
 	private final boolean submitBuyOrder() {
 		if (!Buy()) {
 			return false;
@@ -240,36 +376,44 @@ public class UserFrameServer implements Runnable {
 		String message = obj.getString("message");
 		if (obj.getBoolean("success") == true) {
 			buyOrders.add(obj.getInt("orderID"));
-			//System.out.println("Order submitted: " + message);
+			System.out.println("Order submitted: " + message);
 
 			return true;
 		}
-		//System.out.println("Failed to submit order: " + message);
+		System.out.println("Failed to submit order: " + message);
 		return false;
 
 	}
 
+	/**
+	 * This method submits a sell order to the exchange.
+	 *
+	 * @return true if the order was accepted by the exchange
+	 */
 	private final boolean submitSellOrder() {
 		if (!Sell()) {
 			return false;
 		}
-		String url = String.join("/", "sell", stockSym, Integer.toString(volumeToSell()), Long.toString(priceToSell()));
+		String url = String.join(
+				"/", "sell", stockSym,
+				Integer.toString(volumeToSell()),
+				Long.toString(priceToSell()));
 		String ob = sendURLWithToken(url, "POST");
 		JSONObject obj = new JSONObject(ob);
 		String message = obj.getString("message");
 		if (obj.getBoolean("success") == true) {
 			sellOrders.add(obj.getInt("orderID"));
-			//System.out.println("Order submitted: " + message);
+			System.out.println("Order submitted: " + message);
 			return true;
 		}
-		//System.out.println("Failed to submit order: " + message);
+		System.out.println("Failed to submit order: " + message);
 		return false;
 	}
 
 	private final void getMonetaryMetrics() {
-		String url = "cash/BAML";
-		String ob = networkCom(url,
-				"{\"user-token\": " + token + "}\n", "GET");
+		String url = "cash/" + stockSym;
+		String ob = sendURLWithToken(url, "GET");
+
 		//ob contains return String in JSON format
 		JSONObject obj = new JSONObject(ob);
 		cash = obj.getLong("cash");
@@ -349,7 +493,7 @@ public class UserFrameServer implements Runnable {
 	 * which player can then interpret in their own way.
 	 */
 	private final void obtainOrderBook() {
-		String orderBook = networkCom("orderbook/BAML",
+		String orderBook = networkCom("orderbook/" + stockSym,
 				"{}\n", "GET");
 
 		JSONObject obj = new JSONObject(orderBook);
