@@ -41,7 +41,6 @@ public class OrderBook {
 			//not required
 			Collections.sort(buys);
 
-			// TODO: I put this check in to avoid exceptions. What's intended if the list is empty?
 			if (!buys.isEmpty()) {
 				s.setBestBid(buys.get(0).getPrice());
 			}
@@ -55,7 +54,7 @@ public class OrderBook {
 			//arguably, only order removed is from head, so call below
 			//not required
 			Collections.sort(sells);
-			// TODO: I put this check in to avoid exceptions. What's intended if the list is empty?
+
 			if (!sells.isEmpty()) {
 				s.setBestOffer(sells.get(0).getPrice());
 			}

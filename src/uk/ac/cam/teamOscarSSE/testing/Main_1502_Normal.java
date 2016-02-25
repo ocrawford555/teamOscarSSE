@@ -47,7 +47,6 @@ public class Main_1502_Normal {
 		//create the exchange
 		exchange = new Exchange();
 
-		// TODO: temporary modification
 		try {
 			NewServer.start(8080, exchange);
 		} catch (IOException e) {

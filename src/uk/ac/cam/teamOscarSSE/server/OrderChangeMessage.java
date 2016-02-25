@@ -33,7 +33,7 @@ public class OrderChangeMessage {
 		CANCEL,     /* Order removed from exchange */
 		ACK,        /* Order acknowledged and added to exchange */
 		FAIL,       /* Failed to add order to exchange */
-		FILL,       /* Order filled and removed from exchange   TODO: NOT IMPLEMENTED */
+		FILL,       /* Order filled and removed from exchange */
 		UPDATE,     /* Partial fil */
 	}
 }

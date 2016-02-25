@@ -50,7 +50,6 @@ public class Main_1502_Boom {
 		//create the exchange
 		exchange = new Exchange();
 
-		// TODO: temporary modification
 		try {
 			NewServer.start(8080, exchange);
 		} catch (IOException e) {
@@ -71,7 +70,6 @@ public class Main_1502_Boom {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

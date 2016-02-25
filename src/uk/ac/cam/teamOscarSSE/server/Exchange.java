@@ -110,7 +110,7 @@ public class Exchange {
 	/**
 	 * Returns whether or not the exchange is open and able to accept orders.
 	 *
-	 * @return
+	 * @return true if the exchange is open
 	 */
 	public synchronized boolean isOpen() {
 		return open;
@@ -118,8 +118,8 @@ public class Exchange {
 
 	/**
 	 * Returns the timestamp of the last time a round was started.
-	 * 
-	 * @return
+	 *
+	 * @return the start time of the round
 	 */
 	public synchronized long getRoundStart() {
 		return startTime;
@@ -130,8 +130,8 @@ public class Exchange {
 	 * <p>
 	 * The round has indefinite length and will continue until endRound is called.
 	 *
-	 * @param stocks
-	 * @return
+	 * @param stocks the stocks offered by the exchange
+	 * @return true if a round was successfully started
 	 */
 	public synchronized boolean startRound(List<Stock> stocks) {
 		return startRound(stocks, -1, -1);
@@ -144,9 +144,9 @@ public class Exchange {
 	 * This method removes all inactive players from the previous round from the
 	 * exchange.
 	 *
-	 * @param stocks
-	 * @param roundLength
-	 * @return
+	 * @param stocks the stocks offered by the exchange
+	 * @param roundLength the length of the round
+	 * @return true if a round was successfully started
 	 */
 	public synchronized boolean startRound(List<Stock> stocks, int roundLength) {
 		return startRound(stocks, roundLength, -1);
@@ -156,10 +156,10 @@ public class Exchange {
 	 * Starts a round with the input stocks and sets a timer to stop the round after
 	 * roundLength seconds. After the round is over a count-down will be set indicating the time the next round will start.
 	 *
-	 * @param stocks
-	 * @param roundLength
+	 * @param stocks the stocks offered by the exchange
+	 * @param roundLength the length of the round
 	 * @param timeBetweenRounds
-	 * @return
+	 * @return true if a round was successfully started
 	 */
 	public synchronized boolean startRound(List<Stock> stocks, int roundLength, final int timeBetweenRounds) {
 		if (open) {
@@ -229,14 +229,13 @@ public class Exchange {
 	 * Ends a round in the exchange.
 	 * If the exchange already has a timer set to automatically end the round, returns false.
 	 *
-	 * @return
+	 * @return true if the round was successfully ended
 	 */
 	public synchronized boolean endRound() {
 		if (!open) {
 			System.err.println("Failed to end round: no round is in progress.");
 			return false;
 		} else if (endTime > System.currentTimeMillis()) {
-			// TODO: More informative output on endtime.
 			System.err.println("Failed to end round: round will automatically end.");
 			return false;
 		}
@@ -253,11 +252,11 @@ public class Exchange {
 	 * - the number of shares is <= 0
 	 * - the number of shares is above the maximum
 	 * - the stock does not exist
-	 * <p>
+	 *
 	 * This method assumes other properties of Order are valid, but may do other checks as well.
 	 *
-	 * @param order
-	 * @return
+	 * @param order the order to be checked
+	 * @return true if the order is valid
 	 */
 	private synchronized boolean validateOrder(Order order) {
 		if (order.getPrice() <= 0) {
@@ -282,7 +281,7 @@ public class Exchange {
 	 * Failure may be due to invalid orders (e.g. negative price), as well as
 	 * traders with insufficient funds/stocks.
 	 *
-	 * @param order
+	 * @param order the order to add to the exchange
 	 * @return OrderChangeMessage with type set to FAIL if the order did not go
 	 * through, and set to ACK if the order was successfully added to the exechange.
 	 */
@@ -361,8 +360,8 @@ public class Exchange {
 	 * <p>
 	 * Note that a completed order may no longer be in the exchange.
 	 *
-	 * @param orderNum
-	 * @return
+	 * @param orderNum the unique order number
+	 * @return the order corresponding to orderNum
 	 */
 	public synchronized Order getOrder(Long orderNum) {
 		return orders.get(orderNum);
@@ -371,8 +370,8 @@ public class Exchange {
 	/**
 	 * Get a trader's orders that are pending in the exchange.
 	 *
-	 * @param traderID
-	 * @return
+	 * @param traderID the unique token corresponding to the trader to lookup
+	 * @return a map from orderNum to order of the trader's pending orders
 	 */
 	public synchronized Map<Long, Order> getPendingOrders(String traderID) {
 		Trader trader = traders.get(traderID);
@@ -385,15 +384,13 @@ public class Exchange {
 	/**
 	 * Cancel all traders' orders, returning true upon success and false otherwise.
 	 *
-	 * @param traderID
-	 * @return
+	 * @param traderID the unique if of the trader
+	 * @return true if all orders were successfully removed
 	 */
 	public synchronized boolean removeAllOrders(String traderID) {
 		boolean good = true;
-		Set<Long> orders = getPendingOrders(traderID).keySet();
 
-		// TODO: temporary
-		Set<Long> orders2 = new TreeSet<Long>(orders);
+		Set<Long> orders2 = new TreeSet<>(getPendingOrders(traderID).keySet());
 
 		for (Long orderNum : orders2) {
 			if (!removeOrder(orderNum)) {
@@ -407,8 +404,8 @@ public class Exchange {
 	/**
 	 * Remove an order from the orderbook and trader's portfolio.
 	 *
-	 * @param orderNum
-	 * @return
+	 * @param orderNum the order number of the order to be removed
+	 * @return true if the order was successfully removed
 	 */
 	public synchronized boolean removeOrder(Long orderNum) {
 		// Check if both orderbook and trader contains ordernum.
@@ -439,7 +436,7 @@ public class Exchange {
 	 * It assumes all orders can go through as cash and stock were already blocked when the user submitted the order.
 	 * This allows users to trade with themselves, so a buy above their own sell will go through.
 	 *
-	 * @param ob
+	 * @param ob the orderbook in which to match orders
 	 */
 	private synchronized void matchOrders(OrderBook ob) {
 		if (ob.getBuys().size() == 0 || ob.getSells().size() == 0) {
@@ -492,11 +489,10 @@ public class Exchange {
 	/**
 	 * Adds a trader to the exchange.
 	 *
-	 * @param trader
+	 * @param trader the trader to be added to the exchange
 	 * @return True if successful, false if trader already exists in the exchange.
 	 */
 	public synchronized boolean addPlayer(Trader trader) {
-		// TODO: rename to addTrader
 		if (trader == null) {
 			System.err.println("trader should not be null.");
 			return false;
@@ -519,8 +515,8 @@ public class Exchange {
 	 * <p>
 	 * If the userToken does not exist or corresponds to a bot, null is returned.
 	 *
-	 * @param userToken
-	 * @return
+	 * @param userToken the unique user token
+	 * @return the player corresponding to the token, or null if it does not exist
 	 */
 	public synchronized Player getPlayer(String userToken) {
 		Trader trader = traders.get(userToken);
@@ -534,7 +530,7 @@ public class Exchange {
 	/**
 	 * Returns the set of symbols of the stocks available on the exchange.
 	 *
-	 * @return
+	 * @return the set of symbols of stocks available on the exchange
 	 */
 	public synchronized Set<String> getStockSymbols() {
 		return orderBooks.keySet();
@@ -543,8 +539,8 @@ public class Exchange {
 	/**
 	 * Returns the stock corresponding to the stock symbol.
 	 *
-	 * @param symbol
-	 * @return
+	 * @param symbol the symbol of the stock to look up, e.g. "BAML"
+	 * @return the stock corresponding to the stock symbol
 	 */
 	public synchronized Stock getStockForSymbol(String symbol) {
 		OrderBook orderBook = orderBooks.get(symbol);
@@ -558,26 +554,17 @@ public class Exchange {
 	/**
 	 * Returns a collection of "human" players that issued a valid order in the current/last round.
 	 *
-	 * @return
+	 * @return a collection of "human" players that issued a valid order in the exchange
 	 */
 	public synchronized Collection<Player> getPlayers() {
 		return activePlayers.values();
 	}
 
 	/**
-	 * Returns all players that have ever registered on the server.
-	 *
-	 * @return
-	 */
-	public synchronized Collection<Player> getAllPlayers() {
-		return players.values();
-	}
-
-	/**
 	 * Returns a collection of all traders on the exchange.
 	 * This includes "human" players as well as bots.
 	 *
-	 * @return
+	 * @return a collection of all traders on the exchange
 	 */
 	public synchronized Collection<Trader> getTraders() {
 		return traders.values();
@@ -587,7 +574,7 @@ public class Exchange {
 	 * Gets the number of milliseconds for which the exchange has been running
 	 * If the exchange is closed, returns the last uptime.
 	 *
-	 * @return
+	 * @return the number of milliseconds for which the exchange has been running
 	 */
 	public synchronized long getUptime() {
 		if (open) {
@@ -601,7 +588,7 @@ public class Exchange {
 	 * Gets the remaining number of milliseconds for which the exchange will be running
 	 * If the exchange is closed, returns the 0.
 	 *
-	 * @return
+	 * @return the remaining number of seconds for which the exchange will be running
 	 */
 	public synchronized long getRemainingTime() {
 		if (open) {
@@ -615,7 +602,7 @@ public class Exchange {
 	 * Returns the formatted time the exchange has been running.
 	 * If the exchange is closed, returns the last uptime.
 	 *
-	 * @return
+	 * @return the formmated time the exchange has been running
 	 */
 	public synchronized String getUptimeFormatted() {
 		return getDurationBreakdown(getUptime());
@@ -628,6 +615,11 @@ public class Exchange {
 		printOrderBooks(5);
 	}
 
+	/**
+	 * Outputs the order book, up to maxNum buys and maxNum sells.
+	 *
+	 * @param maxNum the maximum number of buys or sells to output
+	 */
 	public synchronized void printOrderBooks(int maxNum) {
 		for (OrderBook ob : orderBooks.values()) {
 			System.out.println("BUYS TOP " + maxNum);
@@ -644,27 +636,45 @@ public class Exchange {
 	/**
 	 * Returns the order book corresponding to the stock symbol.
 	 *
-	 * @param symbol
-	 * @return
+	 * @param symbol the stock symbol, e.g. "BAML"
+	 * @return the order book corresponding to the stock symbol
 	 */
 	public synchronized OrderBook getOrderBook(String symbol) {
 		return orderBooks.get(symbol);
 	}
 
+	/**
+	 * Prints to standard output if DEBUG is true at verbosity 1.
+	 * @param s the string to be printed
+	 */
 	private void debugPrint(String s) {
 		debugPrint(s, 1);
 	}
 
+	/**
+	 * Prints s to standard output if DEBUG is true and DEBUG_LEVEL >= level
+	 * @param s the string to print
+	 * @param level the level of the string, a lower level is printed more
+	 */
 	private void debugPrint(String s, int level) {
 		if (DEBUG && DEBUG_LEVEL >= level) {
 			System.out.println(s);
 		}
 	}
 
+	/**
+	 * Prints to standard error if DEBUG is true at verbosity 1.
+	 * @param s the string to be printed
+	 */
 	private void debugErrPrint(String s) {
 		debugErrPrint(s, 1);
 	}
 
+	/**
+	 * Prints s to standard error if DEBUG is true and DEBUG_LEVEL >= level
+	 * @param s the string to print
+	 * @param level the level of the string, a lower level is printed more
+	 */
 	private void debugErrPrint(String s, int level) {
 		if (DEBUG && DEBUG_LEVEL >= level) {
 			System.err.println(s);
