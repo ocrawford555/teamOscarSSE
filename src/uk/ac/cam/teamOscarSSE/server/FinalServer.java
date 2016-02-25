@@ -12,7 +12,6 @@ public class FinalServer {
 	static LeaderBoard lb;
 
 	// The number of simulation steps.
-	private static int NUM_SIM_STEPS = 600;
 	private static int roundLength = 30;
 	private static int timeBetweenRounds = 30;
 	
