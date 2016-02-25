@@ -260,7 +260,9 @@ public class UserProcessor {
 	 */
 	private static String registerUser(Exchange exchange, JSONObject requestData) {
 		
-		String name = (String) requestData.get("name");
+		int MAX_NAME_LENGTH = 24;
+		String name = ((String) requestData.get("name"));
+		name = name.substring(0, Math.min(name.length(), MAX_NAME_LENGTH));
 		String email = (String) requestData.get("email");
 
 		//Create a new player and add to the exchange's database
