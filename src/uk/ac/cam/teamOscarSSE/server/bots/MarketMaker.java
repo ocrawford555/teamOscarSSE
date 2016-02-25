@@ -65,7 +65,8 @@ public class MarketMaker extends Bot implements Runnable {
 		Random rand = new Random();
 		while (exchange.isOpen()) {
 			try{
-				int nextWait = rand.nextInt(100) + 25;
+				if (Thread.interrupted()) return;
+				int nextWait = rand.nextInt(50);
 				Thread.sleep(nextWait);
 				this.sendOrders();
 			}

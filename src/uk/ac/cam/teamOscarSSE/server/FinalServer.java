@@ -13,7 +13,7 @@ public class FinalServer {
 
 	// The number of simulation steps.
 	private static int NUM_SIM_STEPS = 600;
-	private static int roundLength = 40;
+	private static int roundLength = 45;
 	private static int timeBetweenRounds = 30;
 	
 	//Bot & Marketmaker threads
@@ -27,7 +27,7 @@ public class FinalServer {
 
 	public static void open() {
 		stocks.clear();
-		Stock stock1 = new Stock("BAML", "Bank of America", 5000,0.35f,3482,400);
+		Stock stock1 = new Stock("BAML", "Bank of America", 5000,0.22f,10000,500);
 		stocks.add(stock1);
 
 		//create the leader board
@@ -58,7 +58,7 @@ public class FinalServer {
 		//add some orders to the order book occasionally - not in the game for
 		//profit -> this bot is simulating normal consumers looking to buy and 
 		//sell stocks.
-		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),40,40,200);
+		MarketMaker mm = new MarketMaker(exchange, stocks.get(0),40,45,200);
 
 		//general bot in play for simplification only
 		GeneralBot gb = new GeneralBot(exchange, stocks.get(0));
@@ -150,11 +150,18 @@ public class FinalServer {
 			
 			if (cycle) {
 				try {
+					
 					generalBot.start();
 					System.out.println("General bot started");
 					Thread.sleep(15*1000);
 					generalBot.interrupt();
 					System.out.println("General bot finished");
+					
+					recessionBot.start();
+					System.out.println("Recession bot started");
+					Thread.sleep(15*1000);
+					recessionBot.interrupt();
+					System.out.println("Recession bot finished");
 					
 					boomBot.start();
 					System.out.println("Boom bot started");
@@ -162,11 +169,8 @@ public class FinalServer {
 					boomBot.interrupt();
 					System.out.println("Boom bot finished");
 					
-					recessionBot.start();
-					System.out.println("Recession bot started");
-					Thread.sleep(15*1000);
-					recessionBot.interrupt();
-					System.out.println("Recession bot finished");
+					
+					
 					
 				} catch (InterruptedException e) {
 					e.printStackTrace();

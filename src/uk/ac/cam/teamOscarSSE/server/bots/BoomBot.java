@@ -43,25 +43,36 @@ public class BoomBot extends Bot implements Runnable {
 		int volume3 = rand.nextInt(TMAX);
 		long stockP = stock.getStockPrice();
 
-		long buyPrice1 = stockP + 125 + rand.nextInt(5);
-		long buyPrice2 = stockP + 170 + rand.nextInt(15);
-		long buyPrice3 = stockP + 50;
+		long buyPrice1 = stockP + 300 + rand.nextInt(200);
+		long buyPrice2 = stockP + 700 + rand.nextInt(150);
+		long buyPrice3 = stockP + 100;
+//		
+//		long buyPrice1 = stockP + 30;
+//		long buyPrice2 = stockP + 70;
+//		long buyPrice3 = stockP + 10;
 
 		Order buyOrder1 = new BuyOrder(stock, this, volume1, buyPrice1);
 		Order buyOrder2 = new BuyOrder(stock, this, volume2, buyPrice2);
 		Order buyOrder3 = new BuyOrder(stock, this, volume3, buyPrice3);
 
-		long sellPrice1 = stockP + 40 + rand.nextInt(5);
-		long sellPrice2 = stockP + 20;
+		long sellPrice1 = stockP + 500 + rand.nextInt(100);
+		long sellPrice2 = stockP + 650;
+		long sellPrice3 = stockP + 200;
+		
+//		long sellPrice1 = stockP + 50;
+//		long sellPrice2 = stockP + 65;
+//		long sellPrice3 = stockP + 20;
 
 		Order sellOrder1 = new SellOrder(stock, this, volume1/2, sellPrice1);
 		Order sellOrder2 = new SellOrder(stock, this, volume2/2, sellPrice2);
+		Order sellOrder3 = new SellOrder(stock, this, volume3/2, sellPrice3);
 
 		super.submitOrder(buyOrder1);
 		super.submitOrder(buyOrder2);
 		super.submitOrder(buyOrder3);
 		super.submitOrder(sellOrder1);
-		submitOrder(sellOrder2);
+		super.submitOrder(sellOrder2);
+		super.submitOrder(sellOrder3);
 	}
 
 	@Override
@@ -74,7 +85,8 @@ public class BoomBot extends Bot implements Runnable {
 		Random rand = new Random();
 		while (super.exchange.isOpen()) {
 			try {
-				int nextWait = rand.nextInt(100) + 25;
+				if (Thread.interrupted()) return;
+				int nextWait = rand.nextInt(100);
 				Thread.sleep(nextWait);
 				this.sendOrders();
 			} catch (InterruptedException e) {

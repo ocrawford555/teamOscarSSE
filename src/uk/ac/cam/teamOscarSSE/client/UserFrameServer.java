@@ -518,7 +518,7 @@ public class UserFrameServer implements Runnable {
 
 	@Override
 	public final void run() {
-		long startTime = System.currentTimeMillis();
+		//long startTime = System.currentTimeMillis();
 
 		// Get the stocks available on the exchange.
 		List<String> stocks = getStocks();
@@ -534,7 +534,7 @@ public class UserFrameServer implements Runnable {
 
 
 		while(true){
-			if (System.currentTimeMillis() - startTime > 46000) return;
+			//if (System.currentTimeMillis() - startTime > 46000) return;
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {

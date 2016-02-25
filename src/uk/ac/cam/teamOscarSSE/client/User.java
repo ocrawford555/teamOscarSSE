@@ -15,19 +15,19 @@ public class User {
 			
 			@Override
 			public boolean Buy(){
-				//return (getPointAvg(5) > getPointAvg(20));
-				return false;
+				//return getTransactionAvg(5) >= getTransactionAvg(20);
+				return true;
 			}
 			@Override
 			public int volumeToBuy() {
 				//Algorithm how many shares to buy
-				return (getMaxBuy()/100);
+				return topBuyQuant()[0];
 			}
 			@Override
 			public boolean Sell(){
 				//Algorithm when to sell shares
 				//return (getPointAvg(5) < getPointAvg(20));
-				return false;
+				return true;
 			}
 			@Override
 			public int volumeToSell() {
@@ -43,7 +43,8 @@ public class User {
 			
 			@Override
 			public boolean Buy(){
-				return (getPointAvg(5) > getPointAvg(20));
+				//return (getPointAvg(5) > getPointAvg(20));
+				return true;
 			}
 			@Override
 			public int volumeToBuy() {
