@@ -211,6 +211,8 @@ canvas {
 	border-radius: 4px;
 	transition: top 0.1s, opacity 0.4s 0.4s;
 	-webkit-filter: drop-shadow(hsla(0, 0%, 0%, 0.4) 0 1px 1px);
+	overflow: hidden;
+    text-overflow: ellipsis;
 	cursor: default;
 }
 .identifier::before {
