@@ -1,5 +1,5 @@
 # teamOscarSSE
-Simulated Stock Exchange for Part IB Group Project
+##Simulated Stock Exchange for Part IB Group Project
 
 --
 
