@@ -34,5 +34,5 @@ Start the server with the following command:
 
 `java uk.ac.cam.teamOscarSSE.server.FinalServer`
 
-### Leaderboard
-Open `interface/index.html`
+#### Leaderboard
+Open `interface/index.html` while the server is running.
