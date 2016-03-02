@@ -189,7 +189,7 @@ const Graph = {
 		const canvas = Graph.temporary;
 		let context = canvas.getContext("2d");
 		const now = Leaderboard.halted === null ? performance.now() : Leaderboard.halted;
-		const duration = 1000 * 30;
+		const duration = 1000 * 45;
 		// Update the graph bounds
 		Graph.drawnBounds.update();
 		// Clear the canvas
