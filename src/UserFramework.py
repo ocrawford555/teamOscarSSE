@@ -20,8 +20,6 @@ pointAvg = []
 transAvg = []
 rateOfChange = []
 
-#current_milli_time = lambda: int(round(time.time() * 1000))
-
 def getMaxBuy():
     global maxBuy
     return maxBuy
@@ -30,7 +28,7 @@ def getMaxSell():
     global maxSell
     return maxSell
 
-def getPrice():
+def getStockPrice():
     global stockPrice
     return stockPrice
 
@@ -38,49 +36,81 @@ def getOverallAvg():
     global overallAvg
     return overallAvg
 
-def getBuys():
+def topBuyPrices():
     global buys
-    return buys
+    mini = min(5, len(buys))
+    top = [0, 0, 0, 0, 0]
+    if len(buys) != 0:
+        for i in range(0,mini):
+            temp = buys[i]
+            top[i] = temp.values()[0]
+    return top
 
-def getSells():
+def topSellPrices():
     global sells
-    return sells
+    mini = min(5, len(sells))
+    top = [0, 0, 0, 0, 0]
+    if len(sells) != 0:
+        for i in range(0,mini):
+            temp = sells[i]
+            top[i] = temp.values()[0]
+    return top
 
-def getBestBuy():
+def topBuyQuant():
+    global buys
+    mini = min(5, len(buys))
+    top = [0, 0, 0, 0, 0]
+    if len(buys) != 0:
+        for i in range(0,mini):
+            temp = buys[i]
+            top[i] = temp.values()[1]
+    return top
+
+def topSellQuant():
+    global sells
+    mini = min(5, len(sells))
+    top = [0, 0, 0, 0, 0]
+    if len(sells) != 0:
+        for i in range(0,mini):
+            temp = sells[i]
+            top[i] = temp.values()[1]
+    return top
+
+def getBestBuyPrice():
     global buys
     if buys!= []:
         for k in buys:
             for a,b in k.items():
                 return b
     else:
-        return getPrice()
+        return getStockPrice()
 
-def getBestSell():
+def getBestSellPrice():
     global sells
     if sells != []:
         for k in sells:
             for a,b in k.items():
                 return b
     else:
-        return getPrice()
+        return getStockPrice()
 
-def getPA(index):
+def getPointAvg(index):
     global pointAvg
-    if index < pointAvg.count and pointAvg != []:
+    if index < len(pointAvg) and pointAvg != []:
         return pointAvg[index]
     else:
         return 0
 
-def getTA(index):
+def getTransactionAvg(index):
     global transAvg
-    if index < transAvg.count and transAvg != []:
+    if index < len(transAvg) and transAvg != []:
         return transAvg[index]
     else:
         return 0
 
-def getROC(index):
+def getRateOfChange(index):
     global rateOfChange
-    if index < rateOfChange.count and rateOfChange != []:
+    if index < len(rateOfChange) and rateOfChange != []:
         return rateOfChange[index]
     else:
         return 0
@@ -163,6 +193,20 @@ def obtainOrderBook(urlA):
     except ConnectionError:
         print('Error obtaining order book, sorry.')
 
+def debugPrint():
+    global stockPrice, overallAvg, cash, maxBuy, maxSell, \
+    buys, sells, pointAvg, transAvg, rateOfChange
+
+    print('Stock : ' + str(stockPrice))
+    print('OveAge : ' + str(overallAvg))
+    print('Cash : ' + str(cash))
+    print('Max Buy : ' + str(maxBuy))
+    print('Max Sell : ' + str(maxSell))
+    print('pointAvg : ' + str(pointAvg[0]))
+    print('transAvg : ' + str(transAvg[0]))
+    print('ROC : ' + str(rateOfChange[2]))
+
+
 
 def runAlgo(name,Buy,Sell,PriceToBuy,PriceToSell,VolToBuy,VolToSell):
     registerUser(name, url)
@@ -182,3 +226,4 @@ def runAlgo(name,Buy,Sell,PriceToBuy,PriceToSell,VolToBuy,VolToSell):
                 submitSell(url,VolToSell(),PriceToSell(),token)
 
             obtainOrderBook(url)
+            #debugPrint()

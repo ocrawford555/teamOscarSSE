@@ -1,30 +1,27 @@
 from UserFramework import runAlgo, getMaxBuy, getMaxSell, \
-    getPrice, getOverallAvg, getBuys, getSells, \
-    getBestBuy, getBestSell, getPA, getTA, getROC
+    getStockPrice, getOverallAvg, getBestBuyPrice, getBestSellPrice, \
+    getPointAvg, getTransactionAvg, getRateOfChange, getCash, \
+    topBuyPrices, topSellPrices, topBuyQuant, topSellQuant
 
 def Buy():
-    return getPA(5) > getPA(20)
+    return True
 
 def Sell():
-    return getPA(5) < getPA(20)
+    return True
 
-def PriceToBuy():
-    currPrice = getBestBuy() + 1
-    return currPrice
+def priceToBuy():
+    return getStockPrice()
 
-def PriceToSell():
-    currPrice = getBestSell() - 1
-    return currPrice
+def priceToSell():
+    return getStockPrice()
 
-def VolToBuy():
-    maxCanBuy = getMaxBuy()/50
-    return maxCanBuy
+def volumeToBuy():
+    return getMaxBuy()
 
-def VolToSell():
-    maxCanSell = getMaxSell()/50
-    return maxCanSell
+def volumeToSell():
+    return getMaxSell()
 
 #runs the game
-#enter name below
-runAlgo('Python', Buy, Sell, PriceToBuy, PriceToSell, VolToBuy, VolToSell)
+#enter name below to begin trading!
+runAlgo('Enter_Name_Here', Buy, Sell, priceToBuy, priceToSell, volumeToBuy, volumeToSell)
 
